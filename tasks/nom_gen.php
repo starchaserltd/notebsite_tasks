@@ -104,7 +104,7 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// CPU PRODUCER GENERATION
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_prod'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_prod' AND valid=1";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -132,7 +132,7 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// CPU CORES GENERATION
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_core_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_core_min' ";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
@@ -411,7 +411,7 @@ while($rand = mysqli_fetch_array($result))
 	if($rand["arch"])
 	{
 		$name=$rand["arch"];
-		$sel2="SELECT DISTINCT prod FROM notebro_db.GPU WHERE arch LIKE '$name' LIMIT 1";
+		$sel2="SELECT DISTINCT prod FROM notebro_db.GPU WHERE arch LIKE '$name'  AND valid=1 LIMIT 1";
 		$result2 = mysqli_query($con, $sel2);
 		$rand2 = mysqli_fetch_array($result2);
 		$prod=$rand2["prod"];
@@ -839,7 +839,7 @@ $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'price_max'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
-$sel="SELECT DISTINCT id FROM notebro_db.MODEL";
+$sel="SELECT DISTINCT id FROM notebro_db.MODEL ";
 $models = mysqli_fetch_all(mysqli_query($con, $sel));
 $min=99999999; $max=0;
 foreach($models as $model)

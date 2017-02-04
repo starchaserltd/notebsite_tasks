@@ -1,6 +1,10 @@
 <?php
 
 echo "Start";
+$multicons=dbs_connect();
+foreach ($multicons as $cons)
+{ var_dump($cons); echo "<br>";}
+echo "<br><br>";
 
 /////// FIRST LETS GET THE COMPONENT FILTER LIST
 	if($cpu_s)
@@ -114,20 +118,21 @@ echo "Start";
 			$sel_uni="SELECT ".$fields." FROM $component WHERE id=$x";
 			$result = mysqli_query($GLOBALS['con'], "$sel_uni");
 
-
-			while($rand = mysqli_fetch_array($result)) 
-			{ 
-				if($component!="HDD")
-				{
-				$uni_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>floatval($rand[3]));
+			if($result)
+			{
+				while($rand = mysqli_fetch_array($result)) 
+				{ 
+					if($component!="HDD")
+					{
+					$uni_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>floatval($rand[3]));
+					}
+					else
+					{
+					$uni_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>floatval($rand[3]),"cap"=>intval($rand[4]),"type"=>strval($rand[5]));
+					}
 				}
-				else
-				{
-				$uni_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>floatval($rand[3]),"cap"=>intval($rand[4]),"type"=>strval($rand[5]));
-				}
+				mysqli_free_result($result);
 			}
-			mysqli_free_result($result);
-
 		}
 	       // echo "Done";
 		return($uni_return);
@@ -142,34 +147,27 @@ echo "Start";
 
 if (isset($_SESSION['temp_configs'])) {
     $sel2="DROP TABLE IF EXISTS notebro_temp.".$_SESSION['temp_configs'].";";
-    mysqli_query($con,$sel2) or die(mysqli_error());
+	mysqli_query($multicons[$server],$sel2) or die(mysqli_error());
+
 }	
 
-$sel2 = '
-USE notebro_temp;
-CALL allconf_tbl();
-SELECT @tablename;
-USE notebro_db;';
+$sel2 = 'USE notebro_temp; CALL allconf_tbl(); SELECT @tablename; ';
+//mysqli_multi_query($cons, $sel2) or die (mysqli_error ($cons) . " The query was:" . $sel2);
+$cons=$multicons[$server];
+	if (mysqli_multi_query($cons,$sel2)) { mysqli_next_result($cons);
+		do {
+			// Store first result set 
+			if ($result=mysqli_store_result($cons)) {
+				while ($row=mysqli_fetch_row($result)) {
+					$temp_table=$row[0];
+				}
+				mysqli_free_result($result);
+			}
+		}
+		while (mysqli_more_results($cons) && mysqli_next_result($cons));
+	}
 
-/*
-mysqli_multi_query($con, $sel2)
-    or die (mysqli_error ($con) . " The query was:" . $sel2);
-*/
-    
-if (mysqli_multi_query($con,$sel2)) {
-    do {
-        // Store first result set
-        if ($result=mysqli_store_result($con)) {
-            while ($row=mysqli_fetch_row($result)) {
-                $temp_table=$row[0];
-
-            }
-            mysqli_free_result($result);
-        }
-    }
-    while (mysqli_more_results($con) && mysqli_next_result($con));
-}
-
+mysqli_query($con,"USE notebro_db;");
 
 $nr_configs=1;
 
@@ -177,7 +175,8 @@ $nr_configs=1;
 ///// BUILD TEMPORARY CONFIGURATIONS TABLE /////	
 function generate_configs(
         $con,
-		$model_id,
+        $multicons,
+	$model_id,
         $cpu_list,
         $gpu_list,
         $display_list,
@@ -201,7 +200,6 @@ function generate_configs(
         $shdd_s) {
 
     $ex=0;
-
 
 	global $nr_configs, $cpu_i, $gpu_i, $display_i, $wnet_i, $hdd_i, $odd_i, $war_i, $shdd_i, $acum_i, $chassis_i, $mdb_i, $mem_i, $sist_i;
 
@@ -613,7 +611,7 @@ function generate_configs(
 																									//echo "<br>"; 
 																									//monetdb_query($sel2);
 																									/*
-																									while (!mysqli_query($con,$sel2))
+																									while (!mysqli_query($cons,$sel2))
 																									{ 
 																										$randid=rand(1,10000000); 
 																										$sel2 = "INSERT INTO notebro_temp.$temp_table (id, model,cpu, display, mem, hdd, shdd, gpu, wnet, odd, mdb, chassis, acum, war, sist, rating, price, value, err, batlife) VALUES ($randid, $raw[id], $cpu_id, $display_id, $mem_id, $hdd_id, $shdd_id, $gpu_id, $wnet_id, $odd_id, $mdb_id, $chassis_id, $acum_id, $war_id, $sist_id, $c_rating, $c_price, $c_value, $c_err, $c_battery_life_f)";
@@ -708,6 +706,7 @@ foreach($model_ids as $model_id) {
 
 	$configs = generate_configs(
 		$con,
+		$multicons,
 		$model_id,
 		$cpu_list,
 		$gpu_list,
@@ -732,19 +731,22 @@ foreach($model_ids as $model_id) {
 		$shdd_s);
 		
 	
-	$create_table = "USE notebro_temp; SET @p0='all_conf_".$model_id."'; CALL allconf_tbl2(@p0); USE notebro_db;";
-	if (mysqli_multi_query($con, $create_table)) {
+	$create_table = "USE notebro_temp; SET @p0='all_conf_".$model_id."'; CALL allconf_tbl2(@p0);";
+$cons=$multicons[$server];
+	if (mysqli_multi_query($cons, $create_table)) {
     do {
         // Store first result set
-        if ($result=mysqli_store_result($con)) {
+        if ($result=mysqli_store_result($cons)) {
             while ($row=mysqli_fetch_row($result)) {
 
             }
             mysqli_free_result($result);
         } 
     }
-    while (mysqli_more_results($con) && mysqli_next_result($con));
-}
+    while (mysqli_more_results($cons) && mysqli_next_result($cons));
+} 
+
+mysqli_query($con, "USE notebro_db;");
 
 	$INSERT_QUERY = "INSERT INTO notebro_temp." . $temp_table . "_" . $model_id . " (id, model, cpu, display, mem, hdd, shdd, gpu, wnet, odd, mdb, chassis, acum, war, sist, rating, price, value, err, batlife, capacity) VALUES ";
 	$INSERT_ID_MODEL = "INSERT INTO notebro_temp.$temp_table (id, model) VALUES ";
@@ -752,11 +754,11 @@ foreach($model_ids as $model_id) {
 	foreach(chunk($configs, $BATCH_SIZE) as $i => $chunk) {
 		$chunk_array = iterator_to_array($chunk);
 		$query = $INSERT_QUERY . implode(", ", array_map("values_to_str", $chunk_array));
-		//
-		mysqli_query($con, $query) or die(mysqli_error($con));
+		$cons=$multicons[$server];
+		{ mysqli_query($cons, $query) or die(mysqli_error($con)); }
 		$query_id_model = $INSERT_ID_MODEL . implode(", ", array_map("values_to_str", array_map(function ($xs) { return array_slice($xs, 0, 2); }, $chunk_array)));
-		mysqli_query($con, $query_id_model) or die(mysqli_error($con));
-		set_time_limit(30);
+		mysqli_query($cons, $query_id_model) or die(mysqli_error($cons));
+		set_time_limit(1000);
 		//break 2;
 	}
 }
@@ -764,7 +766,7 @@ foreach($model_ids as $model_id) {
 $time_end = microtime(true);
 
 $execution_time = ($time_end - $time_start);
-
+foreach ($multicons as $cons) { mysqli_close($cons); }
 printf("Time elapsed: %.6f s\n", $execution_time);
 
 ?>

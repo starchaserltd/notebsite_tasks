@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 //echo getcwd() . "\n";
 
 // "cpu","acum","mem","display","hdd","shdd","gpu","wnet","odd","mdb","chassis","warranty","sist"
-require_once("con_db.php");
+require_once("../etc/con_db.php");
 $allcomp = array("cpu","acum","mem","display","hdd","shdd","gpu","wnet","odd","mdb","chassis","warranty","sist"); //print_r($allcomp);
 $i=0;
 for ($i = 0; $i<= count($allcomp); $i++) {

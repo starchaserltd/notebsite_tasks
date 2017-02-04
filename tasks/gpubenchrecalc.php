@@ -1,5 +1,5 @@
 <?php
-require_once("con_db.php");
+require_once("../etc/con_db.php");
 
 // 3DMark 2013 Fire Strike Standard GPU
 // Cinebench R15 OpenGL 64Bit

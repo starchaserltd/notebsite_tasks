@@ -1,5 +1,5 @@
 <?php
-require_once("con_db.php");
+require_once("../etc/con_db.php");
 
 $nr = 0;
 $sel="SELECT * FROM notebro_db.MODEL WHERE inactive = '1'";

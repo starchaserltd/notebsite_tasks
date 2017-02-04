@@ -1,6 +1,6 @@
 <?php
 
-require_once("con_db.php");
+require_once("../etc/con_db.php");
 mysqli_select_db($con,"notebro_rate");
 
 /* CPU RATING */

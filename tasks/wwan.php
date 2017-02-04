@@ -1,6 +1,6 @@
 <?php 
 
-include("con_db.php");
+include("../etc/con_db.php");
 
 $sql="SELECT * FROM MDB";
 $result=mysqli_query($con,$sql);

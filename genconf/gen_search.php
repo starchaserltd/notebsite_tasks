@@ -6,7 +6,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 echo getcwd() . "\n";
 */
-require_once("etc/session.php");
+require_once("../etc/session.php");
 
 //require_once '/usr/share/php/monetdb/php_monetdb.php';
 //$db = monetdb_connect("sql" , "localhost", 50000, "notebro_db" , "nBdBnologin@2", "all_conf");
@@ -18,7 +18,13 @@ require_once("etc/session.php");
 if(strcmp("kMuGLmlIzCWmkNbtksAh",$_SESSION['auth'])==0)
 {
 //$_SESSION['auth']=0;
-require_once("etc/con_db.php");
+require_once("../etc/con_db.php");
+require_once("../etc/con_sdb.php");
+
+if(isset($_GET["s"]))
+{ $server=(int)$_GET["s"]; }
+else
+{ $server=0; }
 
 //initializare 1 variabila pentru functii
 $cpu_tdpmin=0.01; $gpu_powermin=0.00; $display_hresmin=0.01; $hdd_capmin=0.01; $war_yearsmin=0.01; $acum_capmin=0.01; $wnet_ratemin=0.01; $sist_pricemax=1; $odd_speedmin=0.00; $mem_capmin=0.01; $mdb_ratemin=0.01; $chassis_weightmin=0.01; 
@@ -37,9 +43,9 @@ require("lib/gen_confg.php");
 //echo "da";
 
 //	echo "Number of configurations found:".$ex."<br>";
-/*
+/* 
 	$sel3="SELECT * FROM notebro_temp.$temp_table ORDER BY RAND() LIMIT 5";
-	$result = mysqli_query($con, $sel3) ;
+	$result = mysqli_query($cons, $sel3) ;
 		
 		while($rand = mysqli_fetch_array($result)) 
 		{ 

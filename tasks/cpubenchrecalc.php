@@ -1,5 +1,5 @@
 <?php
-require_once("con_db.php");
+require_once("../etc/con_db.php");
 
 // Cinebench R15 - Single 64-bit
 // Cinebench R15 - Multi 64-bit

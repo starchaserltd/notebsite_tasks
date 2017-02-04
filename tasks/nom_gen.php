@@ -5,7 +5,8 @@ ini_set('display_errors', 1);
 */
 echo "It works!<br>";
 require_once("../etc/con_db.php");
-
+require_once("../etc/con_sdb.php");
+$cons=$multicons[0];
 ////// Nomenclatoare Modele
 
 mysqli_query($con, "TRUNCATE notebro_site.nomen_models;");
@@ -845,7 +846,7 @@ $min=99999999; $max=0;
 foreach($models as $model)
 {
 $sel="SELECT MIN(price), MAX(price) FROM notebro_temp.all_conf_".$model[0];
-$rand = mysqli_fetch_array(mysqli_query($con, $sel));
+$rand = mysqli_fetch_array(mysqli_query($cons, $sel));
 if($min>$rand[0] && $rand[0]!=NULL) { $min=$rand[0];} //echo $model[0]; echo " "; var_dump($rand); echo "<br>";
 if($max<$rand[1] && $rand[1]!=NULL) { $max=$rand[1];}
 }
@@ -876,7 +877,7 @@ $min=99999999; $max=0;
 foreach($models as $model)
 {
 $sel="SELECT MIN(batlife), MAX(batlife) FROM notebro_temp.all_conf_".$model[0];
-$rand = mysqli_fetch_array(mysqli_query($con, $sel));
+$rand = mysqli_fetch_array(mysqli_query($cons, $sel));
 if($min>$rand[0] && $rand[0]!=NULL) { $min=$rand[0]; /*$mymodel=$model[0];*/ } //echo $model[0]; echo " "; var_dump($rand); echo "<br>";
 if($max<$rand[1] && $rand[1]!=NULL) { $max=$rand[1];}
 }

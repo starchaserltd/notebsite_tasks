@@ -6,7 +6,9 @@ ini_set('display_errors', 1);
 echo "It works!<br>";
 require_once("../etc/con_db.php");
 require_once("../etc/con_sdb.php");
+$multicons=dbs_connect();
 $cons=$multicons[0];
+
 ////// Nomenclatoare Modele
 
 mysqli_query($con, "TRUNCATE notebro_site.nomen_models;");
@@ -105,7 +107,7 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// CPU PRODUCER GENERATION
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_prod' AND valid=1";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_prod'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -245,7 +247,7 @@ $sel="SELECT DISTINCT tech FROM notebro_db.CPU WHERE valid=1 ORDER BY tech ASC";
 $result = mysqli_query($con, $sel);
 
 $insert=""; 
-
+$nametech="";
 while($rand = mysqli_fetch_array($result)) 
 { 
 	if($rand["tech"])
@@ -683,7 +685,7 @@ foreach ($object as $msc)
 	
 	//echo "a "; echo $msc; echo " "; var_dump($propthis[$i]); echo "a<br>";
 	
-	if($propthis[$i])
+	if(isset($propthis[$i]) && $propthis[$i])
 	{
 		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', '$msc','$propthis[$i]');";
 		//echo $insert;
@@ -1452,8 +1454,6 @@ if (mysqli_multi_query($con, $insert)) {
     echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
 
-mysqli_free_result($result);
-
 
 //CHASSIS max CHASSISWEB values
 
@@ -1546,9 +1546,6 @@ if (mysqli_multi_query($con, $insert)) {
     echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
 
-
-mysqli_free_result($result);
-
 //// CHASSIS Input ports
 
 $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mb_port'";
@@ -1608,9 +1605,6 @@ if (mysqli_multi_query($con, $insert)) {
 } else {
     echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
-
-
-mysqli_free_result($result);
 
 
 //// CHASSIS Material
@@ -1861,8 +1855,6 @@ if (mysqli_multi_query($con, $insert)) {
     echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
 
-
-mysqli_free_result($result);
 
 
 /////// CHASSIS WEB Min Max

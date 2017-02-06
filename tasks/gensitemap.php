@@ -1,8 +1,9 @@
 <?php
 
-$wp_site="http://notebro.intexim.ro/admin/wp/article.php";
+$wp_site="http://34.194.182.255/vault/wp/article.php";
 $new_site="http://noteb.com/?content/article.php?";
-$wp_imgsite="http://notebro.intexim.ro/admin/wp/wp-content/uploads";
+$wp_imgsite="http://34.194.182.255/vault/wp/wp-content/uploads";
+$wp_imgsite2="http://notebro.intexim.ro/admin/wp/wp-content/uploads";
 $new_imgsite="http://noteb.com/uploads";
 $dom=new DOMDocument();
 $dom->formatOutput = true;
@@ -13,21 +14,23 @@ $elements=$root->getElementsByTagName('url');
 foreach ($elements as $element) 
 {
     $loc=$element->getElementsByTagName('loc')->item(0)->textContent;
-	$element->getElementsByTagName('loc')->item(0)->textContent=str_replace($wp_site,$new_site,$loc);
+	$newlink=str_replace($wp_site,$new_site,$loc);
+	$newlink=str_replace("article.php?/review/","review.php?/",$newlink);
+	$newlink=str_replace("/article/","/",$newlink);
+	$element->getElementsByTagName('loc')->item(0)->textContent=str_replace($wp_site,$new_site,$newlink);
 	$image=$element->getElementsByTagName('image');
 	foreach ($image as $el)
 	{
-		if(strpos($el->textContent,"\n"))
-		{
-		$subel=explode("\n",$el->textContent);
-		$image=str_replace($wp_imgsite,$new_imgsite,$subel[1]);
+
+		$subel=explode("\n",str_replace($wp_imgsite,$new_imgsite,$el->textContent));
+		$image=str_replace($wp_imgsite2,$new_imgsite,$subel[1]);
 		$caption=$subel[2];
 		$title=$subel[3];
 		$el->textContent="";
 		$el->appendChild($dom->createElement("image:loc",ltrim($image)));
 		$el->appendChild($dom->createElement("image:caption",ltrim($caption)));
 		$el->appendChild($dom->createElement("image:title",ltrim($title)));
-		}
+		
 	}
 	if(!($element->getElementsByTagName('changefreq')))
 	{
@@ -111,7 +114,7 @@ while($row=mysqli_fetch_assoc($result))
 		if($row["pic"]!="")
 		{
 		$newel2=$newel->appendChild($dom->createElement("image:image"));
-		$newel2->appendChild($dom->createElement("image:loc","http://noteb.com/res/".$row["pic"]));
+		$newel2->appendChild($dom->createElement("image:loc","http://noteb.com/res".$row["pic"]));
 		$newel2->appendChild($dom->createElement("image:caption","Logo for ".$row["brand"]));
 		$newel2->appendChild($dom->createElement("image:title",$row["brand"]));
 		}
@@ -121,36 +124,15 @@ while($row=mysqli_fetch_assoc($result))
 
 
 echo $dom->saveXML();
-
-//$dom->saveXML(); // This will return the XML as a string
-//$dom->save('../../sitemap/sitemap.xml'); // This saves the XML to a file
-
-/*
-	if ($wp_udinra_ping_google == true) {
-		$udinra_ping_url ='';
-		$udinra_ping_url = "http://www.google.com/webmasters/tools/ping?sitemap=" . urlencode($udinra_tempurl);
-		$udinra_response = wp_remote_get( $udinra_ping_url );
-		if (is_wp_error($udinra_response)) {
-		}
-		else {
-		if($udinra_response['response']['code']==200)
-			{ $udinra_sitemap_response .= "Pinged Google Successfully"."<br>"; }
-			else { $udinra_sitemap_response .= "Failed to ping Google.Please submit your image sitemap(sitemap-image.xml) at Google Webmaster."."<br>";}}}
-
-			
-			
-			*/
-			/*
-* Sitemap Submitter
-* Use this script to submit your site maps automatically to Google, Bing.MSN and Ask
-* Trigger this script on a schedule of your choosing or after your site map gets updated.
-*/
+$dom->save('/var/www/noteb/sitemap/sitemap.xml'); // This saves the XML to a file
 
 //Set this to be your site map URL
-//$sitemapUrl = "http://www.example.com/sitemap.xml";
+//$sitemapUrl = "http://noteb.com/sitemap/sitemap.xml";
 
 // cUrl handler to ping the Sitemap submission URLs for Search Engines…
-/*
+$i=0;
+if($i)
+{
 function myCurl($url){
   $ch = curl_init($url);
   curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -159,7 +141,7 @@ function myCurl($url){
   curl_close($ch);
   return $httpCode;
 }
-
+$sitemapUrl=
 //Google
 $url = "http://www.google.com/webmasters/sitemaps/ping?sitemap=".$sitemapUrl;
 $returnCode = myCurl($url);
@@ -170,8 +152,9 @@ $url = "http://www.bing.com/ping?siteMap=".$sitemapUrl;
 $returnCode = myCurl($url);
 echo "<p>Bing / MSN Sitemaps has been pinged (return code: $returnCode).</p>";
 
-//ASK
-$url = "http://submissions.ask.com/ping?sitemap=".$sitemapUrl;
+//Yandex
+$url = "http://blogs.yandex.ru/pings/?status=success&url=".$sitemapUrl;
 $returnCode = myCurl($url);
-echo "<p>ASK.com Sitemaps has been pinged (return code: $returnCode).</p>";*/
+echo "<p>Yandex.ru Sitemaps has been pinged (return code: $returnCode).</p>";
+}
 ?>

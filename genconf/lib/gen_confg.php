@@ -443,7 +443,7 @@ function generate_configs(
 																				$c_rating+=$gpu["rating"]*$gpu_i;
 																				$c_price+=$gpu["price"]; // echo $c_price."gpu";
 																				//echo $c_battery_life; echo "a";
-																				$gpu_bat_life=floatval($gpu["tdp"])/7;
+																				$gpu_bat_life=floatval($gpu["tdp"])/8;
 																				$testvalue=$c_battery_life; $c_battery_life+=$gpu_bat_life; 
 																				//echo "consumption:".$c_battery_life."endofc<br>";
 																				$c_err+=$gpu["price"]*$gpu["err"]/100;
@@ -456,9 +456,9 @@ function generate_configs(
 																						$c_price+=$display["price"]; // echo $c_price."display";
 																								
 																						if(stripos($display["backt"],"OLED")!==FALSE)
-																					    { $c_display_pwc=((floatval($display["size"])*0.10)+(pow(intval($display["res"]),0.6)*0.0002))*0.9; }
+																					    { $c_display_pwc=((floatval($display["size"])*0.10)+(pow(intval($display["res"]),0.6)*0.0002))*0.6; }
 																						else
-																						{ $c_display_pwc=((floatval($display["size"])*0.10)+(pow(intval($display["res"]),0.6)*0.0002))*1; }
+																						{ $c_display_pwc=((floatval($display["size"])*0.10)+(pow(intval($display["res"]),0.6)*0.0002))*0.7; }
 																					
 																							$c_battery_life+=$c_display_pwc;
 																						//echo "consumption:".$display["res"]."res".$c_battery_life."endofc<br>";

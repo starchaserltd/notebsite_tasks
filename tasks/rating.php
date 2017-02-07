@@ -121,43 +121,41 @@ $stuff = mysqli_fetch_all($result);
 $rownr=mysqli_num_rows($result);
 $result = mysqli_query($con, $sql2);
 $maxminvalues = mysqli_fetch_array($result);
-/*
-$normalize_cap=$maxminvalues[0]/sqrt((pow($maxminvalues[0],2))+(pow($maxminvalues[0],2)));
-$normalize_rspeed=($maxminvalues[1])-($maxminvalues[4]);
-$normalize_wspeed=($maxminvalues[2])-($maxminvalues[5]);
-*/
-
+echo $maxminvalues[5]." ".$maxminvalues[2]." ".$maxminvalues[5]."<br>";
+$value=array();
 //var_dump($maxminvalues);
 for($i=0;$i<$rownr;$i++)
 {
-	$y1=($stuff[$i][2]-758.9)/sqrt(617479.1);
-	$y2=($stuff[$i][4]-710.1)/sqrt(867064.3);
-	$y3=($stuff[$i][5]-499.5)/sqrt(563243.5);
-	   $value = 56.2 +
-            23.1 * $y1 +
-            16.8 * $y2 +
-            11.2 * $y3 +
-            -3.0 * $y1 ** 2 +
-            4.4 * $y1 * $y2 +
-            0.7 * $y1 * $y3 +
-            -7.3 * $y2 ** 2 +
-            -4.7 * $y2 * $y3 +
-            1.9 * $y3 ** 2;
-	
-	
-//$cap_prerate=$stuff[$i][2]/sqrt(pow($stuff[$i][2],2)+pow($maxminvalues[0],2));
-//$value=(((($cap_prerate)/$normalize_cap)+0.00001)*0.40+((($stuff[$i][4]-$maxminvalues[4])/$normalize_rspeed)+0.000001)*0.3+((($stuff[$i][5]-$maxminvalues[5])/$normalize_wspeed)+0.000001)*0.3)*100;
-//echo "<br>";
-//var_dump(($normalize_cap-$cap_prerate)/$normalize_cap);
-//if(($stuff[$i][3]<=>"SSD")==0)
-//$value=$value*0.95;
+	$y1 = ($stuff[$i][2] - $maxminvalues[3]) / ($maxminvalues[0] - $maxminvalues[3]);
+	$y2 = ($stuff[$i][4] - $maxminvalues[4]) / ($maxminvalues[1] - $maxminvalues[4]);
+	$y3 = ($stuff[$i][5] - $maxminvalues[5]) / ($maxminvalues[2] - $maxminvalues[5]);
+   $value[$i] = 0.1055 +
+		0.0000 * 1 +
+		1.3442 * $y1 +
+		1.0524 * $y2 +
+		0.5089 * $y3 +
+		-0.8364 * $y1 ** 2 +
+		0.6889 * $y1 * $y2 +
+		0.3242 * $y1 * $y3 +
+		-1.1796 * $y2 ** 2 +
+		-0.5726 * $y2 * $y3 +
+		0.1091 * $y3 ** 2;
+	$value[$i]*=100;
+}
 
-if($value<=0)
-{$value=0.0001;}
+//$minvalue=min($value);
+$maxvalue=max($value);
+
+for($i=0;$i<$rownr;$i++)
+{
+	$value[$i]=($value[$i]/$maxvalue)*100;
+
+if($value[$i]<=0)
+{$value[$i]=0.0001;}
 
 //echo "<br>";
 //var_dump($value);
-$sql="UPDATE HDD SET rating=$value WHERE id=".$stuff[$i][0];
+$sql="UPDATE HDD SET rating=$value[$i] WHERE id=".$stuff[$i][0];
 mysqli_query($con, $sql);
 }
 
@@ -508,6 +506,12 @@ $mmsc[$id]=0;
 		$mmsound[$id][1]=0.25;
 		
 	}
+	elseif(stripos($stuff[$i][12],"Cirrus")!==FALSE)
+	{
+		$mmsound[$id][0]="Cirrus";
+		$mmsound[$id][1]=0.3;
+		
+	}
 	else
 	{
 		$mmsound[$id][0]="NA";
@@ -542,6 +546,9 @@ foreach($stuff2 as $key=>$z)
 	$hface[$id]=$hface[$id]/$maxiface;
 	
 	if($mmsound[$id][0]=="Creative")
+	{ $mmsc[$id]+=$mmsound[$id][1]; }
+
+	if($mmsound[$id][0]=="Cirrus")
 	{ $mmsc[$id]+=$mmsound[$id][1]; }
 
 	if($mmsound[$id][0]=="Realtek")

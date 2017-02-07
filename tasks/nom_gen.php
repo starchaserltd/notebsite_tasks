@@ -1758,6 +1758,9 @@ while($rand = mysqli_fetch_array($result))
 					if(strcasecmp($x,"Force Touch")==0 && $z)
 					{ $z=0; }
 					
+					if(strcasecmp($x,"Multi-Touch")==0 && $z)
+					{ $z=0; }
+					
 					if(strcasecmp($x,"Standard")==0 && $z)
 					{ $z=0; }
 				
@@ -1813,7 +1816,8 @@ while($rand = mysqli_fetch_array($result))
 						if((stripos($x,"RS-232")!==FALSE) && $z){ $z=0; }
 						if((stripos($x,"ExpressCard")!==FALSE) && $z){ $z=0; }
 						if((stripos($x,"SmartCard")!==FALSE) && $z){ $z=0; }
-						if((stripos($x,"SIM card")!==FALSE) && $z){ $z=0; }						
+						if((stripos($x,"SIM card")!==FALSE) && $z){ $z=0; }	
+						if((stripos($x,"Touch Bar")!==FALSE) && $z){ $z=0; }							
 						
 						if((stripos($x,"Rear camera")!==FALSE) && $z)
 						{

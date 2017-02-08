@@ -1,5 +1,6 @@
+#!/usr/bin/php
 <?php
-require_once("../etc/con_db.php");
+require_once("/var/www/vault/etc/con_db.php");
 
 // Open CURL session:
 $ch = curl_init("https://openexchangerates.org/api/latest.json?app_id=7537371e89274e929c77d1f8d038bd81");

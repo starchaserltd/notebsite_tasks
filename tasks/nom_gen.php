@@ -1496,6 +1496,7 @@ $type=$rand["id"];
 $sel="SELECT DISTINCT vi FROM notebro_db.CHASSIS WHERE valid=1";
 $result = mysqli_query($con, $sel);
 $object=(array) [];
+$elements="";
 while($rand = mysqli_fetch_array($result)) 
 { 
 	if($rand[0])
@@ -1506,6 +1507,7 @@ while($rand = mysqli_fetch_array($result))
 		for($i=0; $i<count($elements); $i++)
 		{
 		$k=1;
+		//var_dump($elements[$i]); var_dump($i);
 		switch($elements[$i])
 			{
 				case (strpos($elements[$i],'urst') !== false):

@@ -1,6 +1,6 @@
 <?php
 
-$nrservers=1; /* SET NUMBER OF SERVERS */
+$nrservers=1; // SET NUMBER OF SERVERS
 set_time_limit($nrservers*400);
 
 $ch=array();

@@ -21,7 +21,7 @@ if($exchangeRates->rates->RON)
 
 foreach ($exchangeRates->rates as $country=>$value) {
     
-			$sel = "UPDATE exchrate SET rate=$value WHERE code='$country'";
+			$sel = "UPDATE notebro_site.exchrate SET rate=$value WHERE code='$country'";
 			mysqli_query($con,$sel);
 	
 }

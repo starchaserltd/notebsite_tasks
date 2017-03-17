@@ -1,5 +1,5 @@
 <?php
-
+ini_set('memory_limit', '128M');
 echo "Start";
 $multicons=dbs_connect();
 foreach ($multicons as $cons)
@@ -151,7 +151,7 @@ if (isset($_SESSION['temp_configs'])) {
 
 }	
 
-$sel2 = 'USE notebro_temp; CALL allconf_tbl(); SELECT @tablename; ';
+$sel2 = 'USE notebro_temp; CALL delete_tbls(); CALL allconf_tbl(); SELECT @tablename; ';
 //mysqli_multi_query($cons, $sel2) or die (mysqli_error ($cons) . " The query was:" . $sel2);
 $cons=$multicons[$server];
 	if (mysqli_multi_query($cons,$sel2)) { mysqli_next_result($cons);
@@ -684,11 +684,60 @@ function values_to_str($xs) {
     return "(" . implode(", ", $xs) . ")";
 }
 
+function chunk_to_json($chunk) {
+	$to_json = function ($c) {
+		return array(
+			"MODEL" => $c[1],
+			"CPU" => $c[2],
+			"DISPLAY" => $c[3],
+			"MEM" => $c[4],
+			"HDD" => $c[5],
+			"SHDD" => $c[6],
+			"GPU" => $c[7],
+			"WNET" => $c[8],
+			"ODD" => $c[9],
+			"MDB" => $c[10],
+			"CHASSIS" => $c[11],
+			"ACUM" => $c[12],
+			"WAR" => $c[13],
+			"SIST" => $c[14]
+		);
+	};
+
+	$xss = array_map($to_json, $chunk);
+	$xss = array_map(function ($xs) { return array_map('intval', $xs); }, $xss);
+	return json_encode(array("ids" => $xss));
+}
+
+function post_request_to_web_service($json_data) {
+	$opts=array(
+		'http' => array(
+			'method' => "POST",
+			'header' => "Content-Type: application/x-www-form-urlencoded",
+			'content' => $json_data
+		)
+	);
+	$context = stream_context_create($opts);
+	$file=file_get_contents('http://0.0.0.0:6667/predict',false,$context);
+	return json_decode($file,false);
+}
+
+function replace_prices(&$chunk_array, $prices) {
+	$i=0;
+	foreach($chunk_array as $key => $row)
+	{
+		$chunk_array[$key][16]=$prices[$i]; //price
+		$chunk_array[$key][17]=$chunk_array[$key][15]/$prices[$i]; //value
+		$chunk_array[$key][18]=$prices[$i]*0.09; //err
+		$i++;
+	}
+}
+
 $BATCH_SIZE = 15000;
 $time_start = microtime(true);
 
 mysqli_query($con,"CALL ABCORDER();");
-$query_model = "SELECT DISTINCT id FROM notebro_db.MODEL;";
+$query_model = "SELECT DISTINCT id FROM notebro_db.MODEL";
 $result = mysqli_query($con,$query_model);
 
 $model_ids = array();
@@ -750,9 +799,12 @@ mysqli_query($con, "USE notebro_db;");
 
 	$INSERT_QUERY = "INSERT INTO notebro_temp." . $temp_table . "_" . $model_id . " (id, model, cpu, display, mem, hdd, shdd, gpu, wnet, odd, mdb, chassis, acum, war, sist, rating, price, value, err, batlife, capacity) VALUES ";
 	$INSERT_ID_MODEL = "INSERT INTO notebro_temp.$temp_table (id, model) VALUES ";
-
+//$raw["id"], $cpu_id, $display_id, $mem_id, $hdd_id, $shdd_id, $gpu_id, $wnet_id, $odd_id, $mdb_id, $chassis_id, $acum_id, $war_id, $sist_id,
 	foreach(chunk($configs, $BATCH_SIZE) as $i => $chunk) {
 		$chunk_array = iterator_to_array($chunk);
+		$json_data = chunk_to_json($chunk_array);
+		$prices = post_request_to_web_service($json_data);
+		replace_prices($chunk_array, $prices);
 		$query = $INSERT_QUERY . implode(", ", array_map("values_to_str", $chunk_array));
 		$cons=$multicons[$server];
 		{ mysqli_query($cons, $query) or die(mysqli_error($con)); }

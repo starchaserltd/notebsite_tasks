@@ -1,8 +1,34 @@
+<style>
+	.button_plugin {
+	color:#fff;
+	border-color: #245580;
+	margin-bottom:3px;
+	padding:10px;
+	border-radius:10px;
+	background-image: linear-gradient(to bottom,#337ab7 0,#265a88 100%);
+	width:300px;
+		}
+</style>
+<button type="button" class="button_plugin" onclick ="javascript:history.go(-1)">GO BACK</button>
 <?php
 /*
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', 1);
 */
+
+
+//*************************************FOR THE WORDPRESS ADMIN CONECTION *********************************************
+//require_once("../wp/wp-content/plugins/admin_notebro/con/conf.php");
+//echo $allowdirect;
+//***********************************************************************************************************************
+ 
+ 
+$allowdirect = 1;
+
+if(isset($allowdirect) && $allowdirect>0){
+	
+	
+	
 echo "It works!<br>";
 require_once("../etc/con_db.php");
 require_once("../etc/con_sdb.php");
@@ -568,8 +594,30 @@ if (mysqli_multi_query($con, $insert)) {
 }
 
 
+/////// GPU Lunch Date GENERATION
 
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_ldate_min'";
+$rand = mysqli_fetch_array(mysqli_query($con, $sel));
+$type1=$rand["id"];
 
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_ldate_max'";
+$rand = mysqli_fetch_array(mysqli_query($con, $sel));
+$type2=$rand["id"];
+
+$sel="SELECT MIN(ldate), MAX(ldate) FROM notebro_db.GPU WHERE valid=1";
+$rand = mysqli_fetch_array(mysqli_query($con, $sel));
+
+$min=$rand[0];
+$insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$min');";
+	
+$max=$rand[1];
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
+
+if (mysqli_multi_query($con, $insert)) { 
+    echo "New gpu_ldate created successfully<br>"; 	while ( mysqli_next_result($con) ) {;} 
+} else {
+    echo "Error: " . $insert. "<br>" . mysqli_error($con);
+}
 
 //// GPU MSC Generation
 
@@ -1788,6 +1836,12 @@ while($rand = mysqli_fetch_array($result))
 					if(strcasecmp($x,"Standard"))
 					{
 						
+						if((strpos($x,"IP")!==FALSE) && $z)
+						{
+							$z=0;
+						}
+						
+						
 						if(((stripos($x,"swap bridge")!==FALSE) || (stripos($x,"ethernet adapter")!==FALSE)) && $z)
 						{
 
@@ -1807,6 +1861,8 @@ while($rand = mysqli_fetch_array($result))
 							$object[]="Legacy ports";
 							$z=0;
 						}
+												
+						
 						
 						if((stripos($x,"olufsen")!==FALSE) || (stripos($x,"jbl")!==FALSE) || (stripos($x,"klipsch")!==FALSE) || (stripos($x,"dynaudio")!==FALSE) || (stripos($x,"sonicmaster")!==FALSE) && $z)
 						{
@@ -1819,7 +1875,8 @@ while($rand = mysqli_fetch_array($result))
 						if((stripos($x,"ExpressCard")!==FALSE) && $z){ $z=0; }
 						if((stripos($x,"SmartCard")!==FALSE) && $z){ $z=0; }
 						if((stripos($x,"SIM card")!==FALSE) && $z){ $z=0; }	
-						if((stripos($x,"Touch Bar")!==FALSE) && $z){ $z=0; }							
+						if((stripos($x,"Touch Bar")!==FALSE) && $z){ $z=0; }
+						if((stripos($x,"VGA")!==FALSE) && $z){ $z=0; }						
 						
 						if((stripos($x,"Rear camera")!==FALSE) && $z)
 						{
@@ -1832,7 +1889,7 @@ while($rand = mysqli_fetch_array($result))
 				
 				if($z) {  $object[]=$x; }
 				
-				if($x=="")
+				if($z && $x=="IP65")
 					echo $rand[0];
 				}
 			
@@ -1941,4 +1998,10 @@ if (mysqli_multi_query($con, $insert)) {
 mysqli_free_result($result);
 
 mysqli_close($con);
+
+} else {
+	echo '<script language="javascript">';
+	echo 'alert("You do not have permission!!!")';
+	echo '</script>';
+	}
 ?>

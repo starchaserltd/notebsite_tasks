@@ -24,36 +24,41 @@ import numpy as np  # type: ignore
 from pandas import (  # type: ignore
     DataFrame,
     read_csv,
+    read_sql_query,
 )
 
-from scipy.stats import describe
+from scipy.stats import describe  # type: ignore
 
-from sklearn.ensemble import AdaBoostRegressor
+from sklearn.ensemble import AdaBoostRegressor  # type: ignore
 
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeRegressor  # type: ignore
 
-from sklearn.kernel_ridge import KernelRidge
+from sklearn.kernel_ridge import KernelRidge  # type: ignore
 
-from sklearn.linear_model import (
+from sklearn.linear_model import (  # type: ignore
     LinearRegression,
     Ridge,
 )
 
-from sklearn.model_selection import (
+from sklearn.model_selection import (  # type: ignore
     train_test_split,
     KFold,
     RandomizedSearchCV,
 )
 
-from sklearn.preprocessing import (
+from sklearn.preprocessing import (  # type: ignore
     StandardScaler,
     OneHotEncoder,
     PolynomialFeatures,
 )
 
-from sklearn.svm import SVR
+from sklearn.svm import SVR  # type: ignore
 
-from xgboost import XGBRegressor
+from sqlalchemy.engine import create_engine  # type: ignore
+
+from urllib.parse import quote_plus as urlquote
+
+from xgboost import XGBRegressor  # type: ignore
 
 
 SEED = 1337
@@ -71,7 +76,11 @@ def remove_ext(filename):
     return name
 
 
-def load_data(path: str) -> DataFrame:
+def create_sql_engine(host, port, username, password, db):
+    return create_engine("mysql+pymysql://{}:{}@{}:{}/{}".format(username, urlquote(password), host, port, db))
+
+
+def load_data_csv(path: str) -> DataFrame:
     dateparse = lambda x: datetime.datetime.strptime(x, '%Y-%m-%d')
     dataframe = read_csv(
         path,
@@ -80,6 +89,19 @@ def load_data(path: str) -> DataFrame:
         date_parser=dateparse,
     )
     dataframe.fillna('', inplace=True)
+    return dataframe
+
+
+def load_data_sql() -> DataFrame:
+    with open('query.sql', 'r') as f:
+        query = f.read()
+    db_params = json.load(open('credentials.json', 'r')).get('database_r')
+    sql_engine = create_sql_engine(**db_params)
+    dataframe = read_sql_query(
+        query,
+        sql_engine,
+        parse_dates=['CPU_ldate', 'GPU_ldate'],
+    )
     return dataframe
 
 
@@ -165,13 +187,54 @@ def print_predictions(data, preds, verbose):
         #    if e > 10))
 
 
+
+db_params = json.load(open('credentials.json', 'r')).get('database_w')
+sql_engine = create_sql_engine(**db_params)
+connection_w = sql_engine.connect()
+today = datetime.date.today()
+
+
+def write_to_sql_config_to_check(row, pred, error):
+    INSERT_1 = "INSERT INTO configs_to_check(model, cpu, display, mem, hdd, shdd, gpu, wnet, odd, mdb, chassis, acum, war, sist, realprice, predprice, date, valid) values ({})"
+    INSERT_2 = "INSERT INTO models_to_check(model, error, date, valid) values ({})"
+    cols_1 = [
+        row.model,
+        row.CPU_id,
+        row.DISPLAY_id,
+        row.MEM_id,
+        row.HDD_id,
+        row.SHDD_id,
+        row.GPU_id,
+        row.WNET_id,
+        row.ODD_id,
+        row.MDB_id,
+        row.CHASSIS_id,
+        row.ACUM_id,
+        row.WAR_id,
+        row.SIST_id,
+        row.realprice,
+        pred,
+        today,
+        0,
+    ]
+    cols_2 = [
+        row.model,
+        error,
+        today,
+        0,
+    ]
+    connection_w.execute(INSERT_1.format(','.join(map(lambda c: '"{}"'.format(c), cols_1))))
+    connection_w.execute(INSERT_2.format(','.join(map(lambda c: '"{}"'.format(c), cols_2))))
+
+
 def save_predictions(data, preds):
     relative_errors = rel_error(select_targets(data), preds)
     with open('/tmp/test_predictions.csv', 'a') as f:
-        for id_, model, r_price, pred, rel_e in zip(np.array(data.id), data.model, data.realprice, preds, relative_errors):
+        for id_, model, r_price, pred, rel_e, (_, datum) in zip(np.array(data.id), data.model, data.realprice, preds, relative_errors, data.iterrows()):
             if rel_e <= 30:
                 continue
             f.write('{:d},{:d},{:.2f},{:.2f},{:.2f}\n'.format(model, id_, r_price, pred, rel_e))
+            write_to_sql_config_to_check(datum, pred, rel_e)
 
 
 def print_results(results: List[float]):
@@ -628,8 +691,9 @@ class ModelProdTransformer(BaseTransformer):
             "HP",
             "LG",
             "Lenovo",
-            "MSI",
+            "Medion",
             "Microsoft",
+            "MSI",
             "Panasonic",
             "Porsche Design",
             "Razer",
@@ -1114,7 +1178,13 @@ def main():
 
     rm('/tmp/test_predictions.csv')
     classifier = GET_ESTIMATOR[args.estimator](SELECT_FEATURES[args.features])
-    data = load_data('data/{}.csv'.format(args.data))
+
+    if args.data:
+        load_data = lambda: load_data_csv('data/{}.csv'.format(args.data))
+    else:
+        load_data = lambda: load_data_sql()
+
+    data = load_data()
 
     if 'evaluate' in args.todo:
         tr_errors, te_errors = evaluate(classifier, data, 2)

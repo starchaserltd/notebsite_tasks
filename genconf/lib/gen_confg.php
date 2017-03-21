@@ -797,22 +797,27 @@ $cons=$multicons[$server];
 
 mysqli_query($con, "USE notebro_db;");
 
-	$INSERT_QUERY = "INSERT INTO notebro_temp." . $temp_table . "_" . $model_id . " (id, model, cpu, display, mem, hdd, shdd, gpu, wnet, odd, mdb, chassis, acum, war, sist, rating, price, value, err, batlife, capacity) VALUES ";
-	$INSERT_ID_MODEL = "INSERT INTO notebro_temp.$temp_table (id, model) VALUES ";
-//$raw["id"], $cpu_id, $display_id, $mem_id, $hdd_id, $shdd_id, $gpu_id, $wnet_id, $odd_id, $mdb_id, $chassis_id, $acum_id, $war_id, $sist_id,
-	foreach(chunk($configs, $BATCH_SIZE) as $i => $chunk) {
-		$chunk_array = iterator_to_array($chunk);
-		$json_data = chunk_to_json($chunk_array);
-		$prices = post_request_to_web_service($json_data);
-		replace_prices($chunk_array, $prices);
-		$query = $INSERT_QUERY . implode(", ", array_map("values_to_str", $chunk_array));
-		$cons=$multicons[$server];
-		{ mysqli_query($cons, $query) or die(mysqli_error($con)); }
-		$query_id_model = $INSERT_ID_MODEL . implode(", ", array_map("values_to_str", array_map(function ($xs) { return array_slice($xs, 0, 2); }, $chunk_array)));
-		mysqli_query($cons, $query_id_model) or die(mysqli_error($cons));
-		set_time_limit(1000);
-		//break 2;
+	if(!isset($memory_limit) || (isset($memory_limit) && $nr_configs<$memory_limit))
+	{
+		$INSERT_QUERY = "INSERT INTO notebro_temp." . $temp_table . "_" . $model_id . " (id, model, cpu, display, mem, hdd, shdd, gpu, wnet, odd, mdb, chassis, acum, war, sist, rating, price, value, err, batlife, capacity) VALUES ";
+		$INSERT_ID_MODEL = "INSERT INTO notebro_temp.$temp_table (id, model) VALUES ";
+	//$raw["id"], $cpu_id, $display_id, $mem_id, $hdd_id, $shdd_id, $gpu_id, $wnet_id, $odd_id, $mdb_id, $chassis_id, $acum_id, $war_id, $sist_id,
+		foreach(chunk($configs, $BATCH_SIZE) as $i => $chunk) {
+			$chunk_array = iterator_to_array($chunk);
+			$json_data = chunk_to_json($chunk_array);
+			$prices = post_request_to_web_service($json_data);
+			replace_prices($chunk_array, $prices);
+			$query = $INSERT_QUERY . implode(", ", array_map("values_to_str", $chunk_array));
+			$cons=$multicons[$server];
+			{ mysqli_query($cons, $query) or die(mysqli_error($con)); }
+			$query_id_model = $INSERT_ID_MODEL . implode(", ", array_map("values_to_str", array_map(function ($xs) { return array_slice($xs, 0, 2); }, $chunk_array)));
+			mysqli_query($cons, $query_id_model) or die(mysqli_error($cons));
+			set_time_limit(1000);
+			//break 2;
+		}
 	}
+	else
+	{ echo "Preventing memory overflow, insertation aborded!<br>"; }
 }
 
 $time_end = microtime(true);

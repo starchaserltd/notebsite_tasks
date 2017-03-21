@@ -1,8 +1,15 @@
+#!/usr/bin/php
 <?php
 
 //all 172.31.2.33 172.31.4.253 172.31.1.219
 //active 172.31.2.33 172.31.4.253
 //inactive 172.31.1.219
+
+echo "\r\n"; echo "<br>DATE: ";
+echo "*********   ";
+echo date('l jS \of F Y h:i:s A');
+echo "   ********\r\n"; echo "<br>";
+
 function db_super_connect()
 {
    static $link;
@@ -25,9 +32,27 @@ function db_super_connect()
     return $link;
 }
 
+echo "Doing the ratings!<br>";
+$ch = curl_init('http://86.123.134.34/admin/tasks/rating.php');
+curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+curl_setopt($ch, CURLOPT_HTTPHEADER, array("X-HTTP-Method-Override: GET"));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT ,60);
+$result = curl_exec($ch);
+if($result === false){
+echo curl_error($ch);
+}
+else
+{ var_dump($result);}
+curl_close($ch);
+echo "<br>";
+
+//require_once("/var/www/vault/tasks/rating.php");
+usleep(30000);
+
 $con_super=db_super_connect();
 mysqli_query($con_super,"STOP SLAVE");
-require_once("/var/www/vault/tasks/rating.php");
 
 $file_address="/var/www/noteb/etc/sservers";
 $servers=file($file_address, FILE_SKIP_EMPTY_LINES);
@@ -75,19 +100,18 @@ while($loop)
 		$string=""; foreach($servers as $line) { $string.=implode(" ",$line);  $string.="\r\n"; }
 		$myfile = fopen($file_address, "wb") or die("Unable to open file!"); fwrite ($myfile,$string); fclose($myfile);
 
-		/* RUN THE CODE FOR THESE SERVERS */
+		// RUN THE CODE FOR THESE SERVERS //
 		echo "It is working!";
 		
 		set_time_limit($nr_mservers*7200);
 		$ch=array();
 		$mh = curl_multi_init();
-		curl_setopt($mh, CURLOPT_TIMEOUT, $nr_mservers*7200);
 		$i=0;
 		foreach($movetoinactive as $value)
 		{
 			$skey=array_search($value,$servers[0]);
 			
-			$ch[$i] = curl_init('http://localhost/vault/genconf/gen_search.php?s='.$skey);
+			$ch[$i] = curl_init('http://172.31.0.196/vault/genconf/gen_search.php?s='.$skey);
 			curl_setopt($ch[$i], CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch[$i], CURLOPT_TIMEOUT, 7200);
 			curl_setopt($ch[$i], CURLOPT_CONNECTTIMEOUT ,60);
@@ -95,12 +119,23 @@ while($loop)
 			curl_multi_add_handle($mh, $ch[$i]);
 			$i++;
 		}
-
+		//curl_setopt($mh, CURLOPT_TIMEOUT, $nr_mservers*7200);
+		
 		// execute all queries simultaneously, and continue when all are complete
-		$running = null;
+		$running = null; $mrc=null;
 		do {
-			curl_multi_exec($mh, $running);
-		} 	while ($running);
+			$mrc = curl_multi_exec($mh, $running);
+		} 	while ($running && $mrc == CURLM_CALL_MULTI_PERFORM);
+	  
+		while ($running && $mrc == CURLM_OK) {
+			if (curl_multi_select($mh) == -1) {
+				usleep(100);
+			}
+		do {
+			$mrc = curl_multi_exec($mh, $running);
+		} while ($mrc == CURLM_CALL_MULTI_PERFORM);
+		}
+	  
 	  
 		// all of our requests are done, we can now access the results
 		$response_1 = curl_multi_getcontent($ch[0]);
@@ -129,5 +164,5 @@ while($loop)
 	$set=1;
 	$loop--;
 }
-mysqli_query($con_super,"START SLAVE");
+mysqli_query($con_super,"START SLAVE"); mysqli_close($con_super);
 ?>

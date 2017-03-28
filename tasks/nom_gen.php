@@ -896,19 +896,23 @@ $min=99999999; $max=0;
 foreach($models as $model)
 {
 $sel="SELECT MIN(price), MAX(price) FROM notebro_temp.all_conf_".$model[0];
-$rand = mysqli_fetch_array(mysqli_query($cons, $sel));
-if($min>$rand[0] && $rand[0]!=NULL) { $min=$rand[0];} //echo $model[0]; echo " "; var_dump($rand); echo "<br>";
-if($max<$rand[1] && $rand[1]!=NULL) { $max=$rand[1];}
+$minmaxbudget=mysqli_query($cons, $sel);
+	if(isset($minmaxbudget)
+	{
+		$rand = mysqli_fetch_array($minmaxbudget);
+		if($min>$rand[0] && $rand[0]!=NULL) { $min=$rand[0];} //echo $model[0]; echo " "; var_dump($rand); echo "<br>";
+		if($max<$rand[1] && $rand[1]!=NULL) { $max=$rand[1];}
+	
+		$insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$min');";
+		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
+		
+		if (mysqli_multi_query($con, $insert)) { 
+			echo "New pricese created successfully<br>"; 	while ( mysqli_next_result($con) ) {;} 
+		} else {
+			echo "Error: " . $insert. "<br>" . mysqli_error($con);
+		}
+	}
 }
-$insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$min');";
-$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
-
-if (mysqli_multi_query($con, $insert)) { 
-    echo "New pricese created successfully<br>"; 	while ( mysqli_next_result($con) ) {;} 
-} else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
-}
-
 
 
 /////// Acum batlife Min Max

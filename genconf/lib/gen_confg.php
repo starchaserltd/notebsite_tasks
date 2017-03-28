@@ -728,7 +728,7 @@ function replace_prices(&$chunk_array, $prices) {
 	{
 		$chunk_array[$key][16]=$prices[$i]; //price
 		$chunk_array[$key][17]=$chunk_array[$key][15]/$prices[$i]; //value
-		$chunk_array[$key][18]=$prices[$i]*0.09; //err
+		$chunk_array[$key][18]=$prices[$i]*0.075; //err
 		$i++;
 	}
 }

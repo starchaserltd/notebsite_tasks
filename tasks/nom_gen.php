@@ -895,9 +895,9 @@ $models = mysqli_fetch_all(mysqli_query($con, $sel));
 $min=99999999; $max=0;
 foreach($models as $model)
 {
-$sel="SELECT MIN(price), MAX(price) FROM notebro_temp.all_conf_".$model[0];
-$minmaxbudget=mysqli_query($cons, $sel);
-	if(isset($minmaxbudget)
+	$sel="SELECT MIN(price), MAX(price) FROM notebro_temp.all_conf_".$model[0];
+	$minmaxbudget=mysqli_query($cons, $sel);
+	if(isset($minmaxbudget))
 	{
 		$rand = mysqli_fetch_array($minmaxbudget);
 		if($min>$rand[0] && $rand[0]!=NULL) { $min=$rand[0];} //echo $model[0]; echo " "; var_dump($rand); echo "<br>";

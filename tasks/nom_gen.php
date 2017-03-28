@@ -897,7 +897,7 @@ foreach($models as $model)
 {
 	$sel="SELECT MIN(price), MAX(price) FROM notebro_temp.all_conf_".$model[0];
 	$minmaxbudget=mysqli_query($cons, $sel);
-	if(isset($minmaxbudget))
+	if(isset($minmaxbudget) && $minmaxbudget!=FALSE)
 	{
 		$rand = mysqli_fetch_array($minmaxbudget);
 		if($min>$rand[0] && $rand[0]!=NULL) { $min=$rand[0];} //echo $model[0]; echo " "; var_dump($rand); echo "<br>";
@@ -931,9 +931,13 @@ $min=99999999; $max=0;
 foreach($models as $model)
 {
 $sel="SELECT MIN(batlife), MAX(batlife) FROM notebro_temp.all_conf_".$model[0];
-$rand = mysqli_fetch_array(mysqli_query($cons, $sel));
-if($min>$rand[0] && $rand[0]!=NULL) { $min=$rand[0]; /*$mymodel=$model[0];*/ } //echo $model[0]; echo " "; var_dump($rand); echo "<br>";
-if($max<$rand[1] && $rand[1]!=NULL) { $max=$rand[1];}
+	$minmaxbat=mysqli_query($cons, $sel);
+	if(isset($minmaxbat) && $minmaxbat!=FALSE)
+	{
+		$rand = mysqli_fetch_array($minmaxbat);
+		if($min>$rand[0] && $rand[0]!=NULL) { $min=$rand[0]; /*$mymodel=$model[0];*/ } //echo $model[0]; echo " "; var_dump($rand); echo "<br>";
+		if($max<$rand[1] && $rand[1]!=NULL) { $max=$rand[1];}
+	}
 }
 //var_dump($mymodel);
 $insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$min');";

@@ -1564,16 +1564,18 @@ while($rand = mysqli_fetch_array($result))
 		{
 		$k=1;
 		//var_dump($elements[$i]); var_dump($i);
-		switch($elements[$i])
-			{
-				case (strpos($elements[$i],'urst') !== false):
-				$k=0;
-				break;
-				case "FreeSync":
-				$elements[$i]="G-Sync/FreeSync";	
-				break;
-			}
-			
+		if(isset($elements[$i]))
+		{
+			switch($elements[$i])
+				{
+					case (strpos($elements[$i],'urst') !== false):
+					$k=0;
+					break;
+					case "FreeSync":
+					$elements[$i]="G-Sync/FreeSync";	
+					break;
+				}
+		}	
 			if(!(in_array($elements[$i],$object))&&$k)
 			{
 				

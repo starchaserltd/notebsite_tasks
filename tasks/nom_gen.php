@@ -1567,20 +1567,21 @@ while($rand = mysqli_fetch_array($result))
 		if(isset($elements[$i]))
 		{
 			switch($elements[$i])
-				{
-					case (strpos($elements[$i],'urst') !== false):
-					$k=0;
-					break;
-					case "FreeSync":
-					$elements[$i]="G-Sync/FreeSync";	
-					break;
-				}
-		}	
+			{
+				case (strpos($elements[$i],'urst') !== false):
+				$k=0;
+				break;
+				case "FreeSync":
+				$elements[$i]="G-Sync/FreeSync";	
+				break;
+			}
+				
 			if(!(in_array($elements[$i],$object))&&$k)
 			{
 				
 				$object[]=$elements[$i];
 			}
+		}
 		}
 		}
 }

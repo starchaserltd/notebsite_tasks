@@ -21,6 +21,7 @@ if(strcmp("kMuGLmlIzCWmkNbtksAh",$_SESSION['auth'])==0)
 //$_SESSION['auth']=0;
 require_once("../etc/con_db.php");
 require_once("../etc/con_sdb.php");
+require_once("../etc/con_rdb.php");
 
 if(isset($_GET["s"]))
 { $server=(int)$_GET["s"]; }

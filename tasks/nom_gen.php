@@ -902,17 +902,20 @@ foreach($models as $model)
 		$rand = mysqli_fetch_array($minmaxbudget);
 		if($min>$rand[0] && $rand[0]!=NULL) { $min=$rand[0];} //echo $model[0]; echo " "; var_dump($rand); echo "<br>";
 		if($max<$rand[1] && $rand[1]!=NULL) { $max=$rand[1];}
-	
-		$insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$min');";
-		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
-		
-		if (mysqli_multi_query($con, $insert)) { 
-			echo "New pricese created successfully<br>"; 	while ( mysqli_next_result($con) ) {;} 
-		} else {
-			echo "Error: " . $insert. "<br>" . mysqli_error($con);
-		}
 	}
 }
+
+if(isset($min) && isset ($max))
+{		$insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$min');";
+	$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
+	
+	if (mysqli_multi_query($con, $insert)) { 
+		echo "New pricese created successfully<br>"; 	while ( mysqli_next_result($con) ) {;} 
+	} else {
+		echo "Error: " . $insert. "<br>" . mysqli_error($con);
+	}
+}
+
 
 
 /////// Acum batlife Min Max

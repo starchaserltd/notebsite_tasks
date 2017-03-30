@@ -30,6 +30,7 @@ if(isset($allowdirect) && $allowdirect>0){
 	
 	
 echo "It works!<br>";
+chdir("/var/www/vault/genconf");
 require_once("../etc/con_db.php");
 require_once("../etc/con_sdb.php");
 $multicons=dbs_connect();

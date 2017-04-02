@@ -1052,6 +1052,69 @@ if (mysqli_multi_query($con, $insert)) {
     echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
 
+///////DISPLAY backt
+
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_msc'";
+$rand = mysqli_fetch_array(mysqli_query($con, $sel));
+$type=$rand["id"];
+
+$sel="SELECT DISTINCT backt FROM notebro_db.DISPLAY WHERE valid=1";
+$result = mysqli_query($con, $sel);
+
+$insert="";
+
+while($rand = mysqli_fetch_array($result)) 
+{ 
+	if($rand["backt"])
+	{
+		$name=$rand["backt"];
+		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', '$name','backt');";
+	}
+}
+
+if (mysqli_multi_query($con, $insert)) {
+    echo "New display_backt created successfully<br>"; 	while ( mysqli_next_result($con) ) {;} 
+} else {
+    echo "Error: " . $insert. "<br>" . mysqli_error($con);
+}
+mysqli_free_result($result);
+ 
+/////Display msc insert hz from msc
+
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_msc'";
+$rand = mysqli_fetch_array(mysqli_query($con, $sel));
+$type=$rand["id"]; 
+
+$sel="SELECT DISTINCT msc FROM notebro_db.DISPLAY WHERE valid=1";
+$result = mysqli_query($con, $sel);
+$object=(array) [];
+
+while($rand = mysqli_fetch_array($result)) 
+{ 
+	if($rand[0])
+	$elements=explode(',',$rand[0]);
+	
+	if(count($elements))
+	{
+		for($i=0; $i<count($elements); $i++)
+		{ if ((strpos($elements[$i],'Hz')!==false) && (strpos($elements[$i],'60Hz')===false)) { $object[]=$elements[$i]; } }
+	}
+}
+mysqli_free_result($result);
+$msc=array_unique($object);
+$insert="";
+foreach ($msc as $value)
+{
+	$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', '$value','msc');";
+}
+
+if (mysqli_multi_query($con, $insert)) {
+    echo "New display msc created successfully<br>";
+	while ( mysqli_next_result($con) ) {;} 
+} else {
+    echo "Error: " . $insert. "<br>" . mysqli_error($con);
+}
+
 /////// DISPLAY SIZE Min Max
 
 $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_size_min'";

@@ -896,7 +896,7 @@ $models = mysqli_fetch_all(mysqli_query($con, $sel));
 $min=99999999; $max=0;
 foreach($models as $model)
 {
-	$sel="SELECT MIN(price), MAX(price) FROM notebro_temp.all_conf_".$model[0];
+	$sel="SELECT MIN(price), MAX(price) FROM notebro_temp.all_conf_".$model[0]." WHERE price>0";
 	$minmaxbudget=mysqli_query($cons, $sel);
 	if(isset($minmaxbudget) && $minmaxbudget!=FALSE)
 	{

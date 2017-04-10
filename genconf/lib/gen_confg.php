@@ -1,5 +1,5 @@
 <?php
-ini_set('memory_limit', '128M');
+ini_set('memory_limit', '512M');
 echo "Start";
 $multicons=dbs_connect();
 foreach ($multicons as $cons)
@@ -593,7 +593,8 @@ function generate_configs(
 																									//echo "<br>cpu".$cpu_id."-".$cpu["rating"]."-".$cpu_i." display".$display_id."-".$display["rating"]."-".$display_i." mem".$mem_id."-".$mem["rating"]."-".$mem_i." hdd".$hdd_id."-".$hdd["rating"]."-".$hdd_i." shdd".$shdd_id."-".$shdd["rating"]."-".$shdd_i." gpu".$gpu_id."-".$gpu["rating"]."-".$gpu_i." wnet".$wnet_id."-".$wnet["rating"]."-".$wnet_i." odd".$odd_id."-".$odd["rating"]."-".$odd_i." mdb".$mdb_id."-".$mdb["rating"]."-".$mdb_i." chassis".$chassis_id."-".$chassis["rating"]."-".$chassis_i." acum".$acum_id."-".$acum["rating"]."-".$acum_i." war".$war_id."-".$war["rating"]."-".$war_i." ".$sist_id."-".$sist["rating"]."-".$sist_i."aa".$c_rating;
 																									//max rand is 4294967294
 																									//$randid=rand(1,10000000);
-																									yield array($nr_configs, $raw["id"], $cpu_id, $display_id, $mem_id, $hdd_id, $shdd_id, $gpu_id, $wnet_id, $odd_id, $mdb_id, $chassis_id, $acum_id, $war_id, $sist_id, $c_rating_f, $c_price, $c_value, $c_err, $c_battery_life_f, $c_capacity);
+																									$newid=hexdec(hash('fnv1a64',(implode(",",[$raw["id"], $cpu_id, $display_id, $mem_id, $hdd_id, $shdd_id, $gpu_id, $wnet_id, $odd_id, $mdb_id, $chassis_id, $acum_id, $war_id, $sist_id]))));
+																									yield array($newid, $raw["id"], $cpu_id, $display_id, $mem_id, $hdd_id, $shdd_id, $gpu_id, $wnet_id, $odd_id, $mdb_id, $chassis_id, $acum_id, $war_id, $sist_id, $c_rating_f, $c_price, $c_value, $c_err, $c_battery_life_f, $c_capacity);
 																									$randid=$nr_configs;
 																									//$sel2 = "INSERT INTO all_conf (id, model,cpu, display, mem, hdd, shdd, gpu, wnet, odd, mdb, chassis, acum, war, sist, rating, price, value, err, batlife) VALUES ($randid, $raw[id], $cpu_id, $display_id, $mem_id, $hdd_id, $shdd_id, $gpu_id, $wnet_id, $odd_id, $mdb_id, $chassis_id, $acum_id, $war_id, $sist_id, $c_rating, $c_price, $c_value, $c_err, $c_battery_life_f)";
 																									/*																				
@@ -801,23 +802,57 @@ mysqli_query($con, "USE notebro_db;");
 	{
 		$INSERT_QUERY = "INSERT INTO notebro_temp." . $temp_table . "_" . $model_id . " (id, model, cpu, display, mem, hdd, shdd, gpu, wnet, odd, mdb, chassis, acum, war, sist, rating, price, value, err, batlife, capacity) VALUES ";
 		$INSERT_ID_MODEL = "INSERT INTO notebro_temp.$temp_table (id, model) VALUES ";
-	//$raw["id"], $cpu_id, $display_id, $mem_id, $hdd_id, $shdd_id, $gpu_id, $wnet_id, $odd_id, $mdb_id, $chassis_id, $acum_id, $war_id, $sist_id,
-		foreach(chunk($configs, $BATCH_SIZE) as $i => $chunk) {
-			$chunk_array = iterator_to_array($chunk);
-			$json_data = chunk_to_json($chunk_array);
-			$prices = post_request_to_web_service($json_data);
-			replace_prices($chunk_array, $prices);
-			$query = $INSERT_QUERY . implode(", ", array_map("values_to_str", $chunk_array));
-			$cons=$multicons[$server];
-			{ mysqli_query($cons, $query) or die(mysqli_error($con)); }
-			$query_id_model = $INSERT_ID_MODEL . implode(", ", array_map("values_to_str", array_map(function ($xs) { return array_slice($xs, 0, 2); }, $chunk_array)));
-			mysqli_query($cons, $query_id_model) or die(mysqli_error($cons));
-			set_time_limit(1000);
-			//break 2;
-		}
+
+		//$raw["id"], $cpu_id, $display_id, $mem_id, $hdd_id, $shdd_id, $gpu_id, $wnet_id, $odd_id, $mdb_id, $chassis_id, $acum_id, $war_id, $sist_id,
+		insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server);
 	}
 	else
 	{ echo "Preventing memory overflow, insertation aborded!<br>"; }
+}
+
+function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server)
+{
+	$reinsert=0;
+	foreach(chunk($configs, $BATCH_SIZE) as $i => $chunk)
+	{
+		$chunk_array = iterator_to_array($chunk);
+		$json_data = chunk_to_json($chunk_array);
+		$prices = post_request_to_web_service($json_data);
+		replace_prices($chunk_array, $prices);
+		$query = $INSERT_QUERY . implode(", ", array_map("values_to_str", $chunk_array));
+		$cons=$multicons[$server];
+		{ mysqli_query($cons, $query) or $reinsert=ver_duplicate(mysqli_error($cons)); }
+		$query_id_model = $INSERT_ID_MODEL . implode(", ", array_map("values_to_str", array_map(function ($xs) { return array_slice($xs, 0, 2); }, $chunk_array)));
+		mysqli_query($cons, $query_id_model); //Duplicate entry '15375138152867000320' for key 'PRIMARY' mysqli_query($sel_db,'what!') or some_func(mysqli_error($sel_db));
+		set_time_limit(1000);
+		//break 2;
+	}
+	
+	if($reinsert)
+	{
+		$newid=gmp_add($reinsert,"1");
+		$i=0; $new_configs=array();
+		foreach($configs as $value)
+		{
+			if($reinsert==$value[0])
+			{$i=1; $value[0]=$newid;}
+		
+			if($i)
+			{ $new_configs[]=$value;}
+		}
+		insert_function($new_configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server);
+	}
+}
+
+function ver_duplicate($error_str)
+{
+	preg_match('/Duplicate entry \'(\d+)\'/', $error_str, $matches);
+	if(isset($matches[1]) && $matches[1])
+	{
+		return $matches[1];
+	}
+	else
+	{ echo "Generation failed!"; die($error_str); }
 }
 
 // Putting real prices in their place

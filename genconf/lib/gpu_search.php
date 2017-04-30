@@ -5,9 +5,9 @@
 function search_gpu ($typegpumin, $typegpumax, $prod, $model, $arch, $techmin, $techmax, $shadermin, $cspeedmin, $cspeedmax, $sspeedmin, $sspeedmax, $mspeedmin, $mspeedmax, $mbwmin, $mbwmax, $mtype, $maxmemmin, $maxmemmax, $sharem, $powermin, $powermax, $misc, $ratemin, $ratemax, $pricemin, $pricemax, $seltdp)
 {
 	if($seltdp>0)
-	{ $sel_gpu="SELECT id,typegpu,price,rating,err,power FROM notebro_db.GPU WHERE 1=1"; }
+	{ $sel_gpu="SELECT id,typegpu,price,rating,err,power,arch FROM notebro_db.GPU WHERE 1=1"; }
 	else
-	{ $sel_gpu="SELECT id,typegpu,price,rating,err FROM notebro_db.GPU WHERE 1=1"; }
+	{ $sel_gpu="SELECT id,typegpu,price,rating,err,arch FROM notebro_db.GPU WHERE 1=1"; }
 	
 	// Add Type filter (Integrated / Dedicated / Professional)
 	if ($typegpumin != NULL )
@@ -319,9 +319,9 @@ function search_gpu ($typegpumin, $typegpumax, $prod, $model, $arch, $techmin, $
 	while($rand = mysqli_fetch_array($result)) 
 	{ 
 		if($seltdp>0)
-		{ $gpu_return[intval($rand[0])]=array("type"=>intval($rand[1]),"price"=>round(($rand[2]),2),"rating"=>round($rand[3],3),"err"=>intval($rand[4]),"tdp"=>floatval($rand[5])); }
+		{ $gpu_return[intval($rand[0])]=array("type"=>intval($rand[1]),"price"=>round(($rand[2]),2),"rating"=>round($rand[3],3),"err"=>intval($rand[4]),"tdp"=>floatval($rand[5]),"arch"=>strval($rand[6])); }
 		else
-		{ $gpu_return[intval($rand[0])]=array("type"=>intval($rand[1]),"price"=>round(($rand[2]),2),"rating"=>round($rand[3],3),"err"=>intval($rand[4])); }
+		{ $gpu_return[intval($rand[0])]=array("type"=>intval($rand[1]),"price"=>round(($rand[2]),2),"rating"=>round($rand[3],3),"err"=>intval($rand[4]),"arch"=>strval($rand[5])); }
 	}
 		mysqli_free_result($result);
 		return($gpu_return);

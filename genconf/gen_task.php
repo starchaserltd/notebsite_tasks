@@ -52,7 +52,7 @@ echo "<br>";
 usleep(30000);
 
 $con_super=db_super_connect();
-mysqli_query($con_super,"STOP SLAVE");
+mysqli_query($con_super,"STOP SLAVE IO_THREAD");
 
 $file_address="/var/www/noteb/etc/sservers";
 $servers=file($file_address, FILE_SKIP_EMPTY_LINES);
@@ -164,5 +164,5 @@ while($loop)
 	$set=1;
 	$loop--;
 }
-mysqli_query($con_super,"START SLAVE"); mysqli_close($con_super);
+mysqli_query($con_super,"START SLAVE IO_THREAD"); mysqli_close($con_super);
 ?>

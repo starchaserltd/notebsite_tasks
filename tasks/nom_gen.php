@@ -1089,6 +1089,8 @@ $sel="SELECT DISTINCT msc FROM notebro_db.DISPLAY WHERE valid=1";
 $result = mysqli_query($con, $sel);
 $object=(array) [];
 
+
+
 while($rand = mysqli_fetch_array($result)) 
 { 
 	if($rand[0])
@@ -1101,6 +1103,7 @@ while($rand = mysqli_fetch_array($result))
 	}
 }
 mysqli_free_result($result);
+$object[] = "G-Sync/FreeSync";
 $msc=array_unique($object);
 $insert="";
 foreach ($msc as $value)
@@ -1830,7 +1833,7 @@ while($rand = mysqli_fetch_array($result))
 				foreach(explode(",",$rand[0]) as $x)
 				{
 					$z=1;
-					if(strcasecmp($x,"Standard"))
+					if(strcasecmp($x,"Standard")!=0)
 					{
 				
 						if((stripos($x,"Chiclet")!==FALSE) && (stripos($x,"Backlit")!==FALSE))
@@ -1841,28 +1844,29 @@ while($rand = mysqli_fetch_array($result))
 						}
 						else
 						{	
-						
-						if((stripos($x,"Standard")!==FALSE) && (stripos($x,"Backlit")!==FALSE))
-						{
-							$object[]="Backlit keyboard";
-							$z=0;
+							if((stripos($x,"Standard")!==FALSE) && (stripos($x,"Backlit")!==FALSE))
+							{
+								$object[]="Backlit keyboard";
+								$z=0;
+							}
+							
+							if((stripos($x,"Sealed")!==FALSE) && (stripos($x,"Backlit")!==FALSE))
+							{
+								$object[]="Sealed keyboard";
+								$object[]="Backlit keyboard";
+								$z=0;
+							}
+							
+							if(stripos($x,"RGB LED")!==FALSE)
+							{
+								$object[]="Backlit keyboard";
+								$z=0;
+							}
 						}
-						
-						if((stripos($x,"Sealed")!==FALSE) && (stripos($x,"Backlit")!==FALSE))
-						{
-							$object[]="Sealed keyboard";
-							$object[]="Backlit keyboard";
-							$z=0;
-						}
-						
-						if(stripos($x,"RGB LED")!==FALSE)
-						{
-							$object[]="Backlit keyboard";
-							$z=0;
-						}
-						
-						}
-					
+					}
+					else
+					{
+						$z=0;
 					}
 				
 							if($z)
@@ -1911,7 +1915,7 @@ while($rand = mysqli_fetch_array($result))
 				{
 					$z=1;
 					
-					if(strcasecmp($x,"Standard"))
+					if(strcasecmp($x,"Standard")!=0)
 					{
 						
 						if((strpos($x,"IP")!==FALSE) && $z)
@@ -1961,9 +1965,12 @@ while($rand = mysqli_fetch_array($result))
 							$object[]="Rear camera";
 							$z=0;
 						}
-						
-						
 					}
+					else
+					{
+						$z=0;
+					}
+				
 				
 				if($z) {  $object[]=$x; }
 				
@@ -2036,7 +2043,7 @@ $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
 
-$sel="SELECT type,CONCAT_WS('', sist, ' ', vers) AS sys_os FROM notebro_db.SIST WHERE valid=1";
+$sel="SELECT type,CONCAT_WS('', sist, ' ', vers) AS sys_os FROM notebro_db.SIST WHERE valid=1 ORDER BY sist DESC";
 $result = mysqli_query($con, $sel);
 
 

@@ -452,9 +452,9 @@ function generate_configs(
 																				$c_rating+=$gpu["rating"]*$gpu_i;
 																				$c_price+=$gpu["price"]; // echo $c_price."gpu";
 																				//echo $c_battery_life; echo "a";
-																				//if($gpu["arch"]=="Pascal"){$gpu["tdp"]/=2;}
-																				//$gpu_bat_life=floatval($gpu["tdp"])/8;
-																				//$testvalue=$c_battery_life; $c_battery_life+=$gpu_bat_life; - moved to MDB
+																				if($gpu["arch"]=="Pascal"){$gpu["tdp"]/=2;}
+																				$gpu_bat_life=floatval($gpu["tdp"])/8;
+																				$testvalue=$c_battery_life; $c_battery_life+=$gpu_bat_life;
 																				//echo "consumption:".$c_battery_life."endofc<br>";
 																				$c_err+=$gpu["price"]*$gpu["err"]/100;
 																				if(($gpu["type"]==0 && $gpu_id==$cpu["gpu"]) || $gpu["type"]>0)
@@ -489,10 +489,7 @@ function generate_configs(
 																										{
 																											$mdb=$mdb_list[$mdb_id];
 																									//echo $c_battery_life; echo "a";
-																											if($gpu["arch"]=="Pascal"){$gpu["tdp"]/=2;}
-																											$gpu_bat_life=floatval($gpu["tdp"])/8;
-																											if($mdb["optimus"]){ $gpu_bat_life=3; }
-																											$testvalue=$c_battery_life; $c_battery_life+=$gpu_bat_life; 
+																											if($mdb["optimus"]){ $c_battery_life-=$gpu_bat_life; $c_battery_life+=3; }
 																											$c_rating+=$mdb["rating"]*$mdb_i;
 																											$c_price+=$mdb["price"];  //echo $mdb_id."mdbid"; var_dump($mdb_list); echo "list"; var_dump($mdb); echo $c_price."mdb";
 																											$c_err+=$mdb["price"]*$mdb["err"]/100; 
@@ -653,7 +650,7 @@ function generate_configs(
 																														}
 																														$c_price-=$war["price"]; $c_rating-=$war["rating"]*$war_i; $c_err-=$war["price"]*$war["err"]/100;
 																												}		
-																												$c_price-=$mdb["price"]; $c_rating-=$mdb["rating"]*$mdb_i; $c_err-=$mdb["price"]*$mdb["err"]/100;
+																												$c_price-=$mdb["price"]; $c_rating-=$mdb["rating"]*$mdb_i; $c_err-=$mdb["price"]*$mdb["err"]/100; if($mdb["optimus"]){ $c_battery_life+=$gpu_bat_life; $c_battery_life-=3; }
 																										}
 																										$c_price-=$acum["price"]; $c_rating-=$acum["rating"]*$acum_i; $c_err-=$acum["price"]*$acum["err"]/100;
 																								}

@@ -327,7 +327,7 @@ $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_prod'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
-$sel="SELECT DISTINCT prod FROM notebro_db.GPU WHERE valid=1";
+$sel="SELECT DISTINCT prod FROM notebro_db.GPU WHERE valid=1 AND typegpu>0";
 $result = mysqli_query($con, $sel);
 
 $insert="";

@@ -111,6 +111,10 @@ echo "<br><br>";
 		{
 		$fields="id,price,rating,err,size, (`hres`*`vres`) as res,backt";	
 		}
+		if($component=="MDB")
+		{
+		$fields="id,price,rating,err,msc";	
+		}
 		$uni_return = array();
 		
 		foreach($ids as $x)
@@ -130,6 +134,11 @@ echo "<br><br>";
 					{
 					$uni_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>floatval($rand[3]),"cap"=>intval($rand[4]),"type"=>strval($rand[5]));
 					}
+					if($component=="MDB")
+					{ 
+						if(stripos($rand[4],"optimus")===false && stripos($rand[4],"enduro")===false) { $rand[4]=0; } else {$rand[4]=1;}
+						$uni_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"optimus"=>$rand[4]);
+					}	
 				}
 				mysqli_free_result($result);
 			}
@@ -479,10 +488,10 @@ function generate_configs(
 																										foreach($mdb_conf as $mdb_id)
 																										{
 																											$mdb=$mdb_list[$mdb_id];
-																											//echo $c_battery_life; echo "a";
+																									//echo $c_battery_life; echo "a";
 																											if($gpu["arch"]=="Pascal"){$gpu["tdp"]/=2;}
 																											$gpu_bat_life=floatval($gpu["tdp"])/8;
-																											if($mdb["optimus"]){$gpu["tdp"]=1;}
+																											if($mdb["optimus"]){ $gpu_bat_life=3; }
 																											$testvalue=$c_battery_life; $c_battery_life+=$gpu_bat_life; 
 																											$c_rating+=$mdb["rating"]*$mdb_i;
 																											$c_price+=$mdb["price"];  //echo $mdb_id."mdbid"; var_dump($mdb_list); echo "list"; var_dump($mdb); echo $c_price."mdb";

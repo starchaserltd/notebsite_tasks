@@ -452,7 +452,7 @@ function generate_configs(
 																				$c_rating+=$gpu["rating"]*$gpu_i;
 																				$c_price+=$gpu["price"]; // echo $c_price."gpu";
 																				//echo $c_battery_life; echo "a";
-																				if($gpu["arch"]=="Pascal"){$gpu["tdp"]/=2;}
+																				if($gpu["arch"]=="Pascal"){$gpu["tdp"]/=1.5;}
 																				$gpu_bat_life=floatval($gpu["tdp"])/8;
 																				$testvalue=$c_battery_life; $c_battery_life+=$gpu_bat_life;
 																				//echo "consumption:".$c_battery_life."endofc<br>";

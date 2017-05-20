@@ -395,26 +395,32 @@ while($rand = mysqli_fetch_array($result))
 				case "HT":
 				$elements[$i]="HT/Hyper-threading";
 				break;
-
 			}
 				
 			if(!(in_array($elements[$i],$object)))
 			{
-				
 				$object[]=$elements[$i];
 			}
 		}
 		}
 }
 
-
 mysqli_free_result($result);
 
-
 $insert="";
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Core i3','INTEL');";
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Core i5','INTEL');";
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Core i7','INTEL');";
+asort($object);
+$i=0;
 foreach ($object as $msc)
 {
-	$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type', '$msc');";
+	if(stripos($msc,"AMD TC")!==FALSE)
+	{  $propthis="AMD"; }
+	else
+	{ $propthis=""; }
+	
+	$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', '$msc','$propthis');"; $i++;
 }
 
 if (mysqli_multi_query($con, $insert)) {

@@ -1423,7 +1423,7 @@ $result = mysqli_query($con, $sel);
 
 $insert="";
 
-		$name="Any/None/All";
+		$name="Any/None";
 		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type', '$name');";
 		$name="All optical drives";
 		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type', '$name');";

@@ -1418,12 +1418,14 @@ $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'odd_type'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
-$sel="SELECT DISTINCT type FROM notebro_db.ODD WHERE valid=1";
+$sel="SELECT DISTINCT type FROM notebro_db.ODD WHERE valid=1 ORDER BY type DESC";
 $result = mysqli_query($con, $sel);
 
 $insert="";
 
-		$name="Any";
+		$name="Any/None/All";
+		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type', '$name');";
+		$name="All optical drives";
 		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type', '$name');";
 
 while($rand = mysqli_fetch_array($result)) 
@@ -1441,6 +1443,7 @@ if (mysqli_multi_query($con, $insert)) {
 } else {
     echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
+
 
 
 mysqli_free_result($result);

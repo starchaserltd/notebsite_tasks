@@ -408,9 +408,9 @@ while($rand = mysqli_fetch_array($result))
 mysqli_free_result($result);
 
 $insert="";
-$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Core i3','INTEL');";
-$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Core i5','INTEL');";
-$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Core i7','INTEL');";
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Intel i3','INTEL');";
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Intel i5','INTEL');";
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Intel i7','INTEL');";
 asort($object);
 $i=0;
 foreach ($object as $msc)

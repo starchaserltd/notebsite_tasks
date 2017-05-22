@@ -224,13 +224,34 @@ $surfaceratio=1;
 break;
 }
 
+switch($stuff[$i][7]) {
+case "LED IPS":
+$surfacetype=0.7;
+break;
+case "LED TN WVA":
+$surfacetype=0.5;
+break;
+case "LED IPS PenTile":
+$surfacetype=0.6;
+break;
+case "LED TN":
+$surfacetype=0.35;
+break;
+case "OLED":
+$surfacetype=1;
+break;
+}
+
+if(stripos($stuff[$i][10],"120 HZ")!==FALSE)
+{ $surfacetype*=1.1;}
+
 if($stuff[$i][8]==1)
 	$touchratio=1;
 else
 if($stuff[$i][8]==2)
 	$touchratio=0.001;	
 
-$value=(0.60*$resrating+0.20*$sizerating+0.10*$touchratio+0.05*$surfaceratio+0.05*$ratiorating)*100;
+$value=(0.45*$resrating+0.15*$surfacetype+0.20*$sizerating+0.10*$touchratio+0.05*$surfaceratio+0.05*$ratiorating)*100;
 	
 //echo "<br>";
 //var_dump((($stuff[$i][6]/$stuff[$i][4])-$maxminvalues[6])/$normalize_speed);

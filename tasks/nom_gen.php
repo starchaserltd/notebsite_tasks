@@ -1425,7 +1425,7 @@ $insert="";
 
 		$name="Any/None";
 		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type', '$name');";
-		$name="All optical drives";
+		$name="Any optical drives";
 		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type', '$name');";
 
 while($rand = mysqli_fetch_array($result)) 

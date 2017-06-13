@@ -869,13 +869,14 @@ function ver_duplicate($error_str)
 
 // Putting real prices in their place
 $rquery="SELECT * FROM notebro_prices.pricing_all_conf WHERE realprice>0 ORDER BY model ASC";
+$cons=$multicons[$server];
 if ($rresult = mysqli_query($rcon, $rquery))
 {
     while ($rrow = mysqli_fetch_assoc($rresult))
 	{
-		$getrate=mysqli_fetch_assoc(mysqli_query($scon,"SELECT rating FROM notebro_temp.all_conf_".$rrow["model"]." WHERE model=".$rrow["model"]." AND cpu=".$rrow["cpu"]." AND display=".$rrow["display"]." AND mem=".$rrow["mem"]." AND hdd=".$rrow["hdd"]." AND shdd=".$rrow["shdd"]." AND gpu=".$rrow["gpu"]." AND wnet=".$rrow["wnet"]." AND odd=".$rrow["odd"]." AND mdb=".$rrow["mdb"]." AND chassis=".$rrow["chassis"]." AND acum=".$rrow["acum"]." AND war=".$rrow["war"]." AND sist=".$rrow["sist"]." LIMIT 1"));
+		$getrate=mysqli_fetch_assoc(mysqli_query($cons,"SELECT rating FROM notebro_temp.all_conf_".$rrow["model"]." WHERE model=".$rrow["model"]." AND cpu=".$rrow["cpu"]." AND display=".$rrow["display"]." AND mem=".$rrow["mem"]." AND hdd=".$rrow["hdd"]." AND shdd=".$rrow["shdd"]." AND gpu=".$rrow["gpu"]." AND wnet=".$rrow["wnet"]." AND odd=".$rrow["odd"]." AND mdb=".$rrow["mdb"]." AND chassis=".$rrow["chassis"]." AND acum=".$rrow["acum"]." AND war=".$rrow["war"]." AND sist=".$rrow["sist"]." LIMIT 1"));
 		$setquery="UPDATE notebro_temp.all_conf_".$rrow["model"]." SET price=".$rrow["realprice"].",value=(".$getrate["rating"]."/".$rrow["realprice"]."),err=(".$rrow["realprice"]."*0.025) WHERE model=".$rrow["model"]." AND cpu=".$rrow["cpu"]." AND display=".$rrow["display"]." AND mem=".$rrow["mem"]." AND hdd=".$rrow["hdd"]." AND shdd=".$rrow["shdd"]." AND gpu=".$rrow["gpu"]." AND wnet=".$rrow["wnet"]." AND odd=".$rrow["odd"]." AND mdb=".$rrow["mdb"]." AND chassis=".$rrow["chassis"]." AND acum=".$rrow["acum"]." AND war=".$rrow["war"]." AND sist=".$rrow["sist"]." LIMIT 1";
-		mysqli_query($scon, $setquery);
+		mysqli_query($cons, $setquery);
 	}
     mysqli_free_result($result);
 }

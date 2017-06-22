@@ -469,7 +469,7 @@ function generate_configs(
 																					    { $c_display_pwc=((floatval($display["size"])*0.10)+(pow(intval($display["res"]),0.6)*0.0002))*0.6; }
 																						else
 																						{ $c_display_pwc=((floatval($display["size"])*0.10)+(pow(intval($display["res"]),0.6)*0.0002))*0.7; }
-																					
+																						if($display['touch']==1){ $c_display_pwc+=(floatval($display["size"])*floatval($display["size"]))/400; }	
 																							$c_battery_life+=$c_display_pwc;
 																						//echo "consumption:".$display["res"]."res".$c_battery_life."endofc<br>";
 																						$c_err+=$display["price"]*$display["err"]/100;

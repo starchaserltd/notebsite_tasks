@@ -5,9 +5,9 @@
 function search_display ($model, $sizemin, $sizemax, $format, $hresmin, $hresmax, $vresmin, $vresmax, $surft, $backt, $touch,  $misc, $resolutions, $ratingmin, $ratingmax, $pricemin, $pricemax, $selsize)
 {
 	if($selsize>0)
-	{ $sel_display="SELECT id,price,rating,err,size, (`hres`*`vres`) as res,backt FROM notebro_db.DISPLAY WHERE 1=1"; }
+	{ $sel_display="SELECT id,price,rating,err,size, (`hres`*`vres`) as res,backt,touch FROM notebro_db.DISPLAY WHERE 1=1"; }
 	else
-	{ $sel_display="SELECT id,price,rating,err,size, (`hres`*`vres`) as res,backt FROM notebro_db.DISPLAY WHERE 1=1"; }
+	{ $sel_display="SELECT id,price,rating,err,size, (`hres`*`vres`) as res,backt,touch FROM notebro_db.DISPLAY WHERE 1=1"; }
 	
 	// Add model to filter
 	$i=0;
@@ -241,9 +241,9 @@ function search_display ($model, $sizemin, $sizemax, $format, $hresmin, $hresmax
 	while($rand = mysqli_fetch_array($result)) 
 	{ 
 		if($selsize>0)
-		$display_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"size"=>floatval($rand[4]), "res"=>intval($rand[5]), "backt"=>($rand[6]));		
+		$display_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"size"=>floatval($rand[4]), "res"=>intval($rand[5]), "backt"=>($rand[6]), "touch"=>($rand[7]));		
 		else
-		$display_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"size"=>floatval($rand[4]), "res"=>intval($rand[5]), "backt"=>($rand[6]));
+		$display_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"size"=>floatval($rand[4]), "res"=>intval($rand[5]), "backt"=>($rand[6]), "touch"=>($rand[7]));
 	}
 		mysqli_free_result($result);
 		return($display_return);

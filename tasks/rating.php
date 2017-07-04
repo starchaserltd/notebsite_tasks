@@ -247,7 +247,7 @@ if(stripos($stuff[$i][11],"120 HZ")!==FALSE)
 else
 {
 	if(stripos($stuff[$i][11],"120HZ")!==FALSE)
-	{ $surfacetype*=1.1;}
+	{ $surfacetype*=1.4;}
 }
 
 

@@ -50,8 +50,8 @@ mysqli_query($con, $sql);
 
 /* GPU RATING */
 
-$sql="SELECT * FROM GPU";
-$sql2="SELECT MAX(`3DMark 2013 Fire Strike Standard GPU`), MAX(`Cinebench R15 OpenGL 64Bit`), MAX(`3DMark Time Spy Graphics`),MAX(`3DMark Cloud Gate Graphics Standard`) FROM GPU WHERE model NOT LIKE '%SLI%' AND model NOT LIKE '%Crossfire%'";
+$sql="SELECT * FROM notebro_rate.GPU";
+$sql2="SELECT MAX(`3DMark 2013 Fire Strike Standard GPU`), MAX(`3DMark Time Spy Graphics`),MAX(`3DMark Cloud Gate Graphics Standard`) FROM notebro_rate.GPU WHERE model NOT LIKE '%SLI%' AND model NOT LIKE '%Crossfire%'";
 $result = mysqli_query($con, $sql);
 $stuff = mysqli_fetch_all($result);
 $rownr=mysqli_num_rows($result);
@@ -64,29 +64,25 @@ $rating=array();
 $nr=0;
 $value=0;
 $first=2;
-for($j=0;$j<4;$j++)
+for($j=0;$j<3;$j++)
 {
-
+//j+4 because first 4 columns are not data
 if($stuff[$i][$j+4]>0)
 {
-
-$stuff[$i][$j+4]=floatval($stuff[$i][$j+4]);
-//echo $stuff[$i][$j+4]; echo " "; echo $maxvalues[$j]; echo "aa";
-$value+=$stuff[$i][$j+4]/floatval($maxvalues[$j]);
-
-$nr++;
+		$stuff[$i][$j+4]=floatval($stuff[$i][$j+4]);
+		//echo $stuff[$i][$j+3]; echo " "; echo $maxvalues[$j]; echo "aa";
+		$value+=$stuff[$i][$j+4]/floatval($maxvalues[$j]);
+		$nr++;
 }
 
 if($first)
 {
 if($stuff[$i][$j+4]>0)
 {
-
-$stuff[$i][$j+4]=floatval($stuff[$i][$j+4]);
-//echo $stuff[$i][$j+4]; echo " "; echo $maxvalues[$j]; echo "aa";
-$value+=$stuff[$i][$j+4]/floatval($maxvalues[$j]);
-
-$nr++;
+		$stuff[$i][$j+4]=floatval($stuff[$i][$j+4]);
+		//echo $stuff[$i][$j+4]; echo " "; echo $maxvalues[$j]; echo "aa";
+		$value+=$stuff[$i][$j+4]/floatval($maxvalues[$j]);
+		$nr++;
 }	
 $first--;	
 }
@@ -95,16 +91,20 @@ $first--;
 //echo "-".$value."-".$nr."b";
 }
 
-$value/=$nr;
+if($nr){$value/=$nr;}else{$value=0;}
+	
 $rating[$stuff[$i][0]]=$value;
 $stuff[$i][3]=floatval($stuff[$i][3]);
 //$value2=($value+((35/$stuff[$i][3])-1)/300)*100; - for TDP
 $value*=100;
+$value=round($value,4);
 //echo "<br>";
 //var_dump($rating);
-$sql="UPDATE GPU SET ratingnew=$value WHERE id=".$stuff[$i][0];
+$sql="UPDATE notebro_rate.GPU SET ratingnew=$value WHERE id=".$stuff[$i][0];
 mysqli_query($con, $sql);
-$sql="UPDATE notebro_db.GPU SET rating=$value WHERE id=".$stuff[$i][0];
+mysqli_select_db($con,"notebro_db"); 
+$sql="UPDATE notebro_db.GPU SET rating=$value WHERE id=".$stuff[$i][0]."";
+//if($stuff[$i][0]==503){var_dump($sql);}
 mysqli_query($con, $sql);
 }
 
@@ -224,15 +224,6 @@ $surfaceratio=1;
 break;
 }
 
-switch($stuff[$i][6]) {
-case "Glossy":
-$surfaceratio=0.90;
-break;
-case "Matte":
-$surfaceratio=1;
-break;
-}
-
 switch($stuff[$i][7]) {
 	case (stripos($stuff[$i][7],"IPS PenTile")!==FALSE):
 	{ $surfacetype=0.4; break; }
@@ -246,16 +237,21 @@ switch($stuff[$i][7]) {
 	{ $surfacetype=1; break; }
 }
 
-if(stripos($stuff[$i][10],"120 HZ")!==FALSE)
+if(isset($stuff[$i][8])&&(intval($stuff[$i][8])==0))
+{ $stuff[$i][8]=55;}
+
+$srgbrating=$stuff[$i][8]/100;
+
+if(stripos($stuff[$i][11],"120 HZ")!==FALSE)
 { $surfacetype*=1.1;}
 
-if($stuff[$i][8]==1)
+if($stuff[$i][9]==1)
 	$touchratio=1;
 else
-if($stuff[$i][8]==2)
+if($stuff[$i][9]==2)
 	$touchratio=0.001;	
 
-$value=(0.40*$resrating+0.15*$surfacetype+0.25*$sizerating+0.10*$touchratio+0.05*$surfaceratio+0.05*$ratiorating)*100;
+$value=(0.40*$resrating+0.15*$surfacetype+0.19*$sizerating+0.10*$touchratio+0.05*$surfaceratio+0.05*$ratiorating+0.06*$srgbrating)*100;
 	
 //echo "<br>";
 //var_dump((($stuff[$i][6]/$stuff[$i][4])-$maxminvalues[6])/$normalize_speed);
@@ -264,6 +260,7 @@ $value=(0.40*$resrating+0.15*$surfacetype+0.25*$sizerating+0.10*$touchratio+0.05
 $sql="UPDATE DISPLAY SET rating=$value WHERE id=".$stuff[$i][0];
 mysqli_query($con, $sql);
 }
+
 
 
 /* Warranty RATING */

@@ -244,6 +244,12 @@ $srgbrating=$stuff[$i][8]/100;
 
 if(stripos($stuff[$i][11],"120 HZ")!==FALSE)
 { $surfacetype*=1.1;}
+else
+{
+	if(stripos($stuff[$i][11],"120HZ")!==FALSE)
+	{ $surfacetype*=1.1;}
+}
+
 
 if($stuff[$i][9]==1)
 	$touchratio=1;

@@ -1110,7 +1110,7 @@ while($rand = mysqli_fetch_array($result))
 }
 mysqli_free_result($result);
 $object[] = "G-Sync/FreeSync";
-$object[] = "Good Colour Gamut";
+$object[] = "80% sRGB or better"; 
 $msc=array_unique($object);
 $insert="";
 foreach ($msc as $value)

@@ -226,7 +226,7 @@ break;
 
 switch($stuff[$i][7]) {
 	case (stripos($stuff[$i][7],"IPS PenTile")!==FALSE):
-	{ $surfacetype=0.4; break; }
+	{ $surfacetype=0.6; break; }
 	case (stripos($stuff[$i][7],"TN WVA")!==FALSE):
 	{ $surfacetype=0.5; break; }
 	case (stripos($stuff[$i][7],"IPS")!==FALSE):
@@ -243,11 +243,11 @@ if(isset($stuff[$i][8])&&(intval($stuff[$i][8])==0))
 $srgbrating=$stuff[$i][8]/100;
 
 if(stripos($stuff[$i][11],"120 HZ")!==FALSE)
-{ $surfacetype*=1.1;}
+{ $surfacetype*=1.6;}
 else
 {
 	if(stripos($stuff[$i][11],"120HZ")!==FALSE)
-	{ $surfacetype*=1.4;}
+	{ $surfacetype*=1.6;}
 }
 
 
@@ -383,16 +383,17 @@ $sql="SELECT * FROM `MDB`";
 $result = mysqli_query($con, $sql);
 $stuff = mysqli_fetch_all($result);
 $rownr=mysqli_num_rows($result);
-$sql2="SELECT * FROM notebro_rate.RELIABILITY";
+$sql2="SELECT id,prod,failrate FROM notebro_db.FAMILIES";
 $result = mysqli_query($con, $sql2);
-$stuff2 = mysqli_fetch_all($result);
+$stuff2 = mysqli_fetch_all($result); $relia=array();
+foreach($stuff2 as $val) { $relia[$val[0]]=$val[2]; }
 
-$maxiface=0; $maxrealtek=0; $maxconexant=0; $minrealtek=999999; $minconexant=999999; $maxprod=0; $minprod=9999;
+$maxiface=0; $maxrealtek=0; $maxconexant=0; $minrealtek=999999; $minconexant=999999; $maxfam=0; $minfam=9999;
 
 for($i=0;$i<$rownr;$i++)
 {
-	
-$id=$stuff[$i][0];
+
+$id=intval($stuff[$i][0]);
 
 if((stripos($stuff[$i][7],"LGA")!==FALSE) || (stripos($stuff[$i][7],"PGA")!==FALSE))
 { $socket[$id]=1; } else { $socket[$id]=0; }
@@ -430,19 +431,19 @@ foreach($parts[0] as $x)
 
 	if(stripos($x,"10/100/1000")!==FALSE)
 	{
-	
 		$net[$id]=1;	
-		
-	}
-	elseif(stripos($x,"10/100")!==FALSE)
-	{
-		$net[$id]=0.5;		
 	}
 	else
 	{
-		$net[$id]=0;
+		if(stripos($x,"10/100")!==FALSE)
+		{
+			$net[$id]=0.5;		
+		}
+		else
+		{
+			$net[$id]=0;
+		}
 	}
-
 }
 
 //echo $id." ".$net[$id]."<br>";
@@ -486,9 +487,11 @@ $mmsc[$id]=0;
 	if(stripos($stuff[$i][12],"Realtek")!==FALSE)
 	{
 		
+		$stuff[$i][12]=str_replace("ALC255","ALC3234",$stuff[$i][12]);
 		preg_match_all('/Realtek ALC(\d*)/i', $stuff[$i][12], $parts);
 		if(isset($parts[1][0]) && $parts[1][0])
 		{
+		if(intval($parts[1][0])/1000<1) { $parts[1][0]=4000+intval($parts[1][0]); }
 		$mmsound[$id][0]="Realtek";
 		$mmsound[$id][1]=intval($parts[1][0]);
 		
@@ -512,6 +515,7 @@ $mmsc[$id]=0;
 		preg_match_all('/Conexant CX(\d*)/i', $stuff[$i][12], $parts);	
 		$mmsound[$id][0]="Conexant";
 		if(isset($parts[1][0])){$mmsound[$id][1]=intval($parts[1][0]);}
+		if(!isset($mmsound[$id][1])){$mmsound[$id][1]=0;}
 		if($maxconexant<$mmsound[$id][1])
 		{$maxconexant=$mmsound[$id][1];}
 		if($minconexant>$mmsound[$id][1])
@@ -545,61 +549,63 @@ $mmsc[$id]=0;
 		$mmsound[$id][0]="NA";
 		$mmsound[$id][1]=0;
 	}
-
-// Geting producer realibility 
-
-foreach($stuff2 as $key=>$z)
-{
-	if(strcasecmp($stuff[$i][1],$z[1])==0)
-	{
-			
-			$mmprod[$id]=floatval($z[2]);
-			
-		if($maxprod<$mmprod[$id])
-		{$maxprod=$mmprod[$id];}
 	
-		if($minprod>$mmprod[$id])
-		{$minprod=$mmprod[$id];}
-	}
-}	
+// Geting realibility 
+
+	$sql3="SELECT idfam from notebro_db.MODEL WHERE FIND_IN_SET ($id,`mdb`)>0";
+	$result3=mysqli_query($con,$sql3); $idfam=mysqli_fetch_row($result3);
 	
-	}
+	//var_dump($idfam[0]);
+	if(!isset($idfam[0]) || $idfam[0]==NULL || intval($relia[$idfam[0]])==0) { $mmfam[$id]=floatval(18); } else { $mmfam[$id]=floatval($relia[$idfam[0]]); }
+
+	if($maxfam<$mmfam[$id])
+	{$maxfam=$mmfam[$id];}
+
+	if($minfam>$mmfam[$id])
+	{$minfam=$mmfam[$id];}
+}
 
 //normalizations
 	for($i=0;$i<$rownr;$i++)
 	{
 	$id=$stuff[$i][0];
-	
 	$iface[$id]=$iface[$id]/$maxiface;
 	$hface[$id]=$hface[$id]/$maxiface;
 	
-	if($mmsound[$id][0]=="Creative")
-	{ $mmsc[$id]+=$mmsound[$id][1]; }
+	if($mmsound[$id][1]>0)
+	{ 	
+		if($mmsound[$id][0]=="Creative")
+		{ $mmsc[$id]+=$mmsound[$id][1]; }
 
-	if($mmsound[$id][0]=="Cirrus")
-	{ $mmsc[$id]+=$mmsound[$id][1]; }
+		if($mmsound[$id][0]=="Cirrus")
+		{ $mmsc[$id]+=$mmsound[$id][1]; }
 
-	if($mmsound[$id][0]=="Realtek")
-	{ $mmsc[$id]+=sqrt($mmsound[$id][1]/$maxrealtek)*0.25; }
+		if($mmsound[$id][0]=="Realtek")
+		{  $mmsc[$id]+=sqrt($mmsound[$id][1]/$maxrealtek)*0.25; }
 
-	if($mmsound[$id][0]=="Conexant")
-	{ $mmsc[$id]+=sqrt($mmsound[$id][1]/$maxconexant)*0.30; }
-
+		if($mmsound[$id][0]=="Conexant")
+		{ $mmsc[$id]+=sqrt($mmsound[$id][1]/$maxconexant)*0.30; }
+	}
+	
 	if($mmsound[$id][1]==0)
 	{ 	
-			if($mmsound[$id][0]=="Realtek")
-			$mmsc[$id]+=sqrt($minrealtek/$maxrealtek)*0.25;
+		if($mmsound[$id][0]=="Realtek")
+		$mmsc[$id]+=sqrt($minrealtek/$maxrealtek)*0.25;
+
+		if($mmsound[$id][0]=="Conexant")
+		$mmsc[$id]+=sqrt($minconexant/$maxconexant)*0.30;
+
+		if($mmsound[$id][0]=="NA")
+		{ $mmsc[$id]+=sqrt(($minrealtek+$maxrealtek)/(2*$maxrealtek))*0.25; }
 	
-			if($mmsound[$id][0]=="Conexant")
-			$mmsc[$id]+=sqrt($minconexant/$maxconexant)*0.30;
-	
-			if($mmsound[$id][0]=="NA")
-			{ $mmsc[$id]+=sqrt(($minrealtek+$maxrealtek)/(2*$maxrealtek))*0.25; }
-		
-			if($mmsound[$id][0]=="HD")
-			{ $mmsc[$id]+=sqrt(($minrealtek+$maxrealtek)/(2*$maxrealtek))*0.28; }
+		if($mmsound[$id][0]=="HD")
+		{ $mmsc[$id]+=sqrt(($minrealtek+$maxrealtek)/(2*$maxrealtek))*0.28; }
 	}
-$value=$iface[$id]*0.1+$hface[$id]*0.15+$net[$id]*0.1+$mmsc[$id]*0.25+($minprod/$mmprod[$id])*0.4+$socket[$id]*0.15+$gpu[$id]*0.05;
+	if(!isset($net[$id])){$net[$id]=0;}
+//	if($id==633 || $id==24) {  echo $minrealtek; var_dump($mmsc[$id]); }
+//if($id==633) { var_dump($id); var_dump($iface[$id]); var_dump($hface[$id]); var_dump($net[633]); var_dump($mmsc[633]); var_dump($mmfam[$id]); var_dump($socket[$id]); var_dump($gpu[$id]); echo "<br>"; }
+//if($id==24) { var_dump($id); var_dump($iface[$id]); var_dump($hface[$id]); var_dump($net[24]); var_dump($mmsc[24]); var_dump($mmfam[$id]); var_dump($socket[$id]); var_dump($gpu[$id]); echo "<br>"; }
+$value=$iface[$id]*0.1+$hface[$id]*0.11+$net[$id]*0.09+$mmsc[$id]*0.20+(($minfam*$minfam)/($mmfam[$id]*$mmfam[$id]))*0.5+$socket[$id]*0.15+$gpu[$id]*0.05;
 $value*=100;
 
 //echo $id." ".$mmsc[$id]." ". $minprod/$mmprod[$id]."<br>";
@@ -729,7 +735,7 @@ if(stripos($stuff[$i][17],"fingerprint")!==FALSE)
 	$rmsc[$id]--;
 }
 
-if((stripos($stuff[$i][17],"jbl")!==FALSE)||(stripos($stuff[$i][17],"klipsch")!==FALSE)||(stripos($stuff[$i][17],"harman")!==FALSE)||(stripos($stuff[$i][17],"olufsen")!==FALSE)||(stripos($stuff[$i][17],"sonicmaster")!==FALSE))
+if((stripos($stuff[$i][17],"jbl")!==FALSE)||(stripos($stuff[$i][17],"klipsch")!==FALSE)||(stripos($stuff[$i][17],"harman")!==FALSE)||(stripos($stuff[$i][17],"olufsen")!==FALSE)||(stripos($stuff[$i][17],"altec")!==FALSE)||(stripos($stuff[$i][17],"sonicmaster")!==FALSE))
 {
 	$rmsc[$id]+=2;
 	$rmsc[$id]--;

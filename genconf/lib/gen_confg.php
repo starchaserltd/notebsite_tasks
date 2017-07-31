@@ -105,7 +105,7 @@ echo "<br><br>";
 		$fields="id,price,rating,err";
 		if($component=="HDD")
 		{
-		$fields="id,price,rating,err,cap,type";	
+		$fields="id,price,rating,err,cap,type,model";	
 		}
 		if($component=="DISPLAY")
 		{
@@ -113,7 +113,7 @@ echo "<br><br>";
 		}
 		if($component=="MDB")
 		{
-		$fields="id,price,rating,err,msc";	
+		$fields="id,price,rating,err,msc,hdd";	
 		}
 		$uni_return = array();
 		
@@ -132,12 +132,12 @@ echo "<br><br>";
 					}
 					else
 					{
-					$uni_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>floatval($rand[3]),"cap"=>intval($rand[4]),"type"=>strval($rand[5]));
+					$uni_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>floatval($rand[3]),"cap"=>intval($rand[4]),"type"=>strval($rand[5]),"model"=>strval($rand[6]));
 					}
 					if($component=="MDB")
 					{ 
 						if(stripos($rand[4],"optimus")===false && stripos($rand[4],"enduro")===false) { $rand[4]=0; } else {$rand[4]=1;}
-						$uni_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"optimus"=>$rand[4]);
+						$uni_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"optimus"=>$rand[4],"hdd"=>$rand[5]);
 					}	
 				}
 				mysqli_free_result($result);
@@ -508,7 +508,6 @@ function generate_configs(
 																															$c_price+=$mem["price"]; // echo $c_price."mem";
 																															$c_err+=$mem["price"]*$mem["err"]/100;
 																														
-
 																																foreach($hdd_conf as $hdd_id)
 																																{
 																																	$c_capacity=0;
@@ -534,7 +533,6 @@ function generate_configs(
 																																		}
 																																	//	var_dump($hdd["type"]);
 																																		$c_battery_life+=$hdd_battery_life;																																
-
 																																		foreach($sist_conf as $sist_id)
 																																		{
 																																			$sist=$sist_list[$sist_id];
@@ -544,9 +542,10 @@ function generate_configs(
 
 																																				foreach($shdd_conf as $shdd_id)
 																																				{
-
 																																					$shdd_battery_life=0;
-																																					$shdd=$shdd_list[$shdd_id]; 
+																																					$shdd=$shdd_list[$shdd_id];
+																																					/*$mdb_2sata=0; if(stripos($mdb["hdd"],"2 x SATA")!==FALSE){ $mdb_2sata=1; }
+																																					if((!$mdb_2sata && stripos($hdd["model"],"M.2")===FALSE && (stripos($shdd["model"],"N/A")===FALSE))||( $mdb_2sata && (stripos($hdd["type"],"SSD")===FALSE) && stripos($shdd["model"],"N/A")===FALSE ) ) { break 1; } break 1; }*/
 																																					$c_rating+=$shdd["rating"]*$shdd_i;
 																																					$c_price+=$shdd["price"];  //echo $shdd["price"]."-".$shdd_id."-".$c_price."shdd";
 																																					$c_err+=$shdd["price"]*$shdd["err"]/100; 																																					
@@ -568,39 +567,35 @@ function generate_configs(
 																																						break;
 																																					}
 																																							
-																																							$c_battery_life+=$shdd_battery_life;																																
+																																					$c_battery_life+=$shdd_battery_life;											
 
-																																					
 																																						foreach($wnet_conf as $wnet_id)
-																																							{
-																										
-																																								$wnet=$wnet_list[$wnet_id];
-																																								$c_rating+=$wnet["rating"]*$wnet_i;
-																																								$c_price+=$wnet["price"]; // var_dump($wnet); echo $c_price."wnet";
-																																								$c_err+=$wnet["price"]*$wnet["err"]/100;
+																																						{
+																																							$wnet=$wnet_list[$wnet_id];
+																																							$c_rating+=$wnet["rating"]*$wnet_i;
+																																							$c_price+=$wnet["price"]; // var_dump($wnet); echo $c_price."wnet";
+																																							$c_err+=$wnet["price"]*$wnet["err"]/100;
 																													
-																																									foreach($odd_conf as $odd_id)
-																																									{
-																																										
-																																										$odd=$odd_list[$odd_id];
-																																										$c_rating+=$odd["rating"]*$odd_i;
-																																										$c_price+=$odd["price"]; // echo $c_price."odd";
-																																										$c_err+=$odd["price"]*$odd["err"]/100;
+																																							foreach($odd_conf as $odd_id)
+																																							{
+																																								$odd=$odd_list[$odd_id];
+																																								$c_rating+=$odd["rating"]*$odd_i;
+																																								$c_price+=$odd["price"]; // echo $c_price."odd";
+																																								$c_err+=$odd["price"]*$odd["err"]/100;
 																															
-																																												foreach($chassis_conf as $chassis_id)
-																																												{ 
-																																													$chassis=$chassis_list[$chassis_id];
-																																													$c_rating+=$chassis["rating"]*$chassis_i;
-																																													$c_price+=$chassis["price"]; // var_dump($chassis); echo $c_price."chass";
-																																													$c_err+=$chassis["price"]*$chassis["err"]/100;
+																																								foreach($chassis_conf as $chassis_id)
+																																								{ 
+																																									$chassis=$chassis_list[$chassis_id];
+																																									$c_rating+=$chassis["rating"]*$chassis_i;
+																																									$c_price+=$chassis["price"]; // var_dump($chassis); echo $c_price."chass";
+																																									$c_err+=$chassis["price"]*$chassis["err"]/100;
 
-																																													///////FINAL TEST PRICE IS WITHING BOUNDRY ///////
-																																	
-																																													$c_battery_life_f=floatval($acum["cap"])/($c_battery_life+1);
-																																													
-																																													$c_rating_f=round($c_rating);
-																																														//////// INSERT CONFIG IN DB//////////
-																																														$ex++; $c_value=$c_rating/$c_price;
+																																									///////FINAL TEST PRICE IS WITHING BOUNDRY ///////
+																																									
+																																									$c_battery_life_f=floatval($acum["cap"])/($c_battery_life+1);
+																																									$c_rating_f=round($c_rating);
+																																									//////// INSERT CONFIG IN DB//////////
+																																									$ex++; $c_value=$c_rating/$c_price;
 																									//echo "<br>".$cpu["price"]." ".$display["price"]." ".$mem["price"]." ".$hdd["price"]." ".$gpu["price"]." ".$wnet_key."-".$wnet["price"]." ".$odd_key."-".$odd["price"]." ".$mdb_key."-".$mdb["price"]." ".$chassis_key."-".$chassis["price"]." ".$acum_key."-".$acum["price"]." ".$war_key."-".$war["price"]." ".$sist_key."-".$sist["price"];
 																									//echo "<br>cpu".$cpu_id."-".$cpu["rating"]."-".$cpu_i." display".$display_id."-".$display["rating"]."-".$display_i." mem".$mem_id."-".$mem["rating"]."-".$mem_i." hdd".$hdd_id."-".$hdd["rating"]."-".$hdd_i." shdd".$shdd_id."-".$shdd["rating"]."-".$shdd_i." gpu".$gpu_id."-".$gpu["rating"]."-".$gpu_i." wnet".$wnet_id."-".$wnet["rating"]."-".$wnet_i." odd".$odd_id."-".$odd["rating"]."-".$odd_i." mdb".$mdb_id."-".$mdb["rating"]."-".$mdb_i." chassis".$chassis_id."-".$chassis["rating"]."-".$chassis_i." acum".$acum_id."-".$acum["rating"]."-".$acum_i." war".$war_id."-".$war["rating"]."-".$war_i." ".$sist_id."-".$sist["rating"]."-".$sist_i."aa".$c_rating;
 																									//max rand is 4294967294
@@ -632,14 +627,14 @@ function generate_configs(
 																								*/
 																																													
 																																
-																																													$c_price-=$chassis["price"];
-																																													$c_rating-=$chassis["rating"]*$chassis_i; 
-																																													$c_err-=$chassis["price"]*$chassis["err"]/100;								
-																																												}
-																																												$c_price-=$odd["price"]; $c_rating-=$odd["rating"]*$odd_i; $c_err-=$odd["price"]*$odd["err"]/100;
-																																									}
-																																								$c_price-=$wnet["price"]; $c_rating-=$wnet["rating"]*$wnet_i; $c_err-=$wnet["price"]*$wnet["err"]/100;
+																																									$c_price-=$chassis["price"];
+																																									$c_rating-=$chassis["rating"]*$chassis_i; 
+																																									$c_err-=$chassis["price"]*$chassis["err"]/100;								
+																																								}
+																																								$c_price-=$odd["price"]; $c_rating-=$odd["rating"]*$odd_i; $c_err-=$odd["price"]*$odd["err"]/100;
 																																							}
+																																							$c_price-=$wnet["price"]; $c_rating-=$wnet["rating"]*$wnet_i; $c_err-=$wnet["price"]*$wnet["err"]/100;
+																																						}
 																																					$c_price-=$shdd["price"]; $c_rating-=$shdd["rating"]*$shdd_i; $c_err-=$shdd["price"]*$shdd["err"]/100; $c_capacity-=$shdd["cap"]; $c_battery_life-=$shdd_battery_life; 
 																																				}
 																																				$c_price-=$sist["price"]; $c_err-=$sist["price"]*$sist["err"]/100; if(isset($sist["rating"])){$c_rating-=$sist["rating"]*$sist_i;}

@@ -1956,7 +1956,7 @@ while($rand = mysqli_fetch_array($result))
 												
 						
 						
-						if((stripos($x,"olufsen")!==FALSE) || (stripos($x,"jbl")!==FALSE) || (stripos($x,"klipsch")!==FALSE) || (stripos($x,"harman")!==FALSE) || (stripos($x,"dynaudio")!==FALSE) || (stripos($x,"sonicmaster")!==FALSE) && $z)
+						if((stripos($x,"olufsen")!==FALSE) || (stripos($x,"jbl")!==FALSE) || (stripos($x,"klipsch")!==FALSE) || (stripos($x,"dynaudio")!==FALSE) || (stripos($x,"altec")!==FALSE) || (stripos($x,"harman")!==FALSE) || (stripos($x,"sonicmaster")!==FALSE) && $z)
 						{
 
 							$object[]="Premium speakers";

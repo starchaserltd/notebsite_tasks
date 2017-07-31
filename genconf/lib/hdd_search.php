@@ -4,7 +4,7 @@
 
 function search_hdd ($model, $capmin, $capmax, $type, $readspeedmin, $readspeedmax, $writesmin, $writesmax, $rpmmin, $rpmmax, $misc, $ratemin, $ratemax, $pricemin, $pricemax)
 {
-	$sel_hdd="SELECT id,price,rating,err,cap,type FROM notebro_db.HDD WHERE 1=1";
+	$sel_hdd="SELECT id,price,rating,err,cap,type,model FROM notebro_db.HDD WHERE 1=1";
 	
 	// Add models to filter
 	$i=0;
@@ -172,7 +172,7 @@ function search_hdd ($model, $capmin, $capmax, $type, $readspeedmin, $readspeedm
 	
 	while($rand = mysqli_fetch_array($result)) 
 	{ 
-		$hdd_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"cap"=>intval($rand[4]),"type"=>strval($rand[5]));
+		$hdd_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"cap"=>intval($rand[4]),"type"=>strval($rand[5]),"model"=>strval($rand[6]));
 	}
 
 	mysqli_free_result($result);

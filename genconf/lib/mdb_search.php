@@ -16,7 +16,7 @@ if (mysqli_connect_errno($con)) {
 function search_mdb ($prod, $model, $ramcap, $gpu, $chip, $socket, $interface, $netw, $hdd, $misc, $ratemin, $ratemax, $pricemin, $pricemax)
 {
 
-	$sel_mdb="SELECT id,price,rating,err,msc FROM MDB WHERE ";
+	$sel_mdb="SELECT id,price,rating,err,msc,hdd FROM MDB WHERE ";
 	
 // Add producers to filter
 	$b=0;
@@ -366,7 +366,7 @@ function search_mdb ($prod, $model, $ramcap, $gpu, $chip, $socket, $interface, $
 	while($rand = mysqli_fetch_array($result)) 
 	{ 
 		if(stripos($rand[4],"optimus")===false && stripos($rand[4],"enduro")===false) { $rand[4]=0; } else {$rand[4]=1;} 
-		$mdb_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"optimus"=>$rand[4]);
+		$mdb_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"optimus"=>$rand[4],"hdd"=>$rand[5]);
 	}
 		mysqli_free_result($result);
 

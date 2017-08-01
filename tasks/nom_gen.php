@@ -85,18 +85,12 @@ while($rand = mysqli_fetch_array($result))
 		else
 		{
 			if($rand["tech"]>$object->{$rand["socket"]}->tech)
-			{
-			$object->{$rand["socket"]}->tech=$rand["tech"];
-			}
-			
-			if(strtotime($rand["ldate"])<strtotime($object->{$rand["socket"]}->ldate))
-			{
-			$object->{$rand["socket"]}->ldate=$rand["ldate"];
-			}
-			
+			{ $object->{$rand["socket"]}->tech=$rand["tech"]; }
+			//echo "<br>"; echo $rand["socket"]." "; var_dump($rand["ldate"]); var_dump(strtotime($rand["ldate"]));  var_dump($object->{$rand["socket"]}->ldate); var_dump(strtotime($object->{$rand["socket"]}->ldate));
+			if(strtotime($rand["ldate"])>strtotime($object->{$rand["socket"]}->ldate))
+			{ $object->{$rand["socket"]}->ldate=$rand["ldate"]; }
 		}
 	}
-	
 }
 
 mysqli_free_result($result);
@@ -109,20 +103,16 @@ end($object);
 $lastname=key($object);
 
 $insert="";
-foreach ($object as $socket)
+foreach ($object as $key=>$socket)
 {
 	$prop=$socket->prod;
 	$prop1=$socket->tech;
 	$prop2=$socket->ldate;
 
-	prev($object);
-	$name=key($object);
-	
-	if(!($name))
-		$name=$lastname;
-	
-	$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`, `prop`, `prop1`, `prop2`) VALUES ('$type', '$name' ,'$prop', '$prop1', '$prop2');";
+	$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`, `prop`, `prop1`, `prop2`) VALUES ('$type', '$key' ,'$prop', '$prop1', '$prop2');";
 }
+
+//echo "<br>"; echo $insert;
 
 if (mysqli_multi_query($con, $insert)) {
     echo "New cpu sockets created successfully<br>";

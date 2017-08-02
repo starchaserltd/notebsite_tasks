@@ -237,25 +237,25 @@ switch($stuff[$i][7]) {
 	{ $surfacetype=1; break; }
 }
 
+//sRGB
 if(isset($stuff[$i][8])&&(intval($stuff[$i][8])==0))
 { $stuff[$i][8]=55;}
-
 $srgbrating=$stuff[$i][8]/100;
 
-if(stripos($stuff[$i][11],"120 HZ")!==FALSE)
+//brightness 
+/* if(isset($stuff[$i][9])&&(intval($stuff[$i][9])==0))
+{ $stuff[$i][9]=55;}*/
+
+if(stripos($stuff[$i][12],"120 HZ")!==FALSE)
 { $surfacetype*=1.6;}
 else
 {
-	if(stripos($stuff[$i][11],"120HZ")!==FALSE)
+	if(stripos($stuff[$i][12],"120HZ")!==FALSE)
 	{ $surfacetype*=1.6;}
 }
 
-
-if($stuff[$i][9]==1)
-	$touchratio=1;
-else
-if($stuff[$i][9]==2)
-	$touchratio=0.001;	
+if($stuff[$i][10]==1) { $touchratio=1; }
+elseif($stuff[$i][10]==2) {	$touchratio=0.001;}
 
 $value=(0.40*$resrating+0.15*$surfacetype+0.19*$sizerating+0.10*$touchratio+0.05*$surfaceratio+0.05*$ratiorating+0.06*$srgbrating)*100;
 	

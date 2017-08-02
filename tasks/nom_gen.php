@@ -1909,76 +1909,61 @@ $result = mysqli_query($con, $sel);
 while($rand = mysqli_fetch_array($result)) 
 { 
 	if($rand[0])
-	{
-				
-				foreach(explode(",",$rand[0]) as $x)
-				{
-					$z=1;
-					
-					if(strcasecmp($x,"Standard")!=0)
-					{
-						
-						if((strpos($x,"IP")!==FALSE) && $z)
-						{
-							$z=0;
-						}
-						
-						
-						if(((stripos($x,"swap bridge")!==FALSE) || (stripos($x,"ethernet adapter")!==FALSE)) && $z)
-						{
-
-							$z=0;
-						}
-							
-						if((stripos($x,"optional")!==FALSE) && $z)
-						{
-
-							$x=str_ireplace(" (optional)","",$x);
-						}
-						
-						
-						if((stripos($x,"Legacy")!==FALSE) && $z)
-						{
-
-							$object[]="Legacy ports";
-							$z=0;
-						}
-												
-						
-						
-						if((stripos($x,"olufsen")!==FALSE) || (stripos($x,"jbl")!==FALSE) || (stripos($x,"klipsch")!==FALSE) || (stripos($x,"dynaudio")!==FALSE) || (stripos($x,"altec")!==FALSE) || (stripos($x,"harman")!==FALSE) || (stripos($x,"sonicmaster")!==FALSE) && $z)
-						{
-
-							$object[]="Premium speakers";
-							$z=0;
-						}
-						
-						if((stripos($x,"RS-232")!==FALSE) && $z){ $z=0; }
-						if((stripos($x,"ExpressCard")!==FALSE) && $z){ $z=0; }
-						if((stripos($x,"SmartCard")!==FALSE) && $z){ $z=0; }
-						if((stripos($x,"SIM card")!==FALSE) && $z){ $z=0; }	
-						if((stripos($x,"Touch Bar")!==FALSE) && $z){ $z=0; }
-						if((stripos($x,"VGA")!==FALSE) && $z){ $z=0; }						
-						
-						if((stripos($x,"Rear camera")!==FALSE) && $z)
-						{
-							$object[]="Rear camera";
-							$z=0;
-						}
-					}
-					else
-					{
-						$z=0;
-					}
-				
-				if($z) {  $object[]=$x; }
-				
-				if($z && $x=="IP65")
-					echo $rand[0];
-				}
+	{		
+		foreach(explode(",",$rand[0]) as $x)
+		{
+			$z=1;
 			
-	}
+			if(strcasecmp($x,"Standard"))
+			{
+				if(preg_match('/\d+\s*x\d+(.\d)*W\s*(speakers|subwoofer)/i',$x))
+				{ $z=0; }
+				
+				if((strpos($x,"Microphone")!==FALSE) && (strpos($x,"array")===FALSE)  && $z)
+				{ $z=0; }
+				
+				if((strpos($x,"IP")!==FALSE) && $z)
+				{ $z=0; }
+								
+				if(((stripos($x,"swap bridge")!==FALSE) || (stripos($x,"ethernet adapter")!==FALSE)) && $z)
+				{ $z=0; }
+					
+				if((stripos($x,"optional")!==FALSE) && $z)
+				{ $x=str_ireplace(" (optional)","",$x); }
+				
+				
+				if((stripos($x,"Legacy")!==FALSE) && $z)
+				{
+					$object[]="Legacy ports";
+					$z=0;
+				}
+										
+				if((stripos($x,"olufsen")!==FALSE) || (stripos($x,"jbl")!==FALSE) || (stripos($x,"klipsch")!==FALSE) || (stripos($x,"dynaudio")!==FALSE) || (stripos($x,"altec")!==FALSE) || (stripos($x,"harman")!==FALSE) || (stripos($x,"sonicmaster")!==FALSE) && $z)
+				{
+					$object[]="Premium speakers";
+					$z=0;
+				}
+				
+				if((stripos($x,"RS-232")!==FALSE) && $z){ $z=0; }
+				if((stripos($x,"ExpressCard")!==FALSE) && $z){ $z=0; }
+				if((stripos($x,"SmartCard")!==FALSE) && $z){ $z=0; }
+				if((stripos($x,"SIM card")!==FALSE) && $z){ $z=0; }	
+				if((stripos($x,"Touch Bar")!==FALSE) && $z){ $z=0; }
+				if((stripos($x,"VGA")!==FALSE) && $z){ $z=0; }						
+				
+				if((stripos($x,"Rear camera")!==FALSE) && $z)
+				{
+					$object[]="Rear camera";
+					$z=0;
+				}
+			}
+			else
+			{ $z=0; }
 		
+			if($z) {  $object[]=$x; }
+			if($z && $x=="IP65") { echo $rand[0]; }
+		}	
+	}
 }
 $object=array_unique($object);	
 mysqli_free_result($result);

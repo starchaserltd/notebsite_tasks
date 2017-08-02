@@ -186,7 +186,7 @@ $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_clock_max'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
-$sel="SELECT MIN(clocks), MAX(clocks) FROM notebro_db.CPU WHERE valid=1";
+$sel="SELECT MIN(maxtf), MAX(maxtf) FROM notebro_db.CPU WHERE valid=1";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 
 $min=round($rand[0],2);

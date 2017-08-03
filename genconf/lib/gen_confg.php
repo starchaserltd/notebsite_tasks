@@ -545,7 +545,7 @@ function generate_configs(
 																																					$shdd_battery_life=0;
 																																					$shdd=$shdd_list[$shdd_id];
 																																					$mdb_2sata=0; if(stripos($mdb["hdd"],"2 x SATA")!==FALSE){ $mdb_2sata=1; }
-																																					if((!$mdb_2sata && stripos($hdd["model"],"M.2")===FALSE && (stripos($shdd["model"],"N/A")===FALSE))||( $mdb_2sata && (stripos($hdd["type"],"SSD")===FALSE) && stripos($shdd["model"],"N/A")===FALSE ) ) { break 1; } break 1; }
+																																					if((!$mdb_2sata && stripos($hdd["model"],"M.2")===FALSE && (stripos($shdd["model"],"N/A")===FALSE))||( $mdb_2sata && (stripos($hdd["type"],"SSD")===FALSE) && stripos($shdd["model"],"N/A")===FALSE ) ) { break 1; }
 																																					$c_rating+=$shdd["rating"]*$shdd_i;
 																																					$c_price+=$shdd["price"];  //echo $shdd["price"]."-".$shdd_id."-".$c_price."shdd";
 																																					$c_err+=$shdd["price"]*$shdd["err"]/100; 																																					

@@ -26,9 +26,7 @@ ini_set('display_errors', 1);
 $allowdirect = 1;
 
 if(isset($allowdirect) && $allowdirect>0){
-	
-	
-	
+
 echo "It works!<br>";
 chdir("/var/www/vault/genconf");
 require_once("../etc/con_db.php");
@@ -36,11 +34,11 @@ require_once("../etc/con_sdb.php");
 $multicons=dbs_connect();
 $cons=$multicons[0];
 
-////// Nomenclatoare Modele
+////// Model nomenclature
 
 mysqli_query($con, "TRUNCATE notebro_site.nomen_models;");
 
-$sel="SELECT fam,prod FROM notebro_db.MODEL GROUP BY fam";
+$sel="SELECT prod FROM notebro_db.MODEL GROUP BY prod";
 $result = mysqli_query($con, $sel);
 
 $insert="";
@@ -48,10 +46,7 @@ $insert="";
 while($rand = mysqli_fetch_array($result)) 
 { 
 	$type=$rand["prod"];
-	$name=$rand["fam"];
-	
-	$insert.="INSERT INTO `notebro_site`.`nomen_models` (`prod`,`family`) VALUES ('$type', '$name');";
-
+	$insert.="INSERT INTO `notebro_site`.`nomen_models` (`prod`) VALUES ('$type');";
 }
 
 if (mysqli_multi_query($con, $insert)) {
@@ -903,7 +898,8 @@ foreach($models as $model)
 }
 
 if(isset($min) && isset ($max))
-{		$insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$min');";
+{	if($min<170){$min=170; echo "prices are messed up"; }
+	$insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$min');";
 	$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
 	
 	if (mysqli_multi_query($con, $insert)) { 
@@ -1788,22 +1784,25 @@ foreach ($object as $msc)
 {
 	$prop="";
 	switch($msc)
-			{
-				case (stripos($msc,'Aluminium') !== false):
-				$prop="metal";
-				break;
-				case (stripos($msc,'Magnesium') !== false):
-				$prop="metal";
-				break;
-				case (stripos($msc,'Magnalium') !== false):
-				$prop="metal";
-				break;				
-				case (stripos($msc,'Metal') !== false):
-				$prop="metal";
-				break;
-			}
+	{
+		case (stripos($msc,'Aluminium') !== false):
+		$prop="metal";
+		break;
+		case (stripos($msc,'Magnesium') !== false):
+		$prop="metal";
+		break;
+		case (stripos($msc,'Lithium') !== false):
+		$prop="metal";
+		break;
+		case (stripos($msc,'Magnalium') !== false):
+		$prop="metal";
+		break;				
+		case (stripos($msc,'Metal') !== false):
+		$prop="metal";
+		break;
+	}
 				
-		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', '$msc','$prop');";
+	$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', '$msc','$prop');";
 
 $i++;
 }

@@ -735,7 +735,7 @@ if(stripos($stuff[$i][17],"fingerprint")!==FALSE)
 	$rmsc[$id]--;
 }
 
-if((stripos($stuff[$i][17],"jbl")!==FALSE)||(stripos($stuff[$i][17],"klipsch")!==FALSE)||(stripos($stuff[$i][17],"harman")!==FALSE)||(stripos($stuff[$i][17],"olufsen")!==FALSE)||(stripos($stuff[$i][17],"altec")!==FALSE)||(stripos($stuff[$i][17],"sonicmaster")!==FALSE))
+if((stripos($stuff[$i][17],"jbl")!==FALSE)||(stripos($stuff[$i][17],"klipsch")!==FALSE)||(stripos($stuff[$i][17],"onkyo")!==FALSE)||(stripos($stuff[$i][17],"harman")!==FALSE)||(stripos($stuff[$i][17],"olufsen")!==FALSE)||(stripos($stuff[$i][17],"altec")!==FALSE)||(stripos($stuff[$i][17],"sonicmaster")!==FALSE))
 {
 	$rmsc[$id]+=2;
 	$rmsc[$id]--;

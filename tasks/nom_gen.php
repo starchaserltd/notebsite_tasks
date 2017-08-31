@@ -1740,7 +1740,7 @@ $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'ch_made'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
-$sel="SELECT DISTINCT made FROM notebro_db.CHASSIS WHERE valid=1";
+$sel="SELECT DISTINCT made FROM notebro_db.CHASSIS WHERE valid=1 ORDER BY made ASC";
 $result = mysqli_query($con, $sel);
 $object=(array) [];
 while($rand = mysqli_fetch_array($result)) 

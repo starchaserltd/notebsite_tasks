@@ -14,39 +14,41 @@ $maxvalues = mysqli_fetch_array($result);
 
 for($i=0;$i<$rownr;$i++)
 {
-$rating=array();
-$nr=0;
-$value=0;
-for($j=0;$j<7;$j++)
-{
-$stuff[$i][$j+4]=floatval($stuff[$i][$j+4]);
-if($stuff[$i][$j+4]>0)
-{
-	if($j==2)
-	{   $value+=floatval($maxvalues[$j])/$stuff[$i][$j+4]; }
-else
-{
-	$value+=$stuff[$i][$j+4]/floatval($maxvalues[$j]);
-}
+	$rating=array(); $nr=0; $value=0;
+	
+	for($j=0;$j<7;$j++)
+	{
+		$stuff[$i][$j+4]=floatval($stuff[$i][$j+4]);
+		if($stuff[$i][$j+4]>0)
+		{
+			if($j==2){ $value+=floatval($maxvalues[$j])/$stuff[$i][$j+4]; }
+			else
+			{ $value+=$stuff[$i][$j+4]/floatval($maxvalues[$j]); }
 
-$nr++;
+			$nr++;
+		}
+	}
+	
+	if($nr){$value/=$nr;}else{$value=0;}
+	
+	$rating[$stuff[$i][0]]=$value; $stuff[$i][3]=floatval($stuff[$i][3]);
+	if($stuff[$i][3]){$value2=($value+((35/$stuff[$i][3])-1)/300)*100;} else { $value2=($value+(0-1)/300)*100;}
+	
+	$value*=100;
+	//echo "<br>";
+	//var_dump($rating);
+	//$sql="UPDATE CPU SET ratingnew=$value, `rating+tdp`=$value2 WHERE id=".$stuff[$i][0];
+	mysqli_select_db($con,"notebro_db"); 
+	$sql="UPDATE notebro_db.CPU SET rating='$value' WHERE id='".$stuff[$i][0]."';";
+	//echo $sql; echo "<br>";
+	mysqli_query($con, $sql);
+	$sql="UPDATE notebro_rate.CPU SET ratingnew=$value WHERE id=".$stuff[$i][0];
+	//echo $sql; echo "<br>";
+	mysqli_query($con, $sql);
 }
-}
-$value/=$nr;
-$rating[$stuff[$i][0]]=$value;
-$stuff[$i][3]=floatval($stuff[$i][3]);
-$value2=($value+((35/$stuff[$i][3])-1)/300)*100;
-$value*=100;
-//echo "<br>";
-//var_dump($rating);
-//$sql="UPDATE CPU SET ratingnew=$value, `rating+tdp`=$value2 WHERE id=".$stuff[$i][0];
-$sql="UPDATE notebro_db.CPU SET rating=$value WHERE id=".$stuff[$i][0];
-//echo $sql; echo "<br>";
-mysqli_query($con, $sql);
-$sql="UPDATE notebro_rate.CPU SET ratingnew=$value WHERE id=".$stuff[$i][0];
-//echo $sql; echo "<br>";
-mysqli_query($con, $sql);
-}
+$sql="SELECT MAX(rating) FROM CPU"; $result = mysqli_query($con, $sql); $stuff = mysqli_fetch_row($result);
+$sql="UPDATE notebro_db.CPU SET rating=(rating/".floatval($stuff[0]).")*100"; mysqli_query($con, $sql);
+
 
 /* GPU RATING */
 

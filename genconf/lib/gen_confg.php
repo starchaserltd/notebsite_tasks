@@ -180,7 +180,6 @@ mysqli_query($con,"USE notebro_db;");
 
 $nr_configs=1;
 
-
 ///// BUILD TEMPORARY CONFIGURATIONS TABLE /////	
 function generate_configs(
         $con,
@@ -310,7 +309,8 @@ function generate_configs(
 										unset($shdd_conf);
 										$shdd_conf[]=0;
 										}
-									}	
+									}
+									sort($shdd_conf);
 									var_dump($shdd_conf);
 									
 									if($shdd_conf)

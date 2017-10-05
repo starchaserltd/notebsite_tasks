@@ -406,10 +406,12 @@ asort($object);
 $i=0;
 foreach ($object as $msc)
 {
-	if(stripos($msc,"AMD TC")!==FALSE)
+	$propthis="";
+	if(stripos($msc,"AMD TC")!==FALSE || stripos($msc,"XFR")!==FALSE)
 	{  $propthis="AMD"; }
-	else
-	{ $propthis=""; }
+	
+	if(stripos($msc,"BPT")!==FALSE || stripos($msc,"TBT")!==FALSE )
+	{  $propthis="INTEL"; }
 	
 	$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', '$msc','$propthis');"; $i++;
 }

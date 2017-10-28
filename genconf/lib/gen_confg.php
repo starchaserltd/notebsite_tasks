@@ -165,8 +165,9 @@ $sel2 = 'USE notebro_temp; CALL delete_tbls(); CALL allconf_tbl(); SELECT @table
 $cons=$multicons[$server];
 
 $ip_to_reset=explode(" ",mysqli_get_host_info ($cons))[0];
-shell_exec("ssh -i /var/www/vault/etc/Noteb_sdb.pem centos@".$ip_to_reset." -p 2212 -t 'sudo service mysql restart'");
-sleep(5);
+shell_exec("ssh -i /var/www/vault/etc/Noteb_sdb.pem centos@".$ip_to_reset." -o StrictHostKeyChecking=no -p 2212 'sudo systemctl restart mysql'");
+echo "ssh -i /var/www/vault/etc/Noteb_sdb.pem centos@".$ip_to_reset." -o StrictHostKeyChecking=no -p 2212 'sudo systemctl restart mysql'");;
+sleep(60);
 
 if (mysqli_multi_query($cons,$sel2)) { mysqli_next_result($cons);
 	do {

@@ -163,18 +163,23 @@ if (isset($_SESSION['temp_configs'])) {
 $sel2 = 'USE notebro_temp; CALL delete_tbls(); CALL allconf_tbl(); SELECT @tablename; ';
 //mysqli_multi_query($cons, $sel2) or die (mysqli_error ($cons) . " The query was:" . $sel2);
 $cons=$multicons[$server];
-	if (mysqli_multi_query($cons,$sel2)) { mysqli_next_result($cons);
-		do {
-			// Store first result set 
-			if ($result=mysqli_store_result($cons)) {
-				while ($row=mysqli_fetch_row($result)) {
-					$temp_table=$row[0];
-				}
-				mysqli_free_result($result);
+
+$ip_to_reset=explode(" ",mysqli_get_host_info ($cons))[0];
+shell_exec("ssh -i /var/www/vault/etc/Noteb_sdb.pem centos@".$ip_to_reset." -p 2212 -t 'sudo service mysql restart'");
+sleep(5);
+
+if (mysqli_multi_query($cons,$sel2)) { mysqli_next_result($cons);
+	do {
+		// Store first result set 
+		if ($result=mysqli_store_result($cons)) {
+			while ($row=mysqli_fetch_row($result)) {
+				$temp_table=$row[0];
 			}
+			mysqli_free_result($result);
 		}
-		while (mysqli_more_results($cons) && mysqli_next_result($cons));
 	}
+	while (mysqli_more_results($cons) && mysqli_next_result($cons));
+}
 
 mysqli_query($con,"USE notebro_db;");
 

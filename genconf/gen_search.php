@@ -38,7 +38,7 @@ $hosts_2=$servers_2[1];
 
 //$ip_to_reset=explode(" ",mysqli_get_host_info ($hosts_2[$server]))[0];
 shell_exec("ssh -i /var/www/vault/etc/Noteb_sdb.pem centos@".$hosts_2[$server]." -o StrictHostKeyChecking=no -p 2212 'sudo systemctl restart mysql'");
-echo "ssh -i /var/www/vault/etc/Noteb_sdb.pem centos@".$hosts_2[$server]." -o StrictHostKeyChecking=no -p 2212 'sudo systemctl restart mysql'";
+//echo "ssh -i /var/www/vault/etc/Noteb_sdb.pem centos@".$hosts_2[$server]." -o StrictHostKeyChecking=no -p 2212 'sudo systemctl restart mysql'";
 sleep(120);
 
 //initializare 1 variabila pentru functii

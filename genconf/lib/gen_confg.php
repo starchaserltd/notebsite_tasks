@@ -881,7 +881,7 @@ if ($rresult = mysqli_query($rcon, $rquery))
     if($result!==FALSE) {mysqli_free_result($result); }
 }
 mysqli_close($rcon);
-
+require_once("best_low_opt.php");
 
 $time_end = microtime(true);
 

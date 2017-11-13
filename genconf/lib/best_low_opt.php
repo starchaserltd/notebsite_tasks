@@ -2,8 +2,8 @@
 mysqli_select_db($cons,"notebro_temp");
 echo "<br>Generating optimal configurations"; $succes=0;
 mysqli_query($cons,"TRUNCATE TABLE notebro_temp.best_low_opt");
-$lastid = mysqli_fetch_row(mysqli_query($cons,"SELECT count(id) FROM notebro_db.MODEL WHERE 1=1"));//echo $lastid[0]; 
-$id =mysqli_query($cons,"SELECT DISTINCT id FROM notebro_db.MODEL WHERE 1=1"); //var_dump($id); 
+$lastid = mysqli_fetch_row(mysqli_query($con,"SELECT count(id) FROM notebro_db.MODEL WHERE 1=1"));//echo $lastid[0]; 
+$id =mysqli_query($con,"SELECT DISTINCT id FROM notebro_db.MODEL WHERE 1=1"); //var_dump($id); 
 while($ids = mysqli_fetch_array($id)){$idd[] = $ids;} //echo $idd[0]['id'];//var_dump($idd);  
 $query = '';
 for ($x = 0; $x <=$lastid[0]-1; $x++) 
@@ -34,5 +34,5 @@ for($x = 0;$x<=$lastid[0]-1;$x++ )
 	else { echo "ERROR: Could not able to execute $sql. " . mysqli_error($cons); }
 }
 if($succes){ echo "<br>Optimal configurations succesfully generated<br>"; } else { echo "<br>Optimal configurations generation failed<br>"; }
-mysqli_select_db($cons,"notebro_db");
+mysqli_select_db($con,"notebro_db");
 ?>

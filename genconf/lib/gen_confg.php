@@ -694,26 +694,7 @@ function values_to_str($xs) {
 }
 
 function chunk_to_json($chunk) {
-	$to_json = function ($c) {
-		return array(
-			"MODEL" => $c[1],
-			"CPU" => $c[2],
-			"DISPLAY" => $c[3],
-			"MEM" => $c[4],
-			"HDD" => $c[5],
-			"SHDD" => $c[6],
-			"GPU" => $c[7],
-			"WNET" => $c[8],
-			"ODD" => $c[9],
-			"MDB" => $c[10],
-			"CHASSIS" => $c[11],
-			"ACUM" => $c[12],
-			"WAR" => $c[13],
-			"SIST" => $c[14]
-		);
-	};
-
-	$xss = array_map($to_json, $chunk);
+	$xss = array_map("config_list_to_dict", $chunk);
 	$xss = array_map(function ($xs) { return array_map('intval', $xs); }, $xss);
 	return json_encode(array("ids" => $xss));
 }
@@ -812,20 +793,97 @@ mysqli_query($con, "USE notebro_db;");
 		$INSERT_ID_MODEL = "INSERT INTO notebro_temp.$temp_table (id, model) VALUES ";
 
 		//$raw["id"], $cpu_id, $display_id, $mem_id, $hdd_id, $shdd_id, $gpu_id, $wnet_id, $odd_id, $mdb_id, $chassis_id, $acum_id, $war_id, $sist_id,
-		insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server);
+		insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id,$rcon);
 	}
 	else
 	{ echo "Preventing memory overflow, insertation aborded!<br>"; }
 }
 
-function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server)
+function get_price_list($con,$model)
+{
+	$price_list=NULL;
+	$sql="SELECT other from notebro_prices.comp_match where model=$model";
+	$price_list=json_decode(mysqli_fetch_assoc(mysqli_query($con,$sql))["other"],true);
+	
+	if(isset($price_list["nodiscount"]) && $price_list["nodiscount"]!==NULL && $price_list["nodiscount"]!="")
+	{ $nodiscount=$price_list["nodiscount"]; }
+	else
+	{ $nodiscount=0; }
+
+	if(isset($price_list["prod"]) && $price_list["prod"]!==NULL && $price_list["prod"]!="")
+	{ $prod=$price_list["prod"]; }
+	else
+	{ $sql="SELECT prod from notebro_db.MODEL where id=$model"; $prod=mysqli_fetch_assoc(mysqli_query($con,$sql))["prod"]; if(!(isset($prod) && $prod)) { $prod=""; } }
+
+	$gotodan=0;
+	if(isset($price_list["webprice"]) && $price_list["webprice"]!==NULL && $price_list["webprice"]!="")
+	{
+		if(isset($price_list["baseprice"]) && $price_list["baseprice"]!==NULL && $price_list["baseprice"]!="")
+		{ 
+			if($prod!="Dell" && !$nodiscount ){ $baseprice=$price_list["webprice"]; $discount=$price_list["baseprice"]/$price_list["webprice"]; } else { $baseprice=$price_list["baseprice"]; $discount=1;} 
+			$price_list["prod"]=$prod; $price_list["discount"]=$discount; $price_list["baseprice"]=$baseprice;
+			return($price_list);
+		}
+		else 
+		{ return NULL; }
+	}
+	else 
+	{ return NULL; }
+}
+
+function calc_price($tocalc,$price_list) {	
+	$discount = $price_list["discount"];
+	$baseprice = $price_list["baseprice"];
+	$prod = $price_list["prod"];
+
+	foreach($tocalc as $key=>$val) {
+		if($key!="model" && (!isset($price_list[$key]) || !isset($price_list[$key][$val]) || is_null($price_list[$key][$val]) || $price_list[$key][$val]=="")) {
+			return null;
+		}
+	}
+	
+	$web_price=intval(($baseprice+$price_list["cpu"][$tocalc["cpu"]]+$price_list["display"][$tocalc["display"]]+$price_list["mem"][$tocalc["mem"]]+$price_list["hdd"][$tocalc["hdd"]]+$price_list["shdd"][$tocalc["shdd"]]+$price_list["odd"][$tocalc["odd"]]+$price_list["wnet"][$tocalc["wnet"]]+$price_list["mdb"][$tocalc["mdb"]]+$price_list["chassis"][$tocalc["chassis"]]+$price_list["acum"][$tocalc["acum"]]+$price_list["sist"][$tocalc["sist"]]+$price_list["gpu"][$tocalc["gpu"]])*$discount);
+			
+	switch($prod) {
+		case "Lenovo": { $web_price=intval($web_price+$price_list["war"][$tocalc["war"]]); break; }
+		case "HP": { $web_price=intval($web_price+$price_list["war"][$tocalc["war"]]*$discount); break; }
+		case "Dell": { $web_price=intval($web_price+$price_list["war"][$tocalc["war"]]*$discount)/$discount; break; }
+		default: { $web_price=intval($web_price+$price_list["war"][$tocalc["war"]]*$discount); break; }
+	}
+	return $web_price;
+}
+
+
+function config_list_to_dict($c) {
+	return array(
+		"MODEL" => $c[1],
+		"CPU" => $c[2],
+		"DISPLAY" => $c[3],
+		"MEM" => $c[4],
+		"HDD" => $c[5],
+		"SHDD" => $c[6],
+		"GPU" => $c[7],
+		"WNET" => $c[8],
+		"ODD" => $c[9],
+		"MDB" => $c[10],
+		"CHASSIS" => $c[11],
+		"ACUM" => $c[12],
+		"WAR" => $c[13],
+		"SIST" => $c[14]
+	);
+}
+
+function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id,$rcon)
 {
 	$reinsert=0;
+	$price_list = get_price_list($rcon, $model_id);
 	foreach(chunk($configs, $BATCH_SIZE) as $i => $chunk)
 	{
 		$chunk_array = iterator_to_array($chunk);
+		$precomputed_prices = array_map(function ($c) use ($price_list){ return calc_price(array_change_key_case(config_list_to_dict($c)), $price_list); }, $chunk_array);
 		$json_data = chunk_to_json($chunk_array);
-		$prices = post_request_to_web_service($json_data);
+		$classifier_prices = post_request_to_web_service($json_data);
+		$prices = array_map(function ($x, $y) { return $x ?: $y; }, $precomputed_prices, $classifier_prices);
 		replace_prices($chunk_array, $prices);
 		$query = $INSERT_QUERY . implode(", ", array_map("values_to_str", $chunk_array));
 		$cons=$multicons[$server];
@@ -848,7 +906,7 @@ function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$m
 			if($i)
 			{ $new_configs[]=$value;}
 		}
-		insert_function($new_configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server);
+		insert_function($new_configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id,$rcon);
 	}
 }
 

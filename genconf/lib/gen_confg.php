@@ -836,10 +836,10 @@ function calc_price($tocalc,$price_list) {
 	$baseprice = $price_list["baseprice"];
 	$prod = $price_list["prod"];
 
-	foreach($tocalc as $key=>$val) {
-		if($key!="model" && (!isset($price_list[$key]) || !isset($price_list[$key][$val]) || is_null($price_list[$key][$val]) || $price_list[$key][$val]=="")) {
-			return null;
-		}
+	foreach($tocalc as $key=>$val)
+	{
+		if($key!="model" && (!isset($price_list[$key]) || !isset($price_list[$key][$val]) || is_null($price_list[$key][$val]) || $price_list[$key][$val] === ""))
+		{ return null; }
 	}
 	
 	$web_price=intval(($baseprice+$price_list["cpu"][$tocalc["cpu"]]+$price_list["display"][$tocalc["display"]]+$price_list["mem"][$tocalc["mem"]]+$price_list["hdd"][$tocalc["hdd"]]+$price_list["shdd"][$tocalc["shdd"]]+$price_list["odd"][$tocalc["odd"]]+$price_list["wnet"][$tocalc["wnet"]]+$price_list["mdb"][$tocalc["mdb"]]+$price_list["chassis"][$tocalc["chassis"]]+$price_list["acum"][$tocalc["acum"]]+$price_list["sist"][$tocalc["sist"]]+$price_list["gpu"][$tocalc["gpu"]])*$discount);

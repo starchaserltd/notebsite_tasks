@@ -696,7 +696,8 @@ function values_to_str($xs) {
 function chunk_to_json($chunk) {
 	$xss = array_map("config_list_to_dict", $chunk);
 	$xss = array_map(function ($xs) { return array_map('intval', $xs); }, $xss);
-	return json_encode(array("ids" => $xss));
+	$j = json_encode(array("ids" => $xss));
+	return $j;
 }
 
 function post_request_to_web_service($json_data) {
@@ -843,7 +844,7 @@ function calc_price($tocalc,$price_list) {
 	}
 	
 	$web_price=intval(($baseprice+$price_list["cpu"][$tocalc["cpu"]]+$price_list["display"][$tocalc["display"]]+$price_list["mem"][$tocalc["mem"]]+$price_list["hdd"][$tocalc["hdd"]]+$price_list["shdd"][$tocalc["shdd"]]+$price_list["odd"][$tocalc["odd"]]+$price_list["wnet"][$tocalc["wnet"]]+$price_list["mdb"][$tocalc["mdb"]]+$price_list["chassis"][$tocalc["chassis"]]+$price_list["acum"][$tocalc["acum"]]+$price_list["sist"][$tocalc["sist"]]+$price_list["gpu"][$tocalc["gpu"]])*$discount);
-			
+
 	switch($prod) {
 		case "Lenovo": { $web_price=intval($web_price+$price_list["war"][$tocalc["war"]]); break; }
 		case "HP": { $web_price=intval($web_price+$price_list["war"][$tocalc["war"]]*$discount); break; }
@@ -873,7 +874,26 @@ function config_list_to_dict($c) {
 	);
 }
 
-function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id,$rcon)
+function update_maybe_values($maybe_values, $values) {
+	// Replaces the `null`s in `$maybe_values` with `$values`.
+	// Example:
+	//     update_maybe_values([1, null, 3], [2])
+	//     -> [1, 2, 3]
+	$i = 0;
+	$updated_values = [];
+	foreach ($maybe_values as $maybe_value) {
+		if (!is_null($maybe_value)) {
+			$value = $maybe_value;
+		} else {
+			$value = $values[$i];
+			$i++;
+		}
+		array_push($updated_values, $value); 
+	}
+	return $updated_values;
+}
+
+function insert_function($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id,$rcon)
 {
 	$reinsert=0;
 	$price_list = get_price_list($rcon, $model_id);
@@ -881,9 +901,9 @@ function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$m
 	{
 		$chunk_array = iterator_to_array($chunk);
 		$precomputed_prices = array_map(function ($c) use ($price_list){ return calc_price(array_change_key_case(config_list_to_dict($c)), $price_list); }, $chunk_array);
-		$json_data = chunk_to_json($chunk_array);
-		$classifier_prices = post_request_to_web_service($json_data);
-		$prices = array_map(function ($x, $y) { return $x ?: $y; }, $precomputed_prices, $classifier_prices);
+		$chunk_without_prices = array_values(array_filter($chunk_array, function ($i) use ($precomputed_prices) { return is_null($precomputed_prices[$i]); }, ARRAY_FILTER_USE_KEY));
+		$classifier_prices = post_request_to_web_service(chunk_to_json($chunk_without_prices));
+		$prices = update_maybe_values($precomputed_prices, $classifier_prices);
 		replace_prices($chunk_array, $prices);
 		$query = $INSERT_QUERY . implode(", ", array_map("values_to_str", $chunk_array));
 		$cons=$multicons[$server];
@@ -938,8 +958,8 @@ if ($rresult = mysqli_query($rcon, $rquery))
 	}
     if($result!==FALSE) {mysqli_free_result($result); }
 }
-mysqli_close($rcon);
 require_once("best_low_opt.php");
+mysqli_close($rcon);
 
 $time_end = microtime(true);
 

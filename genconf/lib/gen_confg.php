@@ -966,5 +966,5 @@ $time_end = microtime(true);
 $execution_time = ($time_end - $time_start);
 foreach ($multicons as $cons) { mysqli_close($cons); }
 printf("Time elapsed: %.6f s\n", $execution_time);
-
+mysqli_close($con);
 ?>

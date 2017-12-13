@@ -8,8 +8,8 @@ while($ids = mysqli_fetch_array($id)){$idd[] = $ids;} //echo $idd[0]['id'];//var
 $query = '';
 for ($x = 0; $x <=$lastid[0]-1; $x++) 
 {
-	$query.= "SET @p0 = 'all_conf_".$idd[$x]['id']."';";
-	$query.= "CALL optimal_conf(@p0);";
+	$query.= "SET @p0 = 'all_conf_".$idd[$x]['id']."'; SET @p1='".$idd[$x]['id']."';";
+	$query.= "CALL optimal_conf(@p0,@p1);";
 } 
 
 $array = array();						

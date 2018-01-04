@@ -690,13 +690,20 @@ while($rand = mysqli_fetch_array($result))
 				break;
 				case (strpos($elements[$i],'Nvidia MFAA') !== false):
 				$k=0;
+				break;
 				case (strpos($elements[$i],'Nvidia VXGI') !== false):
 				$k=0;
+				break;
 				case (strpos($elements[$i],'AMD TrueAudio') !== false):
 				$k=0;
+				break;
 				case (strpos($elements[$i],'AMD TressFX') !== false):
 				$k=0;
+				break;
 				case (strpos($elements[$i],'PowerPlay') !== false):
+				$k=0;
+				break;
+				case (strpos($elements[$i],'HDMI 1.4') !== false):
 				$k=0;
 				break;
 				case (strpos($elements[$i],'GPU Boost') !== false):

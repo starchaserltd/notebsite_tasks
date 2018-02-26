@@ -256,6 +256,9 @@ else
 	{ $surfacetype*=1.6;}
 }
 
+if(stripos($stuff[$i][12],"HDR")!==FALSE)
+{ $surfacetype*=1.4;}
+
 if($stuff[$i][10]==1) { $touchratio=1; }
 elseif($stuff[$i][10]==2) {	$touchratio=0.001;}
 

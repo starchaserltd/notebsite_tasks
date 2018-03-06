@@ -956,8 +956,33 @@ if ($rresult = mysqli_query($rcon, $rquery))
 			mysqli_query($cons, $setquery);
 		}
 	}
-    if($result!==FALSE) {mysqli_free_result($result); }
+    if($rresult!==FALSE) {mysqli_free_result($rresult); }
 }
+
+$rquery="SELECT * FROM notebro_prices.disabled_configs";
+if ($rresult = mysqli_query($rcon, $rquery))
+{
+    while ($rrow = mysqli_fetch_assoc($rresult))
+	{
+		$update="UPDATE `notebro_temp`.`all_conf_".$rrow["model"]."` SET price=0 WHERE model=".$rrow["model"]."";
+		if($rrow["cpu"]!==NULL){ $update.=" AND cpu IN (".$rrow["cpu"].")"; }
+		if($rrow["display"]!==NULL){ $update.=" AND display IN (".$rrow["display"].")"; }
+		if($rrow["mem"]!==NULL){ $update.=" AND mem IN (".$rrow["mem"].")"; }
+		if($rrow["hdd"]!==NULL){ $update.=" AND hdd IN (".$rrow["hdd"].")"; }
+		if($rrow["shdd"]!==NULL){ $update.=" AND shdd IN (".$rrow["shdd"].")"; }
+		if($rrow["gpu"]!==NULL){ $update.=" AND gpu IN (".$rrow["gpu"].")"; }
+		if($rrow["wnet"]!==NULL){ $update.=" AND wnet IN (".$rrow["wnet"].")"; }
+		if($rrow["odd"]!==NULL){ $update.=" AND odd IN (".$rrow["odd"].")"; }
+		if($rrow["mdb"]!==NULL){ $update.=" AND mdb IN (".$rrow["mdb"].")"; }
+		if($rrow["chassis"]!==NULL){ $update.=" AND chassis IN (".$rrow["chassis"].")"; }
+		if($rrow["acum"]!==NULL){ $update.=" AND acum IN (".$rrow["acum"].")"; }
+		if($rrow["war"]!==NULL){ $update.=" AND war IN (".$rrow["war"].")"; }
+		if($rrow["sist"]!==NULL){ $update.=" AND sist IN (".$rrow["sist"].")"; }
+		mysqli_query($cons, $update);
+	}
+	if($rresult!==FALSE) {mysqli_free_result($rresult); }
+}
+
 require_once("best_low_opt.php");
 mysqli_close($rcon);
 

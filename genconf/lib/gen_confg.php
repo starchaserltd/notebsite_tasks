@@ -467,9 +467,9 @@ function generate_configs(
 																						$c_price+=$display["price"]; // echo $c_price."display";
 																								
 																						if(stripos($display["backt"],"OLED")!==FALSE)
-																					    { $c_display_pwc=((floatval($display["size"])*0.10)+(pow(intval($display["res"]),0.5)*0.0026-3.6))*0.6; }
+																					    { $c_display_pwc=((floatval($display["size"])*0.10)+(pow(intval($display["res"]),0.5)*0.00255-3.4))*0.6; }
 																						else
-																						{ $c_display_pwc=((floatval($display["size"])*0.10)+(pow(intval($display["res"]),0.5)*0.0026-3.6))*0.7; }
+																						{ $c_display_pwc=((floatval($display["size"])*0.10)+(pow(intval($display["res"]),0.5)*0.00255-3.4))*0.7; }
 																						if($display['touch']==1){ $c_display_pwc+=(floatval($display["size"])*floatval($display["size"]))/400; }	
 																							$c_battery_life+=$c_display_pwc;
 																						//echo "consumption:".$display["res"]."res".$c_battery_life."endofc<br>";

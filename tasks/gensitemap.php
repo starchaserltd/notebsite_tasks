@@ -81,8 +81,11 @@ $mainpages=
 "http://noteb.com/?content/reviews.php",
 "http://noteb.com/?footer/about.php",
 "http://noteb.com/?footer/contact.php",
-"http://noteb.com/?model/comp.php?conf0=81276%26conf1=10860390%26conf2=10506097",
-"http://noteb.com/?search/search.php?type=1%26performfocus=1%26graphics=1%26display=1%26storage%5B%5D=1%26warmin=1%26warmax=2%26bdgmin=400%26bdgmax=2710%26exchange=USD"
+"https://noteb.com/?public/ireviews.php",
+"https://noteb.com/?public/api.php",
+"https://noteb.com/?public/api_tos.php",
+"https://noteb.com/?model/comp.php?conf0=615592510846506669_839&conf1=7081459548554593121_1192&conf2=6564362557581325102_1466&ex=USD",
+"https://noteb.com/?search/search.php?type=99&s_memmin=8&s_memmax=16&ssd=on&s_hddmin=180&s_hddmax=2048&s_dispsizemin=14&s_dispsizemax=15.6&display_type%5B%5D=1&display_type%5B%5D=3&display_type%5B%5D=7&graphics%5B%5D=1&region_type%5B%5D=1&bdgmin=640&bdgmax=1150&exchange=USD"
 ];
 
 $searchpages=

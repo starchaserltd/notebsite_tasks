@@ -1634,7 +1634,7 @@ $type=$rand["id"];
 $sel="SELECT DISTINCT vi FROM notebro_db.CHASSIS WHERE valid=1";
 $result = mysqli_query($con, $sel);
 $object=(array) [];
-$elements="";
+$elements=array();
 while($rand = mysqli_fetch_array($result)) 
 { 
 	if($rand[0])

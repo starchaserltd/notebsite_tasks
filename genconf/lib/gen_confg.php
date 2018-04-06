@@ -455,6 +455,7 @@ function generate_configs(
 																				//echo $c_battery_life; echo "a";
 																				if($gpu["arch"]=="Pascal"){$gpu["tdp"]/=1.5;}
 																				$gpu_bat_life=floatval($gpu["tdp"])/8;
+																				if($gpu["type"]==0){ $gpu_bat_life=0.2; }
 																				$testvalue=$c_battery_life; $c_battery_life+=$gpu_bat_life;
 																				//echo "consumption:".$c_battery_life."endofc<br>";
 																				$c_err+=$gpu["price"]*$gpu["err"]/100;
@@ -490,7 +491,7 @@ function generate_configs(
 																										{
 																											$mdb=$mdb_list[$mdb_id];
 																									//echo $c_battery_life; echo "a";
-																											if($mdb["optimus"]){ $c_battery_life-=$gpu_bat_life; $c_battery_life+=3; }
+																											if($mdb["optimus"] && $gpu_bat_life>3){ $c_battery_life-=$gpu_bat_life; $c_battery_life+=3; }
 																											$c_rating+=$mdb["rating"]*$mdb_i;
 																											$c_price+=$mdb["price"];  //echo $mdb_id."mdbid"; var_dump($mdb_list); echo "list"; var_dump($mdb); echo $c_price."mdb";
 																											$c_err+=$mdb["price"]*$mdb["err"]/100; 

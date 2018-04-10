@@ -440,7 +440,7 @@ function generate_configs(
 
 																		$c_rating+=$cpu["rating"]*$cpu_i;
 																		$cpu["price"]=$cpu["price"]*0.8;
-																		$cpu_bat_life=(0.5+floatval($cpu["tdp"])/7);
+																		$cpu_bat_life=round((0.5+floatval($cpu["tdp"])/7),5);
 																		$c_battery_life+=$cpu_bat_life;
 																		//echo "consumption:".$c_battery_life."endofc<br>";
 																		$c_price+=$cpu["price"]; //echo $c_price."cpu";
@@ -453,8 +453,9 @@ function generate_configs(
 																				$c_rating+=$gpu["rating"]*$gpu_i;
 																				$c_price+=$gpu["price"]; // echo $c_price."gpu";
 																				//echo $c_battery_life; echo "a";
+																				$gpu["tdp"]=floatval($gpu["tdp"]);
 																				if($gpu["arch"]=="Pascal"){$gpu["tdp"]/=1.5;}
-																				$gpu_bat_life=floatval($gpu["tdp"])/8;
+																				$gpu_bat_life=round((floatval($gpu["tdp"])/8),5);
 																				if($gpu["type"]==0){ $gpu_bat_life=0.2; }
 																				$testvalue=$c_battery_life; $c_battery_life+=$gpu_bat_life;
 																				//echo "consumption:".$c_battery_life."endofc<br>";
@@ -471,8 +472,9 @@ function generate_configs(
 																					    { $c_display_pwc=((floatval($display["size"])*0.10)+(pow(intval($display["res"]),0.5)*0.00255-3.4))*0.6; }
 																						else
 																						{ $c_display_pwc=((floatval($display["size"])*0.10)+(pow(intval($display["res"]),0.5)*0.00255-3.4))*0.7; }
-																						if($display['touch']==1){ $c_display_pwc+=(floatval($display["size"])*floatval($display["size"]))/400; }	
-																							$c_battery_life+=$c_display_pwc;
+																						if($display['touch']==1){ $c_display_pwc+=(floatval($display["size"])*floatval($display["size"]))/400; }
+																						$c_display_pwc=round($c_display_pwc,5);
+																						$c_battery_life+=$c_display_pwc;
 																						//echo "consumption:".$display["res"]."res".$c_battery_life."endofc<br>";
 																						$c_err+=$display["price"]*$display["err"]/100;
 																							foreach($acum_conf as $acum_id)
@@ -647,13 +649,13 @@ function generate_configs(
 																														}
 																														$c_price-=$war["price"]; $c_rating-=$war["rating"]*$war_i; $c_err-=$war["price"]*$war["err"]/100;
 																												}		
-																												$c_price-=$mdb["price"]; $c_rating-=$mdb["rating"]*$mdb_i; $c_err-=$mdb["price"]*$mdb["err"]/100; if($mdb["optimus"]){ $c_battery_life+=$gpu_bat_life; $c_battery_life-=3; }
+																												$c_price-=$mdb["price"]; $c_rating-=$mdb["rating"]*$mdb_i; $c_err-=$mdb["price"]*$mdb["err"]/100; if($mdb["optimus"] && $gpu_bat_life>3){ $c_battery_life-=3; $c_battery_life+=$gpu_bat_life;}
 																										}
 																										$c_price-=$acum["price"]; $c_rating-=$acum["rating"]*$acum_i; $c_err-=$acum["price"]*$acum["err"]/100;
 																								}
 																								$c_price-=$display["price"]; $c_rating-=$display["rating"]*$display_i; $c_err-=$display["price"]*$display["err"]/100; $c_battery_life-=$c_display_pwc;
 																					}
-																	$c_price-=$gpu["price"]; $c_rating-=$gpu["rating"]*$gpu_i; $c_err-=$gpu["price"]*$gpu["err"]/100; $c_battery_life-=$gpu_bat_life; //if($testvalue-$c_battery_life) { echo $testvalue." ".$shdd_battery_life." ".$hdd_battery_life." ".$c_display_pwc." ".($gpu["tdp"]/7)." ".$c_battery_life." ".$testvalue-$c_battery_life; echo "<br>"; }
+																	$c_price-=$gpu["price"]; $c_rating-=$gpu["rating"]*$gpu_i; $c_err-=$gpu["price"]*$gpu["err"]/100; $c_battery_life-=$gpu_bat_life; //if(1==1) { echo "battest:".$testvalue." ".$shdd_battery_life." ".$hdd_battery_life." ".$c_display_pwc." ".$gpu_bat_life." ".$c_battery_life." ".($testvalue-$c_battery_life); echo "<br>"; }
 																			}
 																	}
 																// end of for each	

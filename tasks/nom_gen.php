@@ -55,11 +55,9 @@ while($rand = mysqli_fetch_array($result))
 	$insert.="INSERT INTO `notebro_site`.`nomen_models` (`prod`) VALUES ('$type');";
 }
 
-if (mysqli_multi_query($con, $insert)) {
-    echo "New models created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} 
-} else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
-}
+ if (mysqli_multi_query($con, $insert)) { echo "New models created successfully<br>"; while(mysqli_more_results($con) && mysqli_next_result($con)) {;} } 
+ else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
+ mysqli_free_result($result);
 
 mysqli_query($con, "TRUNCATE notebro_site.nomen;");
 
@@ -115,13 +113,8 @@ foreach ($object as $key=>$socket)
 
 //echo "<br>"; echo $insert;
 
-if (mysqli_multi_query($con, $insert)) {
-    echo "New cpu sockets created successfully<br>";
-	while ( mysqli_more_results($con) && mysqli_next_result($con) )  {;} 
-} else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
-}
-
+if (mysqli_multi_query($con, $insert)) { echo "New cpu sockets created successfully<br>"; while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} } 
+else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
 
 /////// CPU PRODUCER GENERATION
 
@@ -143,13 +136,9 @@ while($rand = mysqli_fetch_array($result))
 	}
 }
 
-if (mysqli_multi_query($con, $insert)) {
-    echo "New cpu_producers created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} 
-} else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
-}
-
-
+if (mysqli_multi_query($con, $insert)) { echo "New cpu producers created successfully<br>"; while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} } 
+else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
+mysqli_free_result($result);
 
 /////// CPU CORES GENERATION
 
@@ -170,12 +159,8 @@ $insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$
 $max=round($rand[1],2);
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
 
-if (mysqli_multi_query($con, $insert)) { 
-    echo "New cpu_cores created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) )  {;} 
-} else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
-}
-
+if (mysqli_multi_query($con, $insert)) { echo "New cpu cores created successfully<br>"; while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} } 
+else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
 
 /////// CPU Frequency GENERATION
 
@@ -196,11 +181,8 @@ $insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$
 $max=round($rand[1],2);
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
 
-if (mysqli_multi_query($con, $insert)) { 
-    echo "New cpu_clocks created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) )  {;} 
-} else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
-}
+if (mysqli_multi_query($con, $insert)) { echo "New cpu max turbo created successfully<br>"; while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} } 
+else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
 
 /////// CPU Lunch Date GENERATION
 
@@ -221,13 +203,8 @@ $insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$
 $max=$rand[1];
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
 
-if (mysqli_multi_query($con, $insert)) { 
-    echo "New cpu_ldate created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) )  {;}  
-} else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
-}
-
-
+if (mysqli_multi_query($con, $insert)) { echo "New cpu launch date created successfully<br>"; while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} } 
+else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
 
 /////// CPU Tech GENERATION
 
@@ -249,11 +226,8 @@ $insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$
 $max=$rand[0];
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
 
-if (mysqli_multi_query($con, $insert)) { 
-    echo "New cpu_tech created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) )  {;} 
-} else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
-}
+if (mysqli_multi_query($con, $insert)) { echo "New cpu tech created successfully<br>"; while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} } 
+else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
 
 //CPU max tech values
 
@@ -268,23 +242,14 @@ $insert="";
 $nametech="";
 while($rand = mysqli_fetch_array($result)) 
 { 
-	if($rand["tech"])
-	{ 
-		$nametech=$nametech."".$rand["tech"].",";
-		
-	}
-	
+	if($rand["tech"]) {   $nametech=$nametech."".$rand["tech"].","; }
 }
 $nametech = trim($nametech,',');
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type', '$nametech');";
 
-if (mysqli_multi_query($con, $insert)) {
-    echo "New list_cputech  created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} 
-} else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
-}
-
-
+if (mysqli_multi_query($con, $insert)) { echo "New cpu tech 2 created successfully<br>"; while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} } 
+else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
+mysqli_free_result($result);
 
 /////// CPU TDP GENERATION
 
@@ -305,12 +270,8 @@ $insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$
 $max=$rand[1];
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
 
-if (mysqli_multi_query($con, $insert)) { 
-    echo "New cpu_tdp created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} 
-} else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
-}
-
+if (mysqli_multi_query($con, $insert)) { echo "New cpu tdp created successfully<br>"; while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} } 
+else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
 
 /////// GPU PRODUCER GENERATION
 
@@ -332,13 +293,8 @@ while($rand = mysqli_fetch_array($result))
 	}
 }
 
-if (mysqli_multi_query($con, $insert)) {
-    echo "New gpu_producers created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} 
-} else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
-}
-
-
+if (mysqli_multi_query($con, $insert)) { echo "New GPU producers created successfully<br>"; while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} } 
+else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
 mysqli_free_result($result);
 
 //// CPU MSC Generation
@@ -401,7 +357,7 @@ mysqli_free_result($result);
 $insert="";
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Intel Core i3','INTEL');";
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Intel Core i5','INTEL');";
-$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Intel Core i7','INTEL');";
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Intel Core i7/i9','INTEL');";
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'AMD Ryzen','AMD');";
 asort($object);
 $i=0;
@@ -947,6 +903,7 @@ $sel="SELECT MIN(batlife), MAX(batlife) FROM notebro_temp.all_conf_".$model[0];
 	if(isset($minmaxbat) && $minmaxbat!=FALSE)
 	{
 		$rand = mysqli_fetch_array($minmaxbat);
+		if(intval($rand[0])<0) { echo $model[0]."<br>"; }
 		if($min>$rand[0] && $rand[0]!=NULL) { $min=$rand[0]; /*$mymodel=$model[0];*/ } //echo $model[0]; echo " "; var_dump($rand); echo "<br>";
 		if($max<$rand[1] && $rand[1]!=NULL) { $max=$rand[1];}
 	}
@@ -1636,36 +1593,36 @@ $result = mysqli_query($con, $sel);
 $object=(array) [];
 $elements=array();
 while($rand = mysqli_fetch_array($result)) 
-{ 
-	if($rand[0])
-	$elements=explode(',',$rand[0]);
-	
+{
+	if(isset($rand[0])&& $rand[0])
+	{
+		$elements=explode(',',$rand[0]);
 		if(count($elements))
 		{
-		for($i=0; $i<count($elements); $i++)
-		{
-		$k=1;
-		//var_dump($elements[$i]); var_dump($i);
-		if(isset($elements[$i]))
-		{
-			switch($elements[$i])
+			for($i=0; $i<count($elements); $i++)
 			{
-				case (strpos($elements[$i],'urst') !== false):
-				$k=0;
-				break;
-				case "FreeSync":
-				$elements[$i]="G-Sync/FreeSync";	
-				break;
-			}
+				$k=1;
+				//var_dump($elements[$i]); var_dump($i);
+				if(isset($elements[$i]))
+				{
+					switch($elements[$i])
+					{
+						case (strpos($elements[$i],'urst') !== false):
+						$k=0;
+						break;
+						case "FreeSync":
+						$elements[$i]="G-Sync/FreeSync";	
+						break;
+					}
 				
-			if(!(in_array($elements[$i],$object))&&$k)
-			{
-				
-				$object[]=$elements[$i];
+					if(!(in_array($elements[$i],$object))&&$k)
+					{
+						$object[]=$elements[$i];
+					}
+				}
 			}
 		}
-		}
-		}
+	}
 }
 
 mysqli_free_result($result);
@@ -2077,7 +2034,6 @@ if (mysqli_multi_query($con, $insert)) {
 } else {
     echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
-
 
 mysqli_free_result($result);
 

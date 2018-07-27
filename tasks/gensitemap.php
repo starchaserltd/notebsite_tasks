@@ -80,6 +80,7 @@ $mainpages=
 "http://noteb.com/?content/articles.php",
 "http://noteb.com/?content/reviews.php",
 "http://noteb.com/?footer/about.php",
+"http://noteb.com/?footer/howto.php",
 "http://noteb.com/?footer/contact.php",
 "https://noteb.com/?public/ireviews.php",
 "https://noteb.com/?public/api.php",

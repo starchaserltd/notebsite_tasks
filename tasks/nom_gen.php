@@ -1800,53 +1800,64 @@ $object=(array) [];
 while($rand = mysqli_fetch_array($result)) 
 { 
 	if($rand[0])
-	{
-				
-				foreach(explode(",",$rand[0]) as $x)
+	{		
+		foreach(explode(",",$rand[0]) as $x)
+		{
+			$z=1;
+			if(strcasecmp($x,"Standard")!=0)
+			{
+				if((stripos($x,"Chiclet")!==FALSE) && (stripos($x,"Backlit")!==FALSE))
 				{
-					$z=1;
-					if(strcasecmp($x,"Standard")!=0)
+					$object[]="Chiclet keyboard";
+					$object[]="Backlit keyboard";
+					$z=0;
+				}
+				else
+				{	
+					if((stripos($x,"Standard")!==FALSE) && (stripos($x,"Backlit")!==FALSE))
 					{
-				
-						if((stripos($x,"Chiclet")!==FALSE) && (stripos($x,"Backlit")!==FALSE))
-						{
-							$object[]="Chiclet keyboard";
-							$object[]="Backlit keyboard";
-							$z=0;
-						}
-						else
-						{	
-							if((stripos($x,"Standard")!==FALSE) && (stripos($x,"Backlit")!==FALSE))
-							{
-								$object[]="Backlit keyboard";
-								$z=0;
-							}
-							
-							if((stripos($x,"Sealed")!==FALSE) && (stripos($x,"Backlit")!==FALSE))
-							{
-								$object[]="Sealed keyboard";
-								$object[]="Backlit keyboard";
-								$z=0;
-							}
-							
-							if(stripos($x,"RGB LED")!==FALSE)
-							{
-								$object[]="Backlit keyboard";
-								$z=0;
-							}
-						}
-					}
-					else
-					{
+						$object[]="Backlit keyboard";
 						$z=0;
 					}
-				
-							if($z)
-							{ $object[]=$x; }
-				
+					
+					if((stripos($x,"Sealed")!==FALSE) && (stripos($x,"Backlit")!==FALSE))
+					{
+						$object[]="Backlit keyboard";
+						$z=0;
+					}
+					
+					if(stripos($x,"Sealed")!==FALSE)
+					{
+						$object[]="Spill resistant";
+						$z=0;
+					}
+					
+					if((stripos($x,"Backlit")!==FALSE) && (stripos($x,"Virtual")!==FALSE))
+					{
+						$object[]="Virtual keyboard";
+						$object[]="Backlit keyboard";
+						$z=0;
+					}
+					
+					if(stripos($x,"RGB LED")!==FALSE)
+					{
+						$object[]="Backlit keyboard";
+						$z=0;
+					}
 				}
-		
-		}
+			}
+			else { $z=0; }
+			if($z){ $object[]=$x; }		
+		}	
+	}
+}
+
+foreach($object as $key=>$el)
+{
+	if(stripos($el,"Spill resistant")!==FALSE&&stripos($el,"Spill resistant keyboard")===FALSE)
+	{
+		$object[$key]="Spill resistant keyboard";
+	}
 }
 
 $sel="SELECT DISTINCT touch FROM notebro_db.CHASSIS WHERE valid=1";
@@ -1855,25 +1866,25 @@ while($rand = mysqli_fetch_array($result))
 { 
 	if($rand[0])
 	{
-				
-				foreach(explode(",",$rand[0]) as $x)
-				{
-					$z=1;
-					if(strcasecmp($x,"Force Touch")==0 && $z)
-					{ $z=0; }
-					
-					if(strcasecmp($x,"Multi-Touch")==0 && $z)
-					{ $z=0; }
-					
-					if(strcasecmp($x,"Standard")==0 && $z)
-					{ $z=0; }
-				
-					if($z)
-					{ $object[]=$x; }
-				
-				}
-	}
+		foreach(explode(",",$rand[0]) as $x)
+		{
+			$z=1;
+			if(strcasecmp($x,"Force Touch")==0 && $z)
+			{ $z=0; }
 		
+			if(strcasecmp($x,"Trackpad display")==0 && $z)
+			{ $z=0; }
+			
+			if(strcasecmp($x,"Multi-Touch")==0 && $z)
+			{ $z=0; }
+			
+			if(strcasecmp($x,"Standard")==0 && $z)
+			{ $z=0; }
+		
+			if($z)
+			{ $object[]=$x; }
+		}
+	}
 }
 
 $sel="SELECT DISTINCT msc FROM notebro_db.CHASSIS WHERE valid=1";

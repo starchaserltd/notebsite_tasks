@@ -1927,6 +1927,7 @@ while($rand = mysqli_fetch_array($result))
 					$z=0;
 				}
 				
+				if((stripos($x,"X LAN")!==FALSE) && $z){ $z=0; }
 				if((stripos($x,"RS-232")!==FALSE) && $z){ $z=0; }
 				if((stripos($x,"ExpressCard")!==FALSE) && $z){ $z=0; }
 				if((stripos($x,"SmartCard")!==FALSE) && $z){ $z=0; }

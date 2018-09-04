@@ -1908,7 +1908,7 @@ while($rand = mysqli_fetch_array($result))
 				if((strpos($x,"IP")!==FALSE) && $z)
 				{ $z=0; }
 								
-				if(((stripos($x,"swap bridge")!==FALSE) || (stripos($x,"ethernet adapter")!==FALSE)) && $z)
+				if(((stripos($x,"swap bridge")!==FALSE) || (stripos($x,"ethernet adapter")!==FALSE) || (stripos($x,"ethernet extension")!==FALSE)) && $z)
 				{ $z=0; }
 					
 				if((stripos($x,"optional")!==FALSE) && $z)

@@ -33,7 +33,7 @@ function db_super_connect()
 }
 
 echo "Doing the ratings!<br>";
-$ch = curl_init('http://86.123.134.36/admin/tasks/rating.php');
+$ch = curl_init('http://86.123.134.36/notebro/admin/tasks/rating.php');
 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
 curl_setopt($ch, CURLOPT_HTTPHEADER, array("X-HTTP-Method-Override: GET"));
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

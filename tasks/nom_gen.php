@@ -589,15 +589,13 @@ $propthis=(array) [];
 $j=0;
 while($rand = mysqli_fetch_array($result)) 
 { 
-	if($rand[0])
-	$elements=explode(',',$rand[0]);
-
-		if(count($elements))
-		{
+	if($rand[0]){ $elements=explode(',',$rand[0]); }
+	if(count($elements))
+	{
 		for($i=0; $i<count($elements); $i++)
 		{
-		$k=1;
-		switch($elements[$i])
+			$k=1;
+			switch($elements[$i])
 			{
 				case (strpos($elements[$i],'Burst') !== false):
 				$k=0;
@@ -675,8 +673,7 @@ while($rand = mysqli_fetch_array($result))
 				break;*/
 
 			}
-			
-			
+				
 			if(!(in_array($elements[$i],$object))&&$k)
 			{
 				//var_dump($k);
@@ -684,7 +681,7 @@ while($rand = mysqli_fetch_array($result))
 				$j++;
 			}
 		}
-		}
+	}
 }
 
 mysqli_free_result($result);
@@ -709,12 +706,13 @@ foreach ($object as $msc)
 	}
 $i++;
 }
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type','MXM card', 'ALL');";
 
 if (mysqli_multi_query($con, $insert)) {
-    echo "New gpu msc created successfully<br>";
+	echo "New gpu msc created successfully<br>";
 	while ( mysqli_more_results($con) && mysqli_next_result($con) )  {;}  
 } else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
+	echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
 
 /////// Hdd capacity min max

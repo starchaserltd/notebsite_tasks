@@ -706,7 +706,7 @@ foreach ($object as $msc)
 	}
 $i++;
 }
-$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type','MXM card', 'ALL');";
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type','Replaceable (MXM)', 'ALL');";
 
 if (mysqli_multi_query($con, $insert)) {
 	echo "New gpu msc created successfully<br>";

@@ -291,26 +291,25 @@ function generate_configs(
 								{
 									//var_dump($raw["shdd"]);
 									$shdd_model=explode(",",$raw["shdd"]);
-									$shdd_model[]=0;
 									if($shdd_s)
 									{
 										$shdd_conf=array_intersect($shdd_model,array_keys($shdd_list));
 									}
 									else
 									{ //var_dump($model_id); var_dump($shdd_model); echo "<br><br><br><br>";
-										if(($shdd_model[0]!=0) || (count($shdd_model)>1))
+										if(count($shdd_model)>0)
 										{
-										$shdd_list=nolist("HDD",$shdd_model,0);
-										$shdd_conf=array_keys($shdd_list);				
-										//echo "balbla";
-										//var_dump($shdd_list);
+											$shdd_list=nolist("HDD",$shdd_model,0);
+											$shdd_conf=array_keys($shdd_list);				
 										}
 										else
 										{
-										unset($shdd_conf);
-										$shdd_conf[]=0;
+											$shdd_conf=array(0);
 										}
+										//echo "balbla";
+										//var_dump($shdd_list);
 									}
+									$shdd_conf=array_unique($shdd_conf);
 									sort($shdd_conf);
 									var_dump($shdd_conf);
 									

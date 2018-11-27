@@ -599,6 +599,9 @@ function generate_configs(
 																																									$c_rating_f=round($c_rating);
 																																									//////// INSERT CONFIG IN DB//////////
 																																									$ex++; $c_value=$c_rating/$c_price;
+																																									if(is_infinite($c_battery_life_f)){ $c_battery_life_f=-1; }
+																																									if(is_infinite($c_rating_f)){ $c_rating_f=-1; }else{if($c_rating_f==0){$c_rating_f=1;}}
+																																									if(is_infinite($c_value)){ $c_value=-1; }
 																									//echo "<br>".$cpu["price"]." ".$display["price"]." ".$mem["price"]." ".$hdd["price"]." ".$gpu["price"]." ".$wnet_key."-".$wnet["price"]." ".$odd_key."-".$odd["price"]." ".$mdb_key."-".$mdb["price"]." ".$chassis_key."-".$chassis["price"]." ".$acum_key."-".$acum["price"]." ".$war_key."-".$war["price"]." ".$sist_key."-".$sist["price"];
 																									//echo "<br>cpu".$cpu_id."-".$cpu["rating"]."-".$cpu_i." display".$display_id."-".$display["rating"]."-".$display_i." mem".$mem_id."-".$mem["rating"]."-".$mem_i." hdd".$hdd_id."-".$hdd["rating"]."-".$hdd_i." shdd".$shdd_id."-".$shdd["rating"]."-".$shdd_i." gpu".$gpu_id."-".$gpu["rating"]."-".$gpu_i." wnet".$wnet_id."-".$wnet["rating"]."-".$wnet_i." odd".$odd_id."-".$odd["rating"]."-".$odd_i." mdb".$mdb_id."-".$mdb["rating"]."-".$mdb_i." chassis".$chassis_id."-".$chassis["rating"]."-".$chassis_i." acum".$acum_id."-".$acum["rating"]."-".$acum_i." war".$war_id."-".$war["rating"]."-".$war_i." ".$sist_id."-".$sist["rating"]."-".$sist_i."aa".$c_rating;
 																									//max rand is 4294967294

@@ -453,7 +453,7 @@ function generate_configs(
 																				$c_price+=$gpu["price"]; // echo $c_price."gpu";
 																				//echo $c_battery_life; echo "a";
 																				$gpu["tdp"]=floatval($gpu["tdp"]);
-																				if($gpu["arch"]=="Pascal"){$gpu["tdp"]/=1.5;}
+																				if($gpu["arch"]=="Pascal"||$gpu["arch"]=="Turing"){$gpu["tdp"]/=1.5;}
 																				$gpu_bat_life=round((floatval($gpu["tdp"])/8),5);
 																				if($gpu["type"]==0){ $gpu_bat_life=0.2; }
 																				$testvalue=$c_battery_life; $c_battery_life+=$gpu_bat_life;

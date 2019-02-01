@@ -649,6 +649,9 @@ while($rand = mysqli_fetch_array($result))
 				case (strpos($elements[$i],'Nvidia VXGI') !== false):
 				$k=0;
 				break;
+				case (strpos($elements[$i],'Nvidia DLSS') !== false):
+				$k=0;
+				break;
 				case (strpos($elements[$i],'AMD TrueAudio') !== false):
 				$k=0;
 				break;

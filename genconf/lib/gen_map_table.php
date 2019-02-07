@@ -27,7 +27,7 @@ if(mysqli_multi_query($cons,"SET @p0='".$regions."'; CALL `gen_map_table`(@p0);"
 } 
 
 mysqli_select_db($con,"notebro_db");
-$query="SELECT `id`,`p_model`,`regions` FROM `notebro_db`.`MODEL`";
+$query="SELECT `id`,`p_model`,`regions`,`show_smodel` FROM `notebro_db`.`MODEL`";
 $result=mysqli_query($con,$query);
 $map=new stdClass(); 
 while($row=mysqli_fetch_assoc($result))
@@ -35,7 +35,7 @@ while($row=mysqli_fetch_assoc($result))
 	if(!(isset($row["p_model"])&&$row["p_model"]!=""&&$row["p_model"]!=null))
 	{ mysqli_query($con,"UPDATE `notebro_db`.`MODEL` SET `p_model`='".$row["id"]."' WHERE id=".$row["id"].""); $row["p_model"]=$row["id"]; }
 	
-	$map->{$row["id"]}=new stdClass(); $map->{$row["id"]}->pmodel=array(0=>$row["p_model"]);
+	$map->{$row["id"]}=new stdClass(); $map->{$row["id"]}->pmodel=array(0=>$row["p_model"]); $map->{$row["id"]}->show_smodel=array(0=>intval($row["show_smodel"]));
 	$result2=mysqli_query($con,"SELECT `id`,`regions` FROM `notebro_db`.`MODEL` WHERE `p_model`=".$row["p_model"]."");
 	while($row2=mysqli_fetch_assoc($result2))
 	{

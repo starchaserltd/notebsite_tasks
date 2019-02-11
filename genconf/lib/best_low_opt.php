@@ -1,7 +1,7 @@
 <?php
 mysqli_select_db($cons,"notebro_temp");
 echo "<br>Generating optimal configurations"; $succes=0;
-mysqli_query($cons,"TRUNCATE TABLE notebro_temp.best_low_opt");
+mysqli_query($cons,"CALL `gen_best_low_tbl`();");
 $lastid = mysqli_fetch_row(mysqli_query($con,"SELECT count(id) FROM notebro_db.MODEL WHERE 1=1"));//echo $lastid[0]; 
 $id =mysqli_query($con,"SELECT DISTINCT id FROM notebro_db.MODEL WHERE 1=1"); //var_dump($id); 
 while($ids = mysqli_fetch_array($id)){$idd[] = $ids;} //echo $idd[0]['id'];//var_dump($idd);  

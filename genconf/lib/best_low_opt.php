@@ -33,9 +33,21 @@ if(isset($array) && count($array)>0)
 {
 	foreach($array as $key=>$val)
 	{
-		$sql = "INSERT INTO notebro_temp.best_low_opt (id_model,lowest_price,best_performance,best_value) values (".$key.",".$val[0].",".$val[1].",".$val[2].")" ;
-		if(mysqli_query($cons, $sql)){ $succes=1; /*echo "INSERTED".$idd[$x]['id']."<br>";*/ }
-		else { echo "ERROR: Could not able to execute $sql. " . mysqli_error($cons); }
+		$no_insert=0;
+		for($i=0;$i<3;$i++)
+		{
+			if(!(isset($val[$i])&&$val[$i]!=NULL&&$val[$i]!=""))
+			{$val[$i]=""; $no_insert++;}
+		}
+			
+		if($no_insert<=1)
+		{
+			$sql = "INSERT INTO notebro_temp.best_low_opt (id_model,lowest_price,best_performance,best_value) values ('".$key."','".$val[0]."','".$val[1]."','".$val[2]."')" ;
+			if(mysqli_query($cons, $sql)){ $succes=1; /*echo "INSERTED".$idd[$x]['id']."<br>";*/ }
+			else { echo "ERROR: Could not able to execute $sql. " . mysqli_error($cons); }
+		}
+		else
+		{ echo "<br>Unable to generate optimal configs for model id: ".$key."."; }
 	}
 }
 

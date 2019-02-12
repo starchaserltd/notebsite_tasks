@@ -1,5 +1,5 @@
 <?php
-ini_set('memory_limit', '512M');
+ini_set('memory_limit', '1024M');
 echo "Start";
 $multicons=dbs_connect();
 foreach ($multicons as $cons)

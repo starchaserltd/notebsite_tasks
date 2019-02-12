@@ -73,9 +73,9 @@ while($row=mysqli_fetch_assoc($result))
 			{
 				if($model!=NULL&&$model!="")
 				{
-					$sql_price[]="(SELECT `model`,`id`,`price` FROM `notebro_temp`.`all_conf_".$model."` WHERE `id`=(SELECT `lowest_price` FROM `notebro_temp`.`best_low_opt` WHERE `id_model`=".$model." LIMIT 1) LIMIT 1)";
-					$sql_value[]="(SELECT `model`,`id`,`value` FROM `notebro_temp`.`all_conf_".$model."` WHERE `id`=(SELECT `best_value` FROM `notebro_temp`.`best_low_opt` WHERE `id_model`=".$model." LIMIT 1) LIMIT 1)";
-					$sql_performance[]="(SELECT `model`,`id`,`rating` FROM `notebro_temp`.`all_conf_".$model."` WHERE `id`=(SELECT `best_performance` FROM `notebro_temp`.`best_low_opt` WHERE `id_model`=".$model." LIMIT 1) LIMIT 1)";
+					array_push($sql_price,"(SELECT `model`,`id`,`price` FROM `notebro_temp`.`all_conf_".$model."` WHERE `id`=(SELECT `lowest_price` FROM `notebro_temp`.`best_low_opt` WHERE `id_model`=".$model." LIMIT 1) LIMIT 1)");
+					array_push($sql_value,"(SELECT `model`,`id`,`value` FROM `notebro_temp`.`all_conf_".$model."` WHERE `id`=(SELECT `best_value` FROM `notebro_temp`.`best_low_opt` WHERE `id_model`=".$model." LIMIT 1) LIMIT 1)");
+					array_push($sql_performance,"(SELECT `model`,`id`,`rating` FROM `notebro_temp`.`all_conf_".$model."` WHERE `id`=(SELECT `best_performance` FROM `notebro_temp`.`best_low_opt` WHERE `id_model`=".$model." LIMIT 1) LIMIT 1)");
 				}
 			}
 			if(count($sql_price>0))

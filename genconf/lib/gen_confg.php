@@ -987,10 +987,10 @@ if ($rresult = mysqli_query($rcon, $rquery))
 	}
 	if($rresult!==FALSE) {mysqli_free_result($rresult); }
 }
+mysqli_close($rcon);
 
 require_once("gen_map_table.php");
 require_once("best_low_opt.php");
-mysqli_close($rcon);
 
 $time_end = microtime(true);
 

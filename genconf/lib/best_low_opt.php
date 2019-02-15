@@ -58,7 +58,7 @@ $result=mysqli_query($con,$sql); $regions_id=array();
 while($row=mysqli_fetch_assoc($result))
 { $regions_id[]=$row["id"]; } mysqli_free_result($result);
 
-$sql="SELECT * FROM `notebro_temp`.`m_map_table` WHERE `model_id`=`pmodel`";
+$sql="SELECT * FROM `notebro_temp`.`m_map_table` GROUP BY `pmodel`";
 $result=mysqli_query($cons,$sql);
 while($row=mysqli_fetch_assoc($result))
 {

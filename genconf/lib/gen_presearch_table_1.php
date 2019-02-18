@@ -1,5 +1,4 @@
 <?php
-
 if ($result = mysqli_query($con, "SELECT DATABASE()")) {
     $row = mysqli_fetch_row($result);
     printf("Default database is %s.\n", $row[0]);
@@ -21,18 +20,10 @@ $result=mysqli_query($con,$sql);
 if($result&&mysqli_num_rows($result)>0)
 {
 	while($row=mysqli_fetch_assoc($result))
-	{
-		$sql="SELECT min(`price`) as `min_price` FROM `notebro_temp`.`all_conf_".$row['id']."` LIMIT 1";
-		$result_price=mysqli_query($cons,$sql);
-		if($result_price&&mysqli_num_rows($result_price>0))
-		{ $min_price=mysqli_fetch_assoc($result_price)["min_price"]; }
-		else
-		{ $min_price=0;}
-		
-		$insert_sql="INSERT INTO `notebro_temp`.`presearch_tbl` (`model_id`,`cpu`,`display`,`mem`,`hdd`,`shdd`,`gpu`,`wnet`,`odd`,`mdb`,`chassis`,`acum`,`war`,`sist`,`price`) VALUES ('".$row["id"]."','".$row["cpu"]."','".$row["display"]."','".$row["mem"]."','".$row["hdd"]."','".$row["shdd"]."','".$row["gpu"]."','".$row["wnet"]."','".$row["odd"]."','".$row["mdb"]."','".$row["chassis"]."','".$row["acum"]."','".$row["warranty"]."','".$row["sist"]."','".$min_price."')";
+	{	
+		$insert_sql="INSERT INTO `notebro_temp`.`presearch_tbl` (`model_id`,`cpu`,`display`,`mem`,`hdd`,`shdd`,`gpu`,`wnet`,`odd`,`mdb`,`chassis`,`acum`,`war`,`sist`,`price`) VALUES ('".$row["id"]."','".$row["cpu"]."','".$row["display"]."','".$row["mem"]."','".$row["hdd"]."','".$row["shdd"]."','".$row["gpu"]."','".$row["wnet"]."','".$row["odd"]."','".$row["mdb"]."','".$row["chassis"]."','".$row["acum"]."','".$row["warranty"]."','".$row["sist"]."','0')";
 		if(!mysqli_query($cons,$insert_sql)){echo("Error description: ".mysqli_error($cons)." ".$insert_sql."<br>");}
 	}
 }
-
-
+mysqli_free_result($result);
 ?>

@@ -6,7 +6,7 @@ foreach ($multicons as $cons)
 { var_dump($cons); echo "<br>";}
 echo "<br><br>";
 
-require_once("gen_presearch_table.php");
+require_once("gen_presearch_table_1.php");
 
 /////// FIRST LETS GET THE COMPONENT FILTER LIST
 	if($cpu_s)
@@ -993,6 +993,7 @@ mysqli_close($rcon);
 
 require_once("gen_map_table.php");
 require_once("best_low_opt.php");
+require_once("gen_presearch_table_2.php");
 
 $time_end = microtime(true);
 

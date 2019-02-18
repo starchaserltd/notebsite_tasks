@@ -991,9 +991,9 @@ if ($rresult = mysqli_query($rcon, $rquery))
 }
 mysqli_close($rcon);
 
+require_once("gen_presearch_table_2.php");
 require_once("gen_map_table.php");
 require_once("best_low_opt.php");
-require_once("gen_presearch_table_2.php");
 
 $time_end = microtime(true);
 

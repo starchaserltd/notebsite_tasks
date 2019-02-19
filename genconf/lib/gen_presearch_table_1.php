@@ -21,7 +21,7 @@ if($result&&mysqli_num_rows($result)>0)
 {
 	while($row=mysqli_fetch_assoc($result))
 	{	
-		$insert_sql="INSERT INTO `notebro_temp`.`presearch_tbl` (`model_id`,`cpu`,`display`,`mem`,`hdd`,`shdd`,`gpu`,`wnet`,`odd`,`mdb`,`chassis`,`acum`,`war`,`sist`,`price`) VALUES ('".$row["id"]."','".$row["cpu"]."','".$row["display"]."','".$row["mem"]."','".$row["hdd"]."','".$row["shdd"]."','".$row["gpu"]."','".$row["wnet"]."','".$row["odd"]."','".$row["mdb"]."','".$row["chassis"]."','".$row["acum"]."','".$row["warranty"]."','".$row["sist"]."','0')";
+		$insert_sql="INSERT INTO `notebro_temp`.`presearch_tbl` (`model_id`,`cpu`,`display`,`mem`,`hdd`,`shdd`,`gpu`,`wnet`,`odd`,`mdb`,`chassis`,`acum`,`war`,`sist`,`min_price`) VALUES ('".$row["id"]."','".$row["cpu"]."','".$row["display"]."','".$row["mem"]."','".$row["hdd"]."','".$row["shdd"]."','".$row["gpu"]."','".$row["wnet"]."','".$row["odd"]."','".$row["mdb"]."','".$row["chassis"]."','".$row["acum"]."','".$row["warranty"]."','".$row["sist"]."','0')";
 		if(!mysqli_query($cons,$insert_sql)){echo("Error description: ".mysqli_error($cons)." ".$insert_sql."<br>");}
 	}
 }

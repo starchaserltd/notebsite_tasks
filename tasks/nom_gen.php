@@ -872,7 +872,7 @@ foreach($models as $model)
 }
 
 if(isset($min) && isset ($max))
-{	if($min<170){$min=170; echo "prices are messed up"; }
+{	if($min<120){$min=120; echo "prices are messed up"; }
 	$insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$min');";
 	$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
 	

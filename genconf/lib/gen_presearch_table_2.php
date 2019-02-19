@@ -1,4 +1,6 @@
 <?php
+echo "<br>Generating presearch table prices"; $succes=0;
+
 $sql="SELECT `model_id` FROM `notebro_temp`.`presearch_tbl`";
 $result=mysqli_query($cons,$sql);
 

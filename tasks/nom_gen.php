@@ -1935,7 +1935,9 @@ while($rand = mysqli_fetch_array($result))
 				if((stripos($x,"SmartCard")!==FALSE) && $z){ $z=0; }
 				if((stripos($x,"SIM card")!==FALSE) && $z){ $z=0; }	
 				if((stripos($x,"Touch Bar")!==FALSE) && $z){ $z=0; }
-				if((stripos($x,"VGA")!==FALSE) && $z){ $z=0; }						
+				if((stripos($x,"VGA")!==FALSE) && $z){ $z=0; }
+				if((stripos($x,"X DP")!==FALSE) && $z){ $z=0; }
+				if((stripos($x,"numpad")!==FALSE) && $z){ $z=0; }				
 				
 				if((stripos($x,"Rear camera")!==FALSE) && $z)
 				{

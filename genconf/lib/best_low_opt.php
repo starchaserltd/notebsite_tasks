@@ -1,4 +1,5 @@
 <?php
+$con=mysqli_connect($host, $user, $pass, $database);
 if ($result = mysqli_query($cons, "SELECT DATABASE()")) {
     $row = mysqli_fetch_row($result);
     printf("Default database is %s.\n", $row[0]);
@@ -94,8 +95,8 @@ while($row=mysqli_fetch_assoc($result))
 	foreach($regions_id as $reg_key=>$reg_val)
 	{
 		$sql2="SELECT CONCAT(IFNULL(`0`,''),',',IFNULL(`1`,''),',',IFNULL(`".$reg_key."`,'')) as `models` FROM `notebro_temp`.`m_map_table` WHERE `model_id`='".$row["model_id"]."_".$reg_key."' LIMIT 1";
-		$result2=mysqli_query($con,$sql2);
-		
+		$result2=mysqli_query($cons,$sql2);
+
 		if($result2&&mysqli_num_rows($result2)>0)
 		{
 			$models_per_region=explode(",",mysqli_fetch_assoc($result2)["models"]); $sql_price=array(); $sql_value=array(); $sql_performance=array();

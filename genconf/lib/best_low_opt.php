@@ -6,6 +6,7 @@ if ($result = mysqli_query($cons, "SELECT DATABASE()")) {
     mysqli_free_result($result);
 }
 mysqli_select_db($cons,"notebro_temp");
+mysqli_select_db($con,"notebro_db");
 echo "<br>Generating optimal configurations"; $succes=0;
 mysqli_query($cons,"CALL `gen_best_low_tbl`();");
 $lastid = mysqli_fetch_row(mysqli_query($con,"SELECT count(id) FROM notebro_db.MODEL WHERE 1=1"));//var_dump($lastid);//echo $lastid[0]; 

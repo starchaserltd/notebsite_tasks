@@ -1,5 +1,4 @@
 <?php
-$con=mysqli_connect($host, $user, $pass, $database);
 if ($result = mysqli_query($cons, "SELECT DATABASE()")) {
     $row = mysqli_fetch_row($result);
     printf("Default database is %s.\n", $row[0]);

@@ -640,12 +640,10 @@ $rdepth[$id]=$stuff2[0][1]/$stuff[$i][5];
 $rwidth[$id]=$stuff2[0][2]/$stuff[$i][6];
 $rweight[$id]=$stuff2[0][3]/$stuff[$i][8];
 
-
-
 $made[$id]=0;
 $numberofmat=substr_count($stuff[$i][9] , ",");
 //echo var_dump($stuff[$i])." ";
-if(stripos($stuff[$i][9],"plastic")!==FALSE)
+if((stripos($stuff[$i][9],"plastic")!==FALSE)&&!(stripos($stuff[$i][9],"hard plastic")!==FALSE))
 {
 	if($numberofmat>0)
 	{  $made[$id]+=0.5; }
@@ -653,10 +651,7 @@ if(stripos($stuff[$i][9],"plastic")!==FALSE)
 else
 {
 	$made[$id]+=1;
-	
 }
-
-
 
 $pi[$id]=substr_count($stuff[$i][10] , ",");
 $pi[$id]++;

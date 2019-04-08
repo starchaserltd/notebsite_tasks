@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 require_once("/var/www/vault/etc/con_db.php");
-
+echo "Exchange start!";
 // Open CURL session:
 $ch = curl_init("https://openexchangerates.org/api/latest.json?app_id=7537371e89274e929c77d1f8d038bd81");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -16,18 +16,15 @@ $exchangeRates = json_decode($json);
 
 // You can now access the rates inside the parsed object, like so:
 
-if($exchangeRates->rates->RON)
-	echo "Exchange rates succesfully updated!";
+if($exchangeRates->rates->RON){ echo "Exchange rates succesfully updated!"; }
 
 foreach ($exchangeRates->rates as $country=>$value) {
-    
 			$sel = "UPDATE notebro_site.exchrate SET rate=$value WHERE code='$country'";
 			mysqli_query($con,$sel);
 	
 }
 
-
- /*     
+ /*
 $apikey = '5ce60d6c23ac268f132511d210717c00';
 $endpoint = 'https://vatapi.com/v1/vat-rates';
 
@@ -64,6 +61,5 @@ foreach($VATRates->countries as $i)
 		echo "<br>";
 	}*/
 //}
-
 
 ?>

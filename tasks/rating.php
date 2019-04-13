@@ -700,7 +700,7 @@ foreach($parts[1] as $x)
 if($maxvi<$vi[$id])
 $maxvi=$vi[$id];
 
-$web[$id]=$stuff[$i][13]/$stuff2[0][4];
+$web[$id]=floatval($stuff[$i][13])/floatval($stuff2[0][4]);
 //13 web
 
 

@@ -724,7 +724,7 @@ function replace_prices(&$chunk_array, $prices) {
 	$i=0;
 	foreach($chunk_array as $key => $row)
 	{
-		if($prices[$i]<=0){$prices[$i]=-1;}
+		if($prices[$i]<=0){$prices[$i]=-1; echo "\n Price is under zero, something is wrong here.";}
 		$chunk_array[$key][16]=$prices[$i]; //price
 		$chunk_array[$key][17]=$chunk_array[$key][15]/$prices[$i]; //value
 		$chunk_array[$key][18]=$prices[$i]*0.075; //err

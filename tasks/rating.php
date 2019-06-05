@@ -204,7 +204,7 @@ $stuff = mysqli_fetch_all($result);
 $rownr=mysqli_num_rows($result);
 $result = mysqli_query($con, $sql2);
 $maxminvalues = mysqli_fetch_array($result);
-
+$new_stuff=array();
 
 //var_dump($maxminvalues);
 for($i=0;$i<$rownr;$i++)
@@ -248,16 +248,24 @@ $srgbrating=$stuff[$i][8]/100;
 /* if(isset($stuff[$i][9])&&(intval($stuff[$i][9])==0))
 { $stuff[$i][9]=55;}*/
 
-if(stripos($stuff[$i][12],"120 HZ")!==FALSE)
-{ $surfacetype*=1.6;}
-else
-{
-	if(stripos($stuff[$i][12],"120HZ")!==FALSE)
-	{ $surfacetype*=1.6;}
-}
+$new_stuff[$i]=array();
+$new_stuff[$i]=explode(",",$stuff[$i][12]);
 
-if(stripos($stuff[$i][12],"HDR")!==FALSE)
-{ $surfacetype*=1.4;}
+foreach ($new_stuff[$i] as $el)
+{
+	
+	if(stripos($el,"HZ")!==FALSE)
+	{
+		$el=floatval(trim(preg_replace('/\s+/', ' ',(str_ireplace("HZ","",$el)))));
+		if($el>60)
+		{
+			$surfacetype*=pow($el/60,0.45);
+		}
+	}
+
+	if(stripos($el,"HDR")!==FALSE)
+	{ $surfacetype*=1.35;}
+}
 
 if($stuff[$i][10]==1) { $touchratio=1; }
 elseif($stuff[$i][10]==2) {	$touchratio=0.001;}
@@ -625,7 +633,7 @@ $value*=100;
 mysqli_select_db($con,"notebro_db");
 $sql="SELECT * FROM `CHASSIS`";
 $result = mysqli_query($con, $sql);
-$stuff = mysqli_fetch_all($result);
+$stuff = mysqli_fetch_all($result,MYSQLI_ASSOC);
 $rownr=mysqli_num_rows($result);
 $sql2="SELECT MIN(thic),MIN(depth),MIN(width),MIN(weight),MAX(web) FROM `CHASSIS`";
 $result = mysqli_query($con, $sql2);
@@ -634,16 +642,17 @@ $maxpi=0; $maxvi=0; $mscmax=0;
 $vi=array(); $pi=array(); $web=array(); $made=array(); $key=array(); $rthic=array(); $rdepth=array(); $rwidth=array(); $rweight=array(); $rmsc=array();
 for($i=0;$i<$rownr;$i++)
 {
-$id=$stuff[$i][0];	
-$rthic[$id]=$stuff2[0][0]/$stuff[$i][4];
-$rdepth[$id]=$stuff2[0][1]/$stuff[$i][5];
-$rwidth[$id]=$stuff2[0][2]/$stuff[$i][6];
-$rweight[$id]=$stuff2[0][3]/$stuff[$i][8];
+
+$id=$stuff[$i]["id"];	
+$rthic[$id]=$stuff2[0][0]/$stuff[$i]["thic"];
+$rdepth[$id]=$stuff2[0][1]/$stuff[$i]["depth"];
+$rwidth[$id]=$stuff2[0][2]/$stuff[$i]["width"];
+$rweight[$id]=$stuff2[0][3]/$stuff[$i]["weight"];
 
 $made[$id]=0;
-$numberofmat=substr_count($stuff[$i][9] , ",");
+$numberofmat=substr_count($stuff[$i]["made"] , ",");
 //echo var_dump($stuff[$i])." ";
-if((stripos($stuff[$i][9],"plastic")!==FALSE)&&!(stripos($stuff[$i][9],"hard plastic")!==FALSE))
+if((stripos($stuff[$i]["made"],"plastic")!==FALSE)&&!(stripos($stuff[$i]["made"],"hard plastic")!==FALSE))
 {
 	if($numberofmat>0)
 	{  $made[$id]+=0.5; }
@@ -653,9 +662,21 @@ else
 	$made[$id]+=1;
 }
 
-$pi[$id]=substr_count($stuff[$i][10] , ",");
+$s_made[$id]=0;
+$numberofmat=substr_count($stuff[$i]["s_made"] , ",");
+if((stripos($stuff[$i]["s_made"],"plastic")!==FALSE)&&!(stripos($stuff[$i]["s_made"],"hard plastic")!==FALSE))
+{
+	if($numberofmat>0)
+	{  $s_made[$id]+=0.5; }
+}
+else
+{
+	$s_made[$id]+=1;
+}
+
+$pi[$id]=substr_count($stuff[$i]["pi"] , ",");
 $pi[$id]++;
-preg_match_all('/(\d) [xX]/', $stuff[$i][10], $parts);
+preg_match_all('/(\d) [xX]/', $stuff[$i]["pi"], $parts);
 foreach($parts[1] as $x)
 {
 	$x=intval($x);
@@ -665,17 +686,17 @@ foreach($parts[1] as $x)
 }
 
 
-if(stripos($stuff[$i][10],"LAN")!==FALSE)
+if(stripos($stuff[$i]["pi"],"LAN")!==FALSE)
 {
 	$pi[$id]--;
 }
 
-if(stripos($stuff[$i][10],"Thunderbolt")!==FALSE)
+if(stripos($stuff[$i]["pi"],"Thunderbolt")!==FALSE)
 {
 	$pi[$id]+=2;
 }
 
-if(stripos($stuff[$i][10],"card reader")!==FALSE)
+if(stripos($stuff[$i]["pi"],"card reader")!==FALSE)
 {
 	$pi[$id]+=1;
 }
@@ -686,9 +707,9 @@ $maxpi=$pi[$id];
 
 
 
-$vi[$id]=substr_count($stuff[$i][11] , ",");
+$vi[$id]=substr_count($stuff[$i]["vi"] , ",");
 $vi[$id]++;
-preg_match_all('/(\d) [xX]/', $stuff[$i][11], $parts);
+preg_match_all('/(\d) [xX]/', $stuff[$i]["vi"], $parts);
 foreach($parts[1] as $x)
 {
 	$x=intval($x);
@@ -700,7 +721,7 @@ foreach($parts[1] as $x)
 if($maxvi<$vi[$id])
 $maxvi=$vi[$id];
 
-$web[$id]=floatval($stuff[$i][13])/floatval($stuff2[0][4]);
+$web[$id]=floatval($stuff[$i]["web"])/floatval($stuff2[0][4]);
 //13 web
 
 
@@ -709,45 +730,45 @@ $touch[$id]=1;
 
 $key[$id]=0;
 
-if(stripos($stuff[$i][15],"spill")!==FALSE)
+if(stripos($stuff[$i]["keyboard"],"spill")!==FALSE)
 {
 	$key[$id]+=0.5;
 }
 
-if(stripos($stuff[$i][15],"backlit")!==FALSE)
+if(stripos($stuff[$i]["keyboard"],"backlit")!==FALSE)
 {
 	$key[$id]+=0.3;
 }
 
-if(stripos($stuff[$i][15],"rgb led")!==FALSE)
+if(stripos($stuff[$i]["keyboard"],"rgb led")!==FALSE)
 {
 	$key[$id]+=0.2;
 }
 
-$rmsc[$id]=substr_count($stuff[$i][17] , ",");
+$rmsc[$id]=substr_count($stuff[$i]["msc"] , ",");
 $rmsc[$id]++;
-preg_match_all('/(\d) [xX]/', $stuff[$i][17], $parts);
+preg_match_all('/(\d) [xX]/', $stuff[$i]["msc"], $parts);
 
-if(stripos($stuff[$i][17],"fingerprint")!==FALSE)
+if(stripos($stuff[$i]["msc"],"fingerprint")!==FALSE)
 {
 
 	$rmsc[$id]+=3;
 	$rmsc[$id]--;
 }
 
-if((stripos($stuff[$i][17],"jbl")!==FALSE)||(stripos($stuff[$i][17],"klipsch")!==FALSE)||(stripos($stuff[$i][17],"onkyo")!==FALSE)||(stripos($stuff[$i][17],"harman")!==FALSE)||(stripos($stuff[$i][17],"olufsen")!==FALSE)||(stripos($stuff[$i][17],"altec")!==FALSE)||(stripos($stuff[$i][17],"sonicmaster")!==FALSE)||(stripos($stuff[$i][17],"dynaudio")!==FALSE))
+if((stripos($stuff[$i]["msc"],"jbl")!==FALSE)||(stripos($stuff[$i]["msc"],"klipsch")!==FALSE)||(stripos($stuff[$i]["msc"],"onkyo")!==FALSE)||(stripos($stuff[$i]["msc"],"harman")!==FALSE)||(stripos($stuff[$i]["msc"],"olufsen")!==FALSE)||(stripos($stuff[$i]["msc"],"altec")!==FALSE)||(stripos($stuff[$i]["msc"],"sonicmaster")!==FALSE)||(stripos($stuff[$i]["msc"],"dynaudio")!==FALSE))
 {
 	$rmsc[$id]+=2;
 	$rmsc[$id]--;
 }
 
-if(stripos($stuff[$i][17],"rear camera")!==FALSE)
+if(stripos($stuff[$i]["msc"],"rear camera")!==FALSE)
 {
 	$rmsc[$id]+=2;
 	$rmsc[$id]--;
 }
 
-if(stripos($stuff[$i][17],"GPS")!==FALSE)
+if(stripos($stuff[$i]["msc"],"GPS")!==FALSE)
 {
 	$rmsc[$id]+=2;
 	$rmsc[$id]--;
@@ -760,26 +781,28 @@ if($mscmax<$rmsc[$id]) { $mscmax=$rmsc[$id];  }
 }
 
 
-
 //normalizations and calculations for chassis, final insertion 
-	for($i=0;$i<$rownr;$i++)
-	{
-		
+for($i=0;$i<$rownr;$i++)
+{
+	$id=$stuff[$i]["id"];
 
-	$id=$stuff[$i][0];
-
-//echo $id." ".$rthic[$id]." ".$rdepth[$id]." ".$rwidth[$id]." ".$rweight[$id]." ".$made[$id]." ".$pi[$id]." ".$vi[$id]." ".$web[$id]." ".$touch[$id]." ".$key[$id]." ".$rmsc[$id]."<br>";
-
-$value=$rthic[$id]*0.09+$rdepth[$id]*0.04+$rwidth[$id]*0.04+$rweight[$id]*0.18+$made[$id]*0.15+($pi[$id]/$maxpi)*0.15+($vi[$id]/$maxvi)*0.1+$web[$id]*0.04+$touch[$id]*0.01+$key[$id]*0.05+($rmsc[$id]/$mscmax)*0.15;
-
-$value*=100;
-
-//echo $id." ".$mmsc[$id]." ". $minprod/$mmprod[$id]."<br>";
+	/*
+	if($id==1134 || $id==1498)
+	{ echo $id." ".$rthic[$id]." ".$rdepth[$id]." ".$rwidth[$id]." ".$rweight[$id]." ".$made[$id]." ".$pi[$id]." ".$vi[$id]." ".$web[$id]." ".$touch[$id]." ".$key[$id]." ".$rmsc[$id]."<br>";
+	 echo $id." ".$rthic[$id]." ".$rdepth[$id]." ".$rwidth[$id]." ".$rweight[$id]." ".$made[$id]." ".($pi[$id]/$maxpi)." ".($vi[$id]/$maxvi)." ".$web[$id]." ".$touch[$id]." ".$key[$id]." ".($rmsc[$id]/$mscmax)."<br>";
+	echo $rthic[$id]*0.09+$rdepth[$id]*0.04+$rwidth[$id]*0.04+$rweight[$id]*0.18+$made[$id]*0.13+$s_made[$id]*0.02+$pi[$id]*0.15+$vi[$id]*0.1+$web[$id]*0.04+$touch[$id]*0.01+$key[$id]*0.05+$rmsc[$id]*0.15;
+	echo "<br>";
+	 }
+	*/
+	
+	$value=$rthic[$id]*0.09+$rdepth[$id]*0.04+$rwidth[$id]*0.04+$rweight[$id]*0.18+$made[$id]*0.15+($pi[$id]/$maxpi)*0.15+($vi[$id]/$maxvi)*0.1+$web[$id]*0.04+$touch[$id]*0.01+$key[$id]*0.05+($rmsc[$id]/$mscmax)*0.15;
+	$value*=100;
+	//echo $id." ".$mmsc[$id]." ". $minprod/$mmprod[$id]."<br>";
 
 	$sql="UPDATE CHASSIS SET rating=$value WHERE id=".$id;
 	mysqli_query($con, $sql);
 
-	}
+}
 
 
 

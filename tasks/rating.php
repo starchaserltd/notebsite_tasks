@@ -756,7 +756,7 @@ if(stripos($stuff[$i]["msc"],"fingerprint")!==FALSE)
 	$rmsc[$id]--;
 }
 
-if((stripos($stuff[$i]["msc"],"jbl")!==FALSE)||(stripos($stuff[$i]["msc"],"klipsch")!==FALSE)||(stripos($stuff[$i]["msc"],"onkyo")!==FALSE)||(stripos($stuff[$i]["msc"],"harman")!==FALSE)||(stripos($stuff[$i]["msc"],"olufsen")!==FALSE)||(stripos($stuff[$i]["msc"],"altec")!==FALSE)||(stripos($stuff[$i]["msc"],"sonicmaster")!==FALSE)||(stripos($stuff[$i]["msc"],"dynaudio")!==FALSE))
+if((stripos($stuff[$i]["msc"],"jbl")!==FALSE)||(stripos($stuff[$i]["msc"],"klipsch")!==FALSE)||(stripos($stuff[$i]["msc"],"onkyo")!==FALSE)||(stripos($stuff[$i]["msc"],"akg")!==FALSE)||(stripos($stuff[$i]["msc"],"harman")!==FALSE)||(stripos($stuff[$i]["msc"],"olufsen")!==FALSE)||(stripos($stuff[$i]["msc"],"altec")!==FALSE)||(stripos($stuff[$i]["msc"],"sonicmaster")!==FALSE)||(stripos($stuff[$i]["msc"],"dynaudio")!==FALSE))
 {
 	$rmsc[$id]+=2;
 	$rmsc[$id]--;

@@ -1927,7 +1927,7 @@ while($rand = mysqli_fetch_array($result))
 					$z=0;
 				}
 										
-				if((stripos($x,"olufsen")!==FALSE) || (stripos($x,"jbl")!==FALSE) || (stripos($x,"klipsch")!==FALSE) || (stripos($x,"onkyo")!==FALSE) || (stripos($x,"dynaudio")!==FALSE) || (stripos($x,"altec")!==FALSE) || (stripos($x,"harman")!==FALSE) || (stripos($x,"sonicmaster")!==FALSE) && $z)
+				if((stripos($x,"olufsen")!==FALSE) || (stripos($x,"jbl")!==FALSE) || (stripos($x,"klipsch")!==FALSE) || (stripos($x,"onkyo")!==FALSE) || (stripos($x,"dynaudio")!==FALSE) || (stripos($x,"akg")!==FALSE) || (stripos($x,"altec")!==FALSE) || (stripos($x,"harman")!==FALSE) || (stripos($x,"sonicmaster")!==FALSE) && $z)
 				{
 					$object[]="Premium speakers";
 					$z=0;
@@ -1957,6 +1957,8 @@ while($rand = mysqli_fetch_array($result))
 		}	
 	}
 }
+$object[]="USB-C Charger"
+
 $object=array_unique($object);	
 mysqli_free_result($result);
 

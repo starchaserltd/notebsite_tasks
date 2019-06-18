@@ -1610,15 +1610,19 @@ while($rand = mysqli_fetch_array($result))
 					switch($elements[$i])
 					{
 						case (strpos($elements[$i],'urst') !== false):
-						$k=0;
-						break;
+							$k=0;
+							break;
 						case "FreeSync":
-						$elements[$i]="G-Sync/FreeSync";	
-						break;
+							$elements[$i]="G-Sync/FreeSync";	
+							break;
+						case ((stripos($elements[$i],'micro HDMI') !== false)||(stripos($elements[$i],'mini HDMI') !== false)):
+							$k=0;
+							break;
 					}
-				
+						
 					if(!(in_array($elements[$i],$object))&&$k)
 					{
+						
 						$object[]=$elements[$i];
 					}
 				}

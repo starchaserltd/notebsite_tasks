@@ -1957,7 +1957,7 @@ while($rand = mysqli_fetch_array($result))
 		}	
 	}
 }
-$object[]="USB-C Charger"
+$object[]="USB-C Charger";
 
 $object=array_unique($object);	
 mysqli_free_result($result);

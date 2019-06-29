@@ -309,13 +309,12 @@ $object=(array) [];
 
 while($rand = mysqli_fetch_array($result)) 
 { 
-	if($rand[0])
-	$elements=explode(',',$rand[0]);
-	
-		if(count($elements))
-		{
+	if($rand[0]){ $elements=explode(',',$rand[0]); }
+	if(count($elements))
+	{
 		for($i=0; $i<count($elements); $i++)
 		{
+			$k=true;
 			switch($elements[$i])
 			{
 				case "VT-x":
@@ -325,7 +324,7 @@ while($rand = mysqli_fetch_array($result))
 				$elements[$i]="VT-x/AMD-V";
 				break;
 				case "AMD-V":
-				$elements[$i]="VT-x/AMD-V";
+				$elements[$i]="VT-x/AMD-V";	
 				break;
 				case "VT-d":
 				$elements[$i]="VT-d/AMD-Vi";
@@ -342,14 +341,18 @@ while($rand = mysqli_fetch_array($result))
 				case "HT":
 				$elements[$i]="HT/Hyper-threading";
 				break;
+				case (stripos($elements[$i],"precision boost")!==FALSE):
+				$k=false;
+				break;
 			}
-				
-			if(!(in_array($elements[$i],$object)))
+			
+			if($k)				
 			{
-				$object[]=$elements[$i];
+				if(!(in_array($elements[$i],$object)))
+				{ $object[]=$elements[$i]; }
 			}
 		}
-		}
+	}
 }
 
 mysqli_free_result($result);

@@ -732,6 +732,10 @@ $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'hdd_cap_max'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'storage_sizes'";
+$rand = mysqli_fetch_array(mysqli_query($con, $sel));
+$type3=$rand["id"];
+
 $sel="SELECT MIN(cap), MAX(cap) FROM notebro_db.HDD WHERE valid=1";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 
@@ -741,10 +745,75 @@ $insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$
 $max=$rand[1];
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
 
+$sel="SELECT DISTINCT `cap`,`type` FROM `HDD` WHERE valid=1 ORDER by type";
+$query=mysqli_query($con,$sel); $storage_size_list=array();
+while($rand = mysqli_fetch_assoc($query))
+{ $storage_size_list[$rand["type"]][]=intval($rand["cap"]); }
+
+//Generate possible storage sizes
+$f_storage_list=array();
+foreach($storage_size_list as $key=>$val)
+{
+	switch($key)
+	{
+		case "EMMC":
+		{
+			foreach($val as $val2)
+			{ $f_storage_list[]=$val2;}
+			break;
+		}
+		case "HDD":
+		{
+			foreach($val as $val2)
+			{
+				$f_storage_list[]=$val2;
+				foreach($storage_size_list["HDD"] as $val3)
+				{ $f_storage_list[]=$val2+$val3; }
+			}
+			break;
+		}
+		case "SHDD":
+		{
+			foreach($val as $val2)
+			{
+				$f_storage_list[]=$val2;
+				foreach($storage_size_list["HDD"] as $val3)
+				{ $f_storage_list[]=$val2+$val3; }
+			}
+			break;
+		}
+		case "SSD":
+		{
+			foreach($val as $val2)
+			{
+				$f_storage_list[]=$val2;
+				if($val2>90)
+				{
+					foreach($storage_size_list["HDD"] as $val3)
+					{ $f_storage_list[]=$val2+$val3; }
+					foreach($storage_size_list["SSD"] as $val3)
+					{ if($val3>90){ $f_storage_list[]=$val2+$val3; } }
+				}
+			}
+			break;
+		}
+		default:
+		{
+			foreach($val as $val2)
+			{ $f_storage_list[]=$val2;}
+			break;
+		}
+	}
+}
+$f_storage_list=array_unique($f_storage_list); 
+sort($f_storage_list);
+
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type3', '".implode(",",$f_storage_list)."');";
+
 if (mysqli_multi_query($con, $insert)) { 
-    echo "New hdd_cap created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} 
+	echo "New hdd_cap created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} 
 } else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
+	echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
 
 

@@ -7,7 +7,7 @@ if(!isset($server)){$server=1;}
 $multicons=dbs_connect();
 $server=0;
 $cons=$multicons[$server];
-$user="notebro_sdb"; $pass="nBdBnologinsdb2"; $database="notebro_temp"; $host="172.31.2.33"; //172.31.4.253 //172.31.2.33
+$user="notebro_sdb"; $pass="nBdBnologinsdb2"; $database="notebro_temp"; $host="172.31.4.253"; //172.31.4.253 //172.31.2.33
 $cons=mysqli_connect($host, $user, $pass, $database);
 $user="notebro_db"; $pass="nBdBnologin&4"; $database="notebro_db"; $host="172.31.13.210";
 $con=mysqli_connect($host, $user, $pass, $database);
@@ -57,11 +57,11 @@ while($row=mysqli_fetch_assoc($result))
 			if(!isset($map->{$row["id"]}->{$x})){ $map->{$row["id"]}->{$x}=array(); }
 			array_push($map->{$row["id"]}->{$x},$row2["id"]);
 		}
-		if(isset($archived_p_model[$row["p_model"]])&&$archived_p_model[$row["p_model"]])
-		{
-			$map->{$row["p_model"]}=new stdClass(); $map->{$row["p_model"]}=$map->{$row["id"]};
-			$archived_p_model[$row["p_model"]]=false;
-		}
+	}
+	if(isset($archived_p_model[$row["p_model"]])&&$archived_p_model[$row["p_model"]])
+	{
+		$map->{$row["p_model"]}=new stdClass(); $map->{$row["p_model"]}=$map->{$row["id"]};
+		$archived_p_model[$row["p_model"]]=false;
 	}
 }
 

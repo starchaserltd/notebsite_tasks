@@ -116,26 +116,26 @@ while($row=mysqli_fetch_assoc($result))
 			if(isset($sql_price[0]))
 			{
 				$final_sql="SELECT * FROM (".implode(" UNION ",$sql_price).") AS `all_tables` ORDER BY `price` ASC LIMIT 1";
-				$lowest_price=mysqli_fetch_assoc(mysqli_query($cons,$final_sql));
+				$query=mysqli_query($con,$final_sql);if($query&&mysqli_num_rows($query)>0){ $lowest_price=mysqli_fetch_assoc($query); mysqli_free_result($query);}else{$lowest_price=null;}
 			}
 			else{$lowest_price=null;}
 			
 			if(isset($sql_performance[0]))
 			{
 				$final_sql="SELECT * FROM (".implode(" UNION ",$sql_performance).") AS `all_tables` ORDER BY `rating` DESC LIMIT 1";
-				$best_performance=mysqli_fetch_assoc(mysqli_query($cons,$final_sql));
+				$query=mysqli_query($con,$final_sql);if($query&&mysqli_num_rows($query)>0){ $best_performance=mysqli_fetch_assoc($query); mysqli_free_result($query);}else{$best_performance=null;}
 			}else{$best_performance=null;}
 			
 			if(isset($sql_value[0]))
 			{
 				$final_sql="SELECT `model`,`id`,`value` as value FROM (".implode(" UNION ",$sql_value).") AS `all_tables` ORDER BY `value` DESC LIMIT 1";
-				$best_value=mysqli_fetch_assoc(mysqli_query($cons,$final_sql));
+				$query=mysqli_query($con,$final_sql);if($query&&mysqli_num_rows($query)>0){ $best_value=mysqli_fetch_assoc($query); mysqli_free_result($query);}else{$best_value=null;}
 			}else{$best_value=null;}
 			
 			if($lowest_price!=null&&$best_performance!=null&&$best_value!=null)
 			{
 				$sql_insert="INSERT INTO `notebro_temp`.`best_low_opt` (`id_model`, `lowest_price`, `best_performance`, `best_value`) VALUES ('p_".$row["model_id"]."_".$reg_key."','".$lowest_price["id"]."_".$lowest_price["model"]."','".$best_performance["id"]."_".$best_performance["model"]."','".$best_value["id"]."_".$best_value["model"]."')";
-				mysqli_query($cons,$sql_insert);
+				mysqli_query($con,$sql_insert);
 			}
 			mysqli_free_result($result2);
 		}

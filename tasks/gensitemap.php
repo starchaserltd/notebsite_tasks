@@ -7,9 +7,11 @@ $new_site="http://noteb.com/?content/article.php?";
 $wp_imgsite="http://34.194.182.255/vault/wp/wp-content/uploads";
 $wp_imgsite2="http://notebro.intexim.ro/admin/wp/wp-content/uploads";
 $new_imgsite="http://noteb.com/uploads";
+$generated_sitemap='../wp/sitemap/sitemap.xml';
+
 $dom=new DOMDocument();
 $dom->formatOutput = true;
-$dom->load("../wp/sitemap.xml");
+$dom->load($generated_sitemap);
 $root=$dom->documentElement; // This can differ (I am not sure, it can be only documentElement or documentElement->firstChild or only firstChild)
 $elements=$root->getElementsByTagName('url');
 
@@ -47,11 +49,11 @@ foreach ($elements as $element)
 	}
 }
 
-$dom->save("../wp/sitemap.xml");
+$dom->save($generated_sitemap);
 $dom=new DOMDocument();
 $dom->preserveWhiteSpace = false;
 $dom->formatOutput = true;
-$dom->load("../wp/sitemap.xml");
+$dom->load($generated_sitemap);
 $root=$dom->documentElement; 
 
 require_once("../etc/con_db.php");

@@ -1,4 +1,5 @@
 <?php
+
 if ($result = mysqli_query($cons, "SELECT DATABASE()")) {
     $row = mysqli_fetch_row($result);
     printf("Default database is %s.\n", $row[0]);
@@ -88,7 +89,7 @@ if(isset($array) && count($array)>0)
 
 //Calculating optimal configs for p models//
 
-$sql="SELECT * FROM `notebro_temp`.`m_map_table` GROUP BY `pmodel`";
+$sql="SELECT * FROM `notebro_temp`.`m_map_table` WHERE `model_id`=`pmodel`";
 $result=mysqli_query($cons,$sql);
 while($row=mysqli_fetch_assoc($result))
 {

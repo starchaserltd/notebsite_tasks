@@ -7,6 +7,10 @@ if(!isset($server)){$server=1;}
 $multicons=dbs_connect();
 $server=0;
 $cons=$multicons[$server];
+$user="notebro_sdb"; $pass="nBdBnologinsdb2"; $database="notebro_temp"; $host="172.31.2.33"; //172.31.4.253 //172.31.2.33
+$cons=mysqli_connect($host, $user, $pass, $database);
+$user="notebro_db"; $pass="nBdBnologin&4"; $database="notebro_db"; $host="172.31.13.210";
+$con=mysqli_connect($host, $user, $pass, $database);
 */
 if ($result = mysqli_query($con, "SELECT DATABASE()")) {
     $row = mysqli_fetch_row($result);
@@ -27,6 +31,13 @@ if(mysqli_multi_query($cons,"SET @p0='".$regions."'; CALL `gen_map_table`(@p0);"
 } 
 
 mysqli_select_db($con,"notebro_db");
+
+$query="SELECT DISTINCT `notebro_db`.`MODEL`.`p_model` as `p_model` FROM `notebro_db`.`MODEL` WHERE `notebro_db`.`MODEL`.`p_model` NOT IN (SELECT DISTINCT `notebro_db`.`MODEL`.`id` FROM `notebro_db`.`MODEL`)";
+$result=mysqli_query($con,$query);
+$archived_p_model=array();
+while($row=mysqli_fetch_assoc($result)){  $archived_p_model[intval($row["p_model"])]=true; }
+mysqli_free_result($result);
+
 $query="SELECT `id`,`p_model`,`regions`,`show_smodel` FROM `notebro_db`.`MODEL`";
 $result=mysqli_query($con,$query);
 $map=new stdClass(); 
@@ -35,6 +46,7 @@ while($row=mysqli_fetch_assoc($result))
 	if(!(isset($row["p_model"])&&$row["p_model"]!=""&&$row["p_model"]!=null))
 	{ mysqli_query($con,"UPDATE `notebro_db`.`MODEL` SET `p_model`='".$row["id"]."' WHERE id=".$row["id"].""); $row["p_model"]=$row["id"]; }
 	
+	$row["p_model"]=intval($row["p_model"]);
 	$map->{$row["id"]}=new stdClass(); $map->{$row["id"]}->pmodel=array(0=>$row["p_model"]); $map->{$row["id"]}->show_smodel=array(0=>intval($row["show_smodel"]));
 	$result2=mysqli_query($con,"SELECT `id`,`regions` FROM `notebro_db`.`MODEL` WHERE `p_model`=".$row["p_model"]."");
 	while($row2=mysqli_fetch_assoc($result2))
@@ -44,6 +56,11 @@ while($row=mysqli_fetch_assoc($result))
 		{
 			if(!isset($map->{$row["id"]}->{$x})){ $map->{$row["id"]}->{$x}=array(); }
 			array_push($map->{$row["id"]}->{$x},$row2["id"]);
+		}
+		if(isset($archived_p_model[$row["p_model"]])&&$archived_p_model[$row["p_model"]])
+		{
+			$map->{$row["p_model"]}=new stdClass(); $map->{$row["p_model"]}=$map->{$row["id"]};
+			$archived_p_model[$row["p_model"]]=false;
 		}
 	}
 }

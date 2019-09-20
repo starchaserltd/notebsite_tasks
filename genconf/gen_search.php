@@ -6,7 +6,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 echo getcwd() . "\n";
 */
-$memory_limit=12850000;
+$memory_limit=12550000;
 require_once("../etc/session.php");
 
 //require_once '/usr/share/php/monetdb/php_monetdb.php';

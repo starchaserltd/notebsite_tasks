@@ -1917,9 +1917,9 @@ while($rand = mysqli_fetch_array($result))
 						$z=0;
 					}
 					
-					if(stripos($x,"RGB LED")!==FALSE)
+					if((stripos($x,"RGB LED")!==FALSE)||(stripos($x,"RGB keyboard")!==FALSE))
 					{
-						$object[]="Backlit keyboard";
+						$object[]="RGB keyboard";
 						$z=0;
 					}
 				}

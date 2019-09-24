@@ -315,36 +315,42 @@ while($rand = mysqli_fetch_array($result))
 		for($i=0; $i<count($elements); $i++)
 		{
 			$k=true;
-			switch($elements[$i])
-			{
-				case "VT-x":
-				$elements[$i]="VT-x/AMD-V";
-				break;
-				case "VT-x2":
-				$elements[$i]="VT-x/AMD-V";
-				break;
-				case "AMD-V":
-				$elements[$i]="VT-x/AMD-V";	
-				break;
-				case "VT-d":
-				$elements[$i]="VT-d/AMD-Vi";
-				break;
-				case "AMD-Vi":
-				$elements[$i]="VT-d/AMD-Vi";
-				break;
-				case "IOMMU":
-				$elements[$i]="VT-d/AMD-Vi";
-				break;					
-				case "AVX":
-				$elements[$i]="AVX1.0";
-				break;					
-				case "HT":
-				$elements[$i]="HT/Hyper-threading";
-				break;
-				case (stripos($elements[$i],"precision boost")!==FALSE):
-				$k=false;
-				break;
-			}
+				switch($elements[$i])
+				{
+					case "VT-x":
+					$elements[$i]="VT-x/AMD-V";
+					break;
+					case "VT-x2":
+					$elements[$i]="VT-x/AMD-V";
+					break;
+					case "AMD-V":
+					$elements[$i]="VT-x/AMD-V";
+					break;
+					case "VT-d":
+					$elements[$i]="VT-d/AMD-Vi";
+					break;
+					case "AMD-Vi":
+					$elements[$i]="VT-d/AMD-Vi";
+					break;
+					case "IOMMU":
+					$elements[$i]="VT-d/AMD-Vi";
+					break;					
+					case "AVX":
+					$elements[$i]="AVX1.0";
+					break;					
+					case "HT":
+					$elements[$i]="Multithreading";
+					break;
+					case (stripos($elements[$i],"precision boost")!==FALSE):
+					$k=false;
+					break;
+					case (strpos($elements[$i],"SMT")!==FALSE):
+					$k=false;
+					break;
+					case (stripos($elements[$i],"learning boost")!==FALSE):
+					$k=false;
+					break;
+				}
 			
 			if($k)				
 			{
@@ -672,6 +678,10 @@ while($rand = mysqli_fetch_array($result))
 				break;
 				case (strpos($elements[$i],'PowerTune') !== false):
 				$k=0;
+				break;
+				case (strpos($elements[$i],'DP (') !== false):
+				$k=0;
+				break;
 				case (strpos($elements[$i],'QuickSync') !== false):
 				$k=0; 
 				break;
@@ -2081,11 +2091,6 @@ if (mysqli_multi_query($con, $insert)) {
 }
 
 
-
-
-
-
-
 //// Operating Systems
 
 $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'sys_os'";
@@ -2128,6 +2133,25 @@ if (mysqli_multi_query($con, $insert)) {
 } else {
     echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
+
+
+/// SWAPING options
+$sql="SELECT `swap`.*,`nomen`.`name`,`nomen`.`id` AS `org_id` FROM `notebro_site`.`nomen_swap` `swap` JOIN `notebro_site`.`nomen` `nomen` ON `swap`.`prop_name`=`nomen`.`name`";
+$result=mysqli_query($con,$sql);
+if($result&&mysqli_num_rows($result)>0)
+{
+	while($row=mysqli_fetch_assoc($result))
+	{
+		$insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('".$row["swap_to_key"]."','".$row["name"]."');";
+		mysqli_query($con,$insert);
+		if(!(intval($row["duplicate"])))
+		{
+			$insert="DELETE FROM `notebro_site`.`nomen` WHERE `id`=".$row["org_id"]."";
+			mysqli_query($con,$insert);
+		}
+	}
+}
+
 
 mysqli_free_result($result);
 

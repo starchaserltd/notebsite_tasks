@@ -1127,7 +1127,8 @@ if (mysqli_multi_query($con, $insert)) {
     echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
 mysqli_free_result($result);
- 
+
+
 /////Display msc insert hz from msc
 
 $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_msc'";
@@ -1138,12 +1139,10 @@ $sel="SELECT DISTINCT msc FROM notebro_db.DISPLAY WHERE valid=1";
 $result = mysqli_query($con, $sel);
 $object=(array) [];
 
-
-
 while($rand = mysqli_fetch_array($result)) 
 { 
-	if($rand[0])
-	$elements=explode(',',$rand[0]);
+	$elements=array();
+	if($rand[0]) { $elements=explode(',',$rand[0]); }
 	
 	if(count($elements))
 	{
@@ -1163,10 +1162,10 @@ foreach ($msc as $value)
 }
 
 if (mysqli_multi_query($con, $insert)) {
-    echo "New display msc created successfully<br>";
+	echo "New display msc created successfully<br>";
 	while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} 
 } else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
+	echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
 
 /////// DISPLAY SIZE Min Max
@@ -2010,7 +2009,7 @@ while($rand = mysqli_fetch_array($result))
 					$z=0;
 				}
 										
-				if((stripos($x,"olufsen")!==FALSE) || (stripos($x,"jbl")!==FALSE) || (stripos($x,"klipsch")!==FALSE) || (stripos($x,"onkyo")!==FALSE) || (stripos($x,"dynaudio")!==FALSE) || (stripos($x,"akg")!==FALSE) || (stripos($x,"altec")!==FALSE) || (stripos($x,"harman")!==FALSE) || (stripos($x,"sonicmaster")!==FALSE) && $z)
+				if((stripos($x,"omnisonic")!==FALSE) || (stripos($x,"olufsen")!==FALSE) || (stripos($x,"jbl")!==FALSE) || (stripos($x,"klipsch")!==FALSE) || (stripos($x,"onkyo")!==FALSE) || (stripos($x,"dynaudio")!==FALSE) || (stripos($x,"akg")!==FALSE) || (stripos($x,"altec")!==FALSE) || (stripos($x,"harman")!==FALSE) || (stripos($x,"sonicmaster")!==FALSE) && $z)
 				{
 					$object[]="Premium speakers";
 					$z=0;

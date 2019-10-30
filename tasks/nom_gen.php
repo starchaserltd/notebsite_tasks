@@ -1745,32 +1745,34 @@ $result = mysqli_query($con, $sel);
 $object=(array) [];
 while($rand = mysqli_fetch_array($result)) 
 { 
-	if($rand[0])
-	$elements=explode(',',$rand[0]);
+	if($rand[0]){ $elements=explode(',',$rand[0]); }
 	
-		if(count($elements))
-		{
+	if(count($elements))
+	{
 		for($i=0; $i<count($elements); $i++)
 		{
-		$k=1;
-		switch($elements[$i])
+			$k=1;
+			switch($elements[$i])
 			{
 				case (stripos($elements[$i],'expansion') !== false):
 				$elements[$i]="Expansion slot";	
 				$k=0;
 				break;
 				case "FreeSync":
-				$elements[$i]="G-Sync/FreeSync";	
+				$elements[$i]="G-Sync/FreeSync";
+				break;
+				case (stripos($elements[$i],'RS-232') !== false):
+				$k=0;
 				break;
 			}
 			
 			if(!(in_array($elements[$i],$object))&&$k)
 			{
-				
-				$object[]=$elements[$i];
+					
+					$object[]=$elements[$i];
 			}
 		}
-		}
+	}
 }
 $object=array_unique($object);
 mysqli_free_result($result);
@@ -1780,11 +1782,8 @@ $insert="";
 $i=0;
 foreach ($object as $msc)
 {
-	
-
-		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type', '$msc');";
-
-$i++;
+	$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type', '$msc');";
+	$i++;
 }
 
 if (mysqli_multi_query($con, $insert)) {

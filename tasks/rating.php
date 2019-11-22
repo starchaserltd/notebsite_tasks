@@ -437,25 +437,22 @@ foreach($parts[1] as $x)
 }
 
 //evaluating network card
-preg_match_all('/(10\/100\/1000)|(10\/100)/', $stuff[$i][9], $parts);
+preg_match_all('/(10\/100\/1000)|(10\/100)|(1000\/2500)|(2500\/5000)/', $stuff[$i][9], $parts);
 
 foreach($parts[0] as $x)
 {
-
-	if(stripos($x,"10/100/1000")!==FALSE)
+	switch(true)
 	{
-		$net[$id]=1;	
-	}
-	else
-	{
-		if(stripos($x,"10/100")!==FALSE)
-		{
-			$net[$id]=0.5;		
-		}
-		else
-		{
-			$net[$id]=0;
-		}
+		case (stripos($x,"/5000")!==FALSE):
+		{ $net[$id]=1; break; }
+		case (stripos($x,"/2500")!==FALSE):
+		{ $net[$id]=0.85; break; }
+		case (stripos($x,"10/100/1000")!==FALSE):
+		{ $net[$id]=0.75; break; }
+		case (stripos($x,"10/100")!==FALSE):
+		{ $net[$id]=0.5; break; }
+		default:
+		{ $net[$id]=0; break;}
 	}
 }
 

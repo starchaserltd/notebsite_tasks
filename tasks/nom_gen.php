@@ -2150,10 +2150,23 @@ if($result&&mysqli_num_rows($result)>0)
 		}
 	}
 }
-
-
 mysqli_free_result($result);
 
+/// Replace and delete options
+$sql="SELECT `notebro_site`.`nomen_modifiers`.* FROM `notebro_site`.`nomen_modifiers` WHERE type='replace' ORDER BY `exec_order` ASC;";
+$result=mysqli_query($con,$sql);
+if($result&&mysqli_num_rows($result)>0)
+{
+	while($row=mysqli_fetch_assoc($result))
+	{
+		$sql_replace="UPDATE `notebro_site`.`nomen` SET `nomen`.`name`='".$row["value_to_insert"]."' WHERE `name` LIKE '%".$row["value_to_replace"]."%' LIMIT 1;";
+		$result_replace=mysqli_query($con,$sql_replace);
+		if($result_replace)
+		{ $sql_replace="DELETE FROM `notebro_site`.`nomen` WHERE `name`!='".$row["value_to_insert"]."' AND `name` LIKE '%".$row["value_to_replace"]."%';"; mysqli_free_result($result_replace); }
+		mysqli_query($con,$sql_replace);
+	}
+}
+mysqli_free_result($result);
 mysqli_close($con);
 
 } else {

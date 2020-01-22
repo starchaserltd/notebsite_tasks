@@ -1135,6 +1135,12 @@ $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_msc'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"]; 
 
+/*
+$sel="SELECT DISTINCT `hz` FROM `notebro_db`.`DISPLAY` WHERE valid=1";
+$result = mysqli_query($con, $sel);
+$object=(array) [];
+*/
+
 $sel="SELECT DISTINCT msc FROM notebro_db.DISPLAY WHERE valid=1";
 $result = mysqli_query($con, $sel);
 $object=(array) [];

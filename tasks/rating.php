@@ -196,28 +196,28 @@ mysqli_query($con, $sql);
 
 /* Display RATING */
 mysqli_select_db($con,"notebro_db");
-
+$stuff=array();
 $sql="SELECT * FROM DISPLAY";
-$sql2="SELECT MAX(`hres`*`vres`) AS maxresol, MAX(`size`), MIN(`hres`*`vres`) AS minresol, MIN(`size`) FROM DISPLAY";
+$sql2="SELECT MAX(`hres`*`vres`) AS `maxresol`, MAX(`size`) as `maxsize`, MIN(`hres`*`vres`) AS `minresol`, MIN(`size`) as `minsize`,MIN(`lum`) as `minlum`,MAX(`lum`) as `maxlum`,MIN(`hdr`) as `minhdr`,MAX(`hdr`) as `maxhdr`,MIN(`hz`) as `minhz`,MAX(`hz`) as `maxhz` FROM DISPLAY";
 $result = mysqli_query($con, $sql);
-$stuff = mysqli_fetch_all($result);
+$stuff = mysqli_fetch_all($result,MYSQLI_ASSOC);
 $rownr=mysqli_num_rows($result);
 $result = mysqli_query($con, $sql2);
 $maxminvalues = mysqli_fetch_array($result);
-$new_stuff=array();
 
 //var_dump($maxminvalues);
+$new_stuff=array();
 for($i=0;$i<$rownr;$i++)
 {
 	
 //$resrating=($stuff[5]*$stuff[6]-$maxminvalues[2])/($maxminvalues[0]-$maxminvalues[2]+0.000001);
-$curres=$stuff[$i][4]*$stuff[$i][5];
-$resrating=$curres/$maxminvalues[0];
-$sizerating=$stuff[$i][2]/$maxminvalues[1];
-$ratioparts=explode(":",$stuff[$i][3]);
+$curres=$stuff[$i]['hres']*$stuff[$i]['vres'];
+$resrating=$curres/$maxminvalues['maxresol'];
+$sizerating=$stuff[$i]['size']/$maxminvalues['maxsize'];
+$ratioparts=explode(":",$stuff[$i]['format']);
 $ratiorating= 1-abs(($ratioparts[0]/$ratioparts[1])-1.6);
 
-switch($stuff[$i][6]) {
+switch($stuff[$i]['surft']) {
 case "Glossy":
 $surfaceratio=0.90;
 break;
@@ -226,30 +226,45 @@ $surfaceratio=1;
 break;
 }
 
-switch($stuff[$i][7]) {
-	case (stripos($stuff[$i][7],"IPS PenTile")!==FALSE):
+switch($stuff[$i]['backt']) {
+	case (stripos($stuff[$i]['backt'],"IPS PenTile")!==FALSE):
 	{ $surfacetype=0.6; break; }
-	case (stripos($stuff[$i][7],"TN WVA")!==FALSE):
+	case (stripos($stuff[$i]['backt'],"TN WVA")!==FALSE):
 	{ $surfacetype=0.5; break; }
-	case (stripos($stuff[$i][7],"IPS")!==FALSE):
+	case (stripos($stuff[$i]['backt'],"IPS")!==FALSE):
 	{ $surfacetype=0.7; break; }
-	case (stripos($stuff[$i][7],"TN")!==FALSE):
+	case (stripos($stuff[$i]['backt'],"TN")!==FALSE):
 	{ $surfacetype=0.35; break;}
-	case (stripos($stuff[$i][7],"OLED")!==FALSE):
+	case (stripos($stuff[$i]['backt'],"OLED")!==FALSE):
 	{ $surfacetype=1; break; }
 }
 
 //sRGB
-if(isset($stuff[$i][8])&&(intval($stuff[$i][8])==0))
-{ $stuff[$i][8]=55;}
-$srgbrating=$stuff[$i][8]/100;
+if(isset($stuff[$i]['sRGB'])&&(intval($stuff[$i]['sRGB'])==0))
+{ $stuff[$i]['sRGB']=55;}
+$srgbrating=$stuff[$i]['sRGB']/100;
 
 //brightness 
-/* if(isset($stuff[$i][9])&&(intval($stuff[$i][9])==0))
-{ $stuff[$i][9]=55;}*/
+if(isset($stuff[$i]['lum'])&&(intval($stuff[$i]['lum'])==0))
+{ $stuff[$i]['lum']=250;}
+$lumrating=$stuff[$i]['lum']/$maxminvalues['maxlum'];
+
+//hz
+if(isset($stuff[$i]['hz'])&&(intval($stuff[$i]['hz'])==0))
+{ $stuff[$i]['hz']=60;}
+$hzrating=$stuff[$i]['hz']/$maxminvalues['maxhz'];
+
+//hdr
+if(isset($stuff[$i]['hdr'])&&(intval($stuff[$i]['hdr'])==0))
+{ $stuff[$i]['hdr']=0;}
+if(intval($maxminvalues['maxhdr'])>0)
+{ $hdrrating=$stuff[$i]['hdr']/$maxminvalues['maxhdr']; }
+else
+{ $hdrrating=0; }
+
 
 $new_stuff[$i]=array();
-$new_stuff[$i]=explode(",",$stuff[$i][12]);
+$new_stuff[$i]=explode(",",$stuff[$i]['msc']);
 
 foreach ($new_stuff[$i] as $el)
 {
@@ -267,8 +282,10 @@ foreach ($new_stuff[$i] as $el)
 	{ $surfacetype*=1.35;}
 }
 
-if($stuff[$i][10]==1) { $touchratio=1; }
-elseif($stuff[$i][10]==2) {	$touchratio=0.001;}
+
+
+if($stuff[$i]['touch']==1) { $touchratio=1; }
+elseif($stuff[$i]['touch']==2) {	$touchratio=0.001;}
 
 $value=(0.40*$resrating+0.15*$surfacetype+0.19*$sizerating+0.10*$touchratio+0.05*$surfaceratio+0.05*$ratiorating+0.06*$srgbrating)*100;
 	
@@ -276,10 +293,9 @@ $value=(0.40*$resrating+0.15*$surfacetype+0.19*$sizerating+0.10*$touchratio+0.05
 //var_dump((($stuff[$i][6]/$stuff[$i][4])-$maxminvalues[6])/$normalize_speed);
 //var_dump((1/(($stuff[$i][6]/$stuff[$i][4])/($maxminvalues[6]))));
 //var_dump($value);
-$sql="UPDATE DISPLAY SET rating=$value WHERE id=".$stuff[$i][0];
+$sql="UPDATE DISPLAY SET rating=$value WHERE id=".$stuff[$i]['id'];
 mysqli_query($con, $sql);
 }
-
 
 
 /* Warranty RATING */

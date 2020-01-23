@@ -239,60 +239,49 @@ switch($stuff[$i]['backt']) {
 	{ $surfacetype=1; break; }
 }
 
-//sRGB
+//sRGB minimum srgb is 50, set it to 45 in range
 if(isset($stuff[$i]['sRGB'])&&(intval($stuff[$i]['sRGB'])==0))
-{ $stuff[$i]['sRGB']=55;}
-$srgbrating=$stuff[$i]['sRGB']/100;
+{ $stuff[$i]['sRGB']=50;}
+$srgbrating=normalisation($stuff[$i]['sRGB'],45,100);
 
-//brightness 
+//brightness minimum is 200, set it to 190 in range
 if(isset($stuff[$i]['lum'])&&(intval($stuff[$i]['lum'])==0))
 { $stuff[$i]['lum']=250;}
-$lumrating=$stuff[$i]['lum']/$maxminvalues['maxlum'];
+if($maxminvalues['maxlum']>600){$maxminvalues['maxlum']=600+($maxminvalues['maxlum']/600);}
+if($stuff[$i]['lum']>600){$stuff[$i]['lum']=600+($stuff[$i]['lum']/600);}
+$lumrating=normalisation($stuff[$i]['lum'],190,$maxminvalues['maxlum']);
 
 //hz
 if(isset($stuff[$i]['hz'])&&(intval($stuff[$i]['hz'])==0))
 { $stuff[$i]['hz']=60;}
-$hzrating=$stuff[$i]['hz']/$maxminvalues['maxhz'];
+$hzrating=normalisation($stuff[$i]['hz'],60,$maxminvalues['maxhz']);
 
 //hdr
 if(isset($stuff[$i]['hdr'])&&(intval($stuff[$i]['hdr'])==0))
 { $stuff[$i]['hdr']=0;}
 if(intval($maxminvalues['maxhdr'])>0)
-{ $hdrrating=$stuff[$i]['hdr']/$maxminvalues['maxhdr']; }
+{ $hdrrating=normalisation($stuff[$i]['hdr'],0,$maxminvalues['maxhdr']); }
 else
 { $hdrrating=0; }
-
 
 $new_stuff[$i]=array();
 $new_stuff[$i]=explode(",",$stuff[$i]['msc']);
 
-foreach ($new_stuff[$i] as $el)
+$surfacetype*=(1+pow($hzrating,0.45));
+if($hdrrating>0){ $surfacetype*=1.35;}
+if($hdrrating==0)
 {
-	
-	if(stripos($el,"HZ")!==FALSE)
-	{
-		$el=floatval(trim(preg_replace('/\s+/', ' ',(str_ireplace("HZ","",$el)))));
-		if($el>60)
-		{
-			$surfacetype*=pow($el/60,0.45);
-		}
-	}
-
-	if(stripos($el,"HDR")!==FALSE)
-	{ $surfacetype*=1.35;}
+	foreach($new_stuff[$i] as $el)
+	{ if(stripos($el,"HDR")!==FALSE){ $surfacetype*=1.35;} }
 }
-
-
 
 if($stuff[$i]['touch']==1) { $touchratio=1; }
 elseif($stuff[$i]['touch']==2) {	$touchratio=0.001;}
 
-$value=(0.40*$resrating+0.15*$surfacetype+0.19*$sizerating+0.10*$touchratio+0.05*$surfaceratio+0.05*$ratiorating+0.06*$srgbrating)*100;
-	
+$value=(0.39*$resrating+0.14*$surfacetype+0.19*$sizerating+0.10*$touchratio+0.05*$surfaceratio+0.05*$ratiorating+0.05*$srgbrating+0.03*$lumrating)*100;
+//if($lumrating>1){ var_dump($lumrating); var_dump($stuff[$i]['id']);} echo "<br>";
+//var_dump(pow($hzrating,0.45)); echo "<br>";
 //echo "<br>";
-//var_dump((($stuff[$i][6]/$stuff[$i][4])-$maxminvalues[6])/$normalize_speed);
-//var_dump((1/(($stuff[$i][6]/$stuff[$i][4])/($maxminvalues[6]))));
-//var_dump($value);
 $sql="UPDATE DISPLAY SET rating=$value WHERE id=".$stuff[$i]['id'];
 mysqli_query($con, $sql);
 }

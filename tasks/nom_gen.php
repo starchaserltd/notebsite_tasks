@@ -1133,33 +1133,57 @@ mysqli_free_result($result);
 
 $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_msc'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
-$type=$rand["id"]; 
-
-/*
-$sel="SELECT DISTINCT `hz` FROM `notebro_db`.`DISPLAY` WHERE valid=1";
-$result = mysqli_query($con, $sel);
-$object=(array) [];
-*/
+$type=$rand["id"];
 
 $sel="SELECT DISTINCT msc FROM notebro_db.DISPLAY WHERE valid=1";
 $result = mysqli_query($con, $sel);
 $object=(array) [];
 
+//this code is if I want to extract something from MSC
 while($rand = mysqli_fetch_array($result)) 
 { 
+
 	$elements=array();
 	if($rand[0]) { $elements=explode(',',$rand[0]); }
-	
+	/*
 	if(count($elements))
 	{
 		for($i=0; $i<count($elements); $i++)
 		{ if ((strpos($elements[$i],'Hz')!==false) && (strpos($elements[$i],'60Hz')===false)) { $object[]=$elements[$i]; } }
-	}
+	}*/
 }
 mysqli_free_result($result);
+
+$sel="SELECT DISTINCT `hz` FROM `notebro_db`.`DISPLAY` WHERE valid=1 ORDER BY `hz` ASC";
+$result = mysqli_query($con, $sel);
+$object=(array) [];
+while($rand = mysqli_fetch_array($result)) 
+{
+	$rand["hz"]=intval($rand["hz"]);
+	if($rand["hz"]>60){ $object[]=$rand["hz"]."Hz"; }
+}
+mysqli_free_result($result);
+
+$sel="SELECT DISTINCT `hdr` FROM `notebro_db`.`DISPLAY` WHERE valid=1 ORDER BY `hdr` ASC";
+$result = mysqli_query($con, $sel);
+while($rand = mysqli_fetch_array($result)) 
+{
+	$rand["hdr"]=intval($rand["hdr"]);
+	if($rand["hdr"]>0){ $object[]="HDR"; }
+}	
+mysqli_free_result($result);
+
+$sel="SELECT DISTINCT `srgb` FROM `notebro_db`.`DISPLAY` WHERE valid=1 ORDER BY `srgb` ASC";
+$result = mysqli_query($con, $sel);
+while($rand = mysqli_fetch_array($result)) 
+{
+	$rand["srgb"]=intval($rand["srgb"]);
+	if($rand["srgb"]>80){ $object[] = "80% sRGB or better"; }
+}
+mysqli_free_result($result);
+
 $object[] = "G-Sync/FreeSync";
-$object[] = "80% sRGB or better";
-$object[] = "HDR";
+
 $msc=array_unique($object);
 $insert="";
 foreach ($msc as $value)
@@ -2168,7 +2192,7 @@ if($result&&mysqli_num_rows($result)>0)
 		$sql_replace="UPDATE `notebro_site`.`nomen` SET `nomen`.`name`='".$row["value_to_insert"]."' WHERE `name` LIKE '%".$row["value_to_replace"]."%' LIMIT 1;";
 		$result_replace=mysqli_query($con,$sql_replace);
 		if($result_replace)
-		{ $sql_replace="DELETE FROM `notebro_site`.`nomen` WHERE `name`!='".$row["value_to_insert"]."' AND `name` LIKE '%".$row["value_to_replace"]."%';"; mysqli_free_result($result_replace); }
+		{ $sql_replace="DELETE FROM `notebro_site`.`nomen` WHERE `name`!='".$row["value_to_insert"]."' AND `name` LIKE '%".$row["value_to_replace"]."%';"; if(!is_bool($result_replace)){ mysqli_free_result($result_replace); }}
 		mysqli_query($con,$sql_replace);
 	}
 }

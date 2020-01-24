@@ -244,6 +244,11 @@ if(isset($stuff[$i]['sRGB'])&&(intval($stuff[$i]['sRGB'])==0))
 { $stuff[$i]['sRGB']=50;}
 $srgbrating=normalisation($stuff[$i]['sRGB'],45,100);
 
+//dci-p3 minimum dci-p3 is 35, set it to 30 in range
+if(isset($stuff[$i]['dci-p3'])&&(intval($stuff[$i]['dci-p3'])==0))
+{ $stuff[$i]['dci-p3']=35;}
+$dciprating=normalisation($stuff[$i]['dci-p3'],30,100);
+
 //brightness minimum is 200, set it to 190 in range
 if(isset($stuff[$i]['lum'])&&(intval($stuff[$i]['lum'])==0))
 { $stuff[$i]['lum']=250;}
@@ -269,11 +274,6 @@ $new_stuff[$i]=explode(",",$stuff[$i]['msc']);
 
 $surfacetype*=(1+pow($hzrating,0.45));
 if($hdrrating>0){ $surfacetype*=1.35;}
-if($hdrrating==0)
-{
-	foreach($new_stuff[$i] as $el)
-	{ if(stripos($el,"HDR")!==FALSE){ $surfacetype*=1.35;} }
-}
 
 if($stuff[$i]['touch']==1) { $touchratio=1; }
 elseif($stuff[$i]['touch']==2) {	$touchratio=0.001;}

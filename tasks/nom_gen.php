@@ -1182,6 +1182,16 @@ while($rand = mysqli_fetch_array($result))
 }
 mysqli_free_result($result);
 
+$sel="SELECT DISTINCT `dci-p3` FROM `notebro_db`.`DISPLAY` WHERE valid=1 ORDER BY `dci-p3` ASC";
+$result = mysqli_query($con, $sel);
+/*
+while($rand = mysqli_fetch_array($result)) 
+{
+	$rand["dci-p3"]=intval($rand["dci-p3"]);
+	if($rand["dci-p3"]>60){ $object[] = "60% DCI-P3 or better"; }
+}*/
+mysqli_free_result($result);
+	
 $object[] = "G-Sync/FreeSync";
 
 $msc=array_unique($object);

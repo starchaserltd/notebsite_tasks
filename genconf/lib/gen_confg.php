@@ -811,7 +811,7 @@ mysqli_query($con, "USE notebro_db;");
 function get_price_list($con,$model)
 {
 	$price_list=NULL;
-	$sql="SELECT other from notebro_prices.comp_match where model=$model";
+	$sql="SELECT `other` FROM `notebro_prices`.`comp_match` WHERE `model`='".$model."' ORDER BY `lastcheck` DESC LIMIT 1";
 	$price_list=json_decode(mysqli_fetch_assoc(mysqli_query($con,$sql))["other"],true);
 	
 	if(isset($price_list["nodiscount"]) && $price_list["nodiscount"]!==NULL && $price_list["nodiscount"]!="")
@@ -822,7 +822,7 @@ function get_price_list($con,$model)
 	if(isset($price_list["prod"]) && $price_list["prod"]!==NULL && $price_list["prod"]!="")
 	{ $prod=$price_list["prod"]; }
 	else
-	{ $sql="SELECT prod from notebro_db.MODEL where id=$model"; $prod=mysqli_fetch_assoc(mysqli_query($con,$sql))["prod"]; if(!(isset($prod) && $prod)) { $prod=""; } }
+	{ $sql="SELECT `prod` FROM `notebro_db`.`MODEL` WHERE `id`='".$model."'"; $prod=mysqli_fetch_assoc(mysqli_query($con,$sql))["prod"]; if(!(isset($prod) && $prod)) { $prod=""; } }
 
 	$gotodan=0;
 	if(isset($price_list["webprice"]) && $price_list["webprice"]!==NULL && $price_list["webprice"]!="")

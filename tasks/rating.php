@@ -237,6 +237,8 @@ switch($stuff[$i]['backt']) {
 	{ $surfacetype=0.35; break;}
 	case (stripos($stuff[$i]['backt'],"OLED")!==FALSE):
 	{ $surfacetype=1; break; }
+	case (stripos($stuff[$i]['backt'],"mLED")!==FALSE):
+	{ $surfacetype=1; break; }
 }
 
 //sRGB minimum srgb is 50, set it to 45 in range

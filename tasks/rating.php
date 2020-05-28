@@ -51,64 +51,71 @@ $sql="UPDATE notebro_db.CPU SET rating=(rating/".floatval($stuff[0]).")*100"; my
 
 
 /* GPU RATING */
-
-$sql="SELECT * FROM notebro_rate.GPU";
-$sql2="SELECT MAX(`3DMark 2013 Fire Strike Standard GPU`), MAX(`3DMark Time Spy Graphics`),MAX(`3DMark Cloud Gate Graphics Standard`) FROM notebro_rate.GPU WHERE model NOT LIKE '%SLI%' AND model NOT LIKE '%Crossfire%'";
-$result = mysqli_query($con, $sql);
-$stuff = mysqli_fetch_all($result);
-$rownr=mysqli_num_rows($result);
-$result = mysqli_query($con, $sql2);
-$maxvalues = mysqli_fetch_array($result);
-
-for($i=0;$i<$rownr;$i++)
+$abort=True;
+$SQL_COLUMNS="SELECT * FROM `notebro_rate`.`CONFIG` WHERE `type`='gpu_columns' LIMIT 1";
+$bench_name_result=mysqli_query($con,$SQL_COLUMNS);
+if(have_results($bench_name_result))
 {
-$rating=array();
-$nr=0;
-$value=0;
-$first=2;
-for($j=0;$j<3;$j++)
-{
-//j+4 because first 4 columns are not data
-if($stuff[$i][$j+4]>0)
-{
-		$stuff[$i][$j+4]=floatval($stuff[$i][$j+4]);
-		//echo $stuff[$i][$j+3]; echo " "; echo $maxvalues[$j]; echo "aa";
-		$value+=$stuff[$i][$j+4]/floatval($maxvalues[$j]);
-		$nr++;
-}
-
-if($first)
-{
-if($stuff[$i][$j+4]>0)
-{
-		$stuff[$i][$j+4]=floatval($stuff[$i][$j+4]);
-		//echo $stuff[$i][$j+4]; echo " "; echo $maxvalues[$j]; echo "aa";
-		$value+=$stuff[$i][$j+4]/floatval($maxvalues[$j]);
-		$nr++;
-}	
-$first--;	
-}
-
-
-//echo "-".$value."-".$nr."b";
-}
-
-if($nr){$value/=$nr;}else{$value=0;}
+	$abort=False;
+	$raw_data=mysqli_fetch_assoc($bench_name_result);
+	$bench_names=explode(",",$raw_data["value_1"]);
+	mysqli_free_result($bench_name_result);
 	
-$rating[$stuff[$i][0]]=$value;
-$stuff[$i][3]=floatval($stuff[$i][3]);
-//$value2=($value+((35/$stuff[$i][3])-1)/300)*100; - for TDP
-$value*=100;
-$value=round($value,4);
-//echo "<br>";
-//var_dump($rating);
-$sql="UPDATE notebro_rate.GPU SET ratingnew=$value WHERE id=".$stuff[$i][0];
-mysqli_query($con, $sql);
-mysqli_select_db($con,"notebro_db"); 
-$sql="UPDATE notebro_db.GPU SET rating=$value WHERE id=".$stuff[$i][0]."";
-//if($stuff[$i][0]==503){var_dump($sql);}
-mysqli_query($con, $sql);
+	$max_benches=array(); $SQL_PARTS=array();
+	foreach ($bench_names as $bench_name){ $SQL_PARTS[]="MAX(`".$bench_name."`) AS `".$bench_name."`"; }
+	$SQL_MAX_BENCH_DATA="SELECT ".implode(",",$SQL_PARTS)." FROM `notebro_rate`.`GPU` WHERE `model` NOT LIKE '%SLI%' AND `model` NOT LIKE '%Crossfire%' LIMIT 1";
+	unset($SQL_PARTS);
+	$result=mysqli_query($con,$SQL_MAX_BENCH_DATA);
+
+	if(have_results($result))
+	{
+		$max_benches=mysqli_fetch_assoc($result);
+		foreach($bench_names as $bench_name)
+		{ 
+			if(isset($max_benches[$bench_name]))
+			{ 
+				if(floatval($max_benches[$bench_name])>0){ $max_benches[$bench_name]=floatval($max_benches[$bench_name]); }
+				else { unset($max_benches[$bench_name]); }
+			}
+		}
+		mysqli_free_result($result);
+	}
+	else { $abort=True; }
+	
+	if(!$abort)
+	{
+		$SQL_BENCH_DATA="SELECT `id`,`".implode("`,`",$bench_names)."` FROM `notebro_rate`.`GPU`";
+		$result=mysqli_query($con,$SQL_BENCH_DATA);
+		if(have_results($result))
+		{
+			while($row=mysqli_fetch_assoc($result))
+			{
+				$rate_sum_value=0;
+				$rate_nr=0;
+				foreach($bench_names as $bench_name)
+				{
+					if(floatval($row[$bench_name])>0 && isset($max_benches[$bench_name]))
+					{
+						$rate_sum_value=$rate_sum_value+floatval($row[$bench_name])/$max_benches[$bench_name];
+						$rate_nr++;
+					}
+				}
+				if($rate_nr>0)
+				{ $value=($rate_sum_value/$rate_nr)*100; $value=round($value,4);}
+				else
+				{ $value=0; }
+
+				$SQL_UPDATE="UPDATE `notebro_rate`.`GPU` SET `ratingnew`=".$value." WHERE id='".$row["id"]."'";
+				#var_dump($SQL_UPDATE); echo "<br>";
+				mysqli_query($con,$SQL_UPDATE);
+				$SQL_UPDATE="UPDATE `notebro_db`.`GPU` SET `rating`=".$value." WHERE id='".$row["id"]."'";
+				mysqli_query($con,$SQL_UPDATE);
+			}
+			mysqli_free_result($result);
+		}
+	}
 }
+
 
 
 

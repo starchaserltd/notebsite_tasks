@@ -3,6 +3,7 @@
 require_once("../etc/con_db.php");
 mysqli_select_db($con,"notebro_rate");
 		
+function normalisation($value,$min,$max){ return (($value-$min)/($max-$min)); }
 
 /* CPU RATING */
 $abort=True;

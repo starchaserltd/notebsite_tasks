@@ -2132,46 +2132,40 @@ if (mysqli_multi_query($con, $insert)) {
 
 //// Operating Systems
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'sys_os'";
-$rand = mysqli_fetch_array(mysqli_query($con, $sel));
+$SEL="SELECT `id` FROM `notebro_site`.`nomen_key` WHERE `name` LIKE 'sys_os'";
+$rand = mysqli_fetch_array(mysqli_query($con, $SEL));
 $type=$rand["id"];
 
+$SEL="SELECT `type`,`vers`,`sist` FROM `notebro_db`.`SIST` WHERE `valid`=1 ORDER BY `sist` DESC";
+$result = mysqli_query($con, $SEL);
 
-$sel="SELECT type,CONCAT_WS('', sist, ' ', vers) AS sys_os FROM notebro_db.SIST WHERE valid=1 ORDER BY sist DESC";
-$result = mysqli_query($con, $sel);
-
-
-$insert="";
+$INSERT="";
 
 while($rand = mysqli_fetch_array($result)) 
 { 
-
-	if($rand["sys_os"])
+	if(floatval($rand["vers"])==0)
+	{ $sys_os=$rand["sist"]; }
+	else
 	{
+		$vers=strval($rand["vers"]);
+		while(substr($vers, -1)=="0")
+		{ $vers=substr($vers, 0, -1); }
 		
-		$name=$rand["sys_os"];
-		while(substr($name, -1)=="0")
-		{	$name=substr($name, 0, -1);	
-		}
-
-		if(substr($name, -1)==".")
-		$name=substr($name, 0, -1);
+		if(substr($vers, -1)=="."){ $vers=substr($vers, 0, -1); }
+		
+		$sys_os=$rand["sist"]." ".$vers;
 	
-	if(substr($name, -1)=="0")
-	$name=str_replace(" 0","",$name);
-
-	if($rand["type"])
-	$name=$name." ".$rand["type"];
-	
-		$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type', '$name');";
 	}
+	if((strcasecmp($rand["sist"],"Linux")!=0) && $rand["type"])
+	{ $sys_os=$sys_os." ".$rand["type"]; }
+	
+	$INSERT.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('".$type."', '".$sys_os."'); ";
 }
 
-if (mysqli_multi_query($con, $insert)) {
-    echo "New operating systems created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) )  {;}  
-} else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
-}
+if (mysqli_multi_query($con, $INSERT))
+{ echo "New operating systems created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) )  {;} }
+else
+{ echo "Error: " . $INSERT. "<br>" . mysqli_error($con); }
 
 
 /// SWAPING options

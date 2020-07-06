@@ -4,7 +4,7 @@
 //all 172.31.2.33 172.31.4.253 172.31.1.219
 //active 172.31.2.33 172.31.4.253
 //inactive 172.31.1.219
-
+$max_gen_time=9600; //seconds
 echo "\r\n"; echo "<br>DATE: ";
 echo "*********   ";
 echo date('l jS \of F Y h:i:s A');
@@ -103,7 +103,7 @@ while($loop)
 		// RUN THE CODE FOR THESE SERVERS //
 		echo "It is working!";
 		
-		set_time_limit($nr_mservers*7200);
+		set_time_limit($nr_mservers*$max_gen_time);
 		$ch=array();
 		$mh = curl_multi_init();
 		$i=0;
@@ -113,13 +113,13 @@ while($loop)
 			
 			$ch[$i] = curl_init('http://172.31.0.196/vault/genconf/gen_search.php?s='.$skey);
 			curl_setopt($ch[$i], CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch[$i], CURLOPT_TIMEOUT, 7200);
+			curl_setopt($ch[$i], CURLOPT_TIMEOUT, $max_gen_time);
 			curl_setopt($ch[$i], CURLOPT_CONNECTTIMEOUT ,60);
 			// build the multi-curl handle, adding both $ch
 			curl_multi_add_handle($mh, $ch[$i]);
 			$i++;
 		}
-		//curl_setopt($mh, CURLOPT_TIMEOUT, $nr_mservers*7200);
+		//curl_setopt($mh, CURLOPT_TIMEOUT, $nr_mservers*$max_gen_time);
 		
 		// execute all queries simultaneously, and continue when all are complete
 		$running = null; $mrc=null;

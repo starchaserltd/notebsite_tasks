@@ -60,7 +60,7 @@ for ($x = 0; $x <=$lastid[0]-1; $x++)
 					while ($row = mysqli_fetch_row($result)){ array_push($array[$gen_id],$row[0]); } 
 					mysqli_free_result($result);
 				}
-			} 	while (mysqli_next_result($cons));
+			} 	while (mysqli_more_results($con) && mysqli_next_result($con));
 		}
 	}
 }

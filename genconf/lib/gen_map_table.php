@@ -79,9 +79,13 @@ foreach($map as $key=>$val)
 
 $query="SELECT `code`,`regions`,`ex_war`,`id` FROM `notebro_site`.`exchrate`";
 $result=mysqli_query($con,$query);
-while($row=mysqli_fetch_assoc($result))
+if(have_results($result))
 {
-	$insert="INSERT INTO `notebro_temp`.`ex_map_table` (`ex`,`regions`,`ex_war`,`ex_id`) VALUES ('".$row["code"]."','".$row["regions"]."','".$row["ex_war"]."','".$row["id"]."')"; 
-	if(!mysqli_query($cons,$insert)){echo("Error description: ".mysqli_error($cons)." ".$insert."<br>");}
+	while($row=mysqli_fetch_assoc($result))
+	{
+		$insert="INSERT INTO `notebro_temp`.`ex_map_table` (`ex`,`regions`,`ex_war`,`ex_id`) VALUES ('".$row["code"]."','".$row["regions"]."','".$row["ex_war"]."','".$row["id"]."')"; 
+		if(!mysqli_query($cons,$insert)){echo("Error description: ".mysqli_error($cons)." ".$insert."<br>");}
+	}
+	mysqli_free_result($result);
 }
 ?>

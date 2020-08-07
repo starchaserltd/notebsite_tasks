@@ -20,7 +20,7 @@ function chunk_to_json($chunk)
 	return $j;
 }
 
-function post_request_to_noteb-price_ws($json_data)
+function post_request_to_noteb_price_ws($json_data)
 {
 	$opts=array(
 		'http' => array(

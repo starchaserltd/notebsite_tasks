@@ -1,20 +1,20 @@
 #!/usr/bin/php
 <?php
-echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="description" content="Noteb laptop configuration generation"><title>Noteb laptop configuration generation</title></head><body>';
+echo '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="description" content="Noteb laptop configuration generation"><title>Noteb laptop configuration generation</title></head><body><br>';
 
 //DEBUG STUFF
-/*
+
 echo "<br><b>Debug info:</b><br>";
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 echo "File root address: "; echo getcwd() . "\n";
 echo "<br><b>End debug inf</b><br><br>";
-*/
+
 //END OF DEBUG STUFF
 
 //PARAMETERS
-$memory_limit=12550000;
+$max_configs_limit=22550000;
 set_time_limit(7200);
 ini_set('memory_limit', '3072M');
 
@@ -31,17 +31,19 @@ if(isset($allowdirect) && $allowdirect>0)
 	if(strcmp("kMuGLmlIzCWmkNbtksAh",$_SESSION['auth'])==0)
 	{
 		//$_SESSION['auth']=0;
+
+		$server=0;  if(isset($_GET["s"])){ $server=intval($_GET["s"]); }
+		
 		require_once("../etc/con_db.php");
 		require_once("../etc/con_rdb.php");
 		require_once("../etc/con_sdb.php");
-
-		$server=0;  if(isset($_GET["s"])){ $server=intval($_GET["s"]); }
 		
 		//PRODUCTION SERVER SPECIFIC FUNCTIONS
 		$prod_server=0;	if(isset($_GET["prod"])){ $prod_server=intval($_GET["prod"]); }
 		if($prod_server)
 		{
 			//GETTING SERVICE LIST
+			$max_configs_limit=12550000;
 			$servers_2=file('/var/www/vault/etc/sservers', FILE_SKIP_EMPTY_LINES);
 			$i=0;
 			foreach($servers_2 as $line){ $servers_2[$i]=explode(" ",trim(preg_replace('/\s+/', ' ', $line))); $i++; }
@@ -51,7 +53,7 @@ if(isset($allowdirect) && $allowdirect>0)
 			sleep(10);
 			//RELOADING PRICER_WEB_SER
 			require_once("prod_lib/noteb-price_ws.php");	
-			echo "<br>"; var_dump(restart_pricer_web_service()); echo "<br>";
+			echo "Reloading noteb-price webservice:<pre>"; var_dump(restart_pricer_web_service()); echo "</pre><br>";
 		}
 
 		$use_script="lib/gen_conf.php";

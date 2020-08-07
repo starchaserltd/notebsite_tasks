@@ -1,4 +1,12 @@
 <?php
+/*
+error_reporting(E_ALL);
+require_once("../../etc/con_sdb.php");
+if(!isset($server)){$server=0;}
+$multicons=dbs_connect();
+$con=$multicons[$server];
+$cons=$con;
+*/
 
 if ($result = mysqli_query($con, "SELECT DATABASE()")) {
     $row = mysqli_fetch_row($result);
@@ -27,4 +35,5 @@ if($result&&mysqli_num_rows($result)>0)
 	}
 }
 mysqli_free_result($result);
+
 ?>

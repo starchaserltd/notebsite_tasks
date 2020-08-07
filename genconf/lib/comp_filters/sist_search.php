@@ -120,7 +120,7 @@ function search_sist ($sist, $vers, $misc, $pricemin, $pricemax)
 	
 	$result = mysqli_query($GLOBALS['con'], $sel_sist);
 	$sist_return = array();
-	var_dump($result); echo "<br>";
+	#var_dump($result); echo "<br>";
 	while($rand = mysqli_fetch_array($result)) 
 	{ 
 		$sist_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"err"=>intval($rand[2]),"rating"=>round($rand[3],3));

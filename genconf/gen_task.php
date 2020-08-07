@@ -4,35 +4,11 @@
 //all 172.31.2.33 172.31.4.253 172.31.1.219
 //active 172.31.2.33 172.31.4.253
 //inactive 172.31.1.219
+
 $max_gen_time=10000; //seconds
-echo "\r\n"; echo "<br>DATE: ";
-echo "*********   ";
-echo date('l jS \of F Y h:i:s A');
-echo "   ********\r\n"; echo "<br>";
+echo "\r\n"; echo "<br>DATE: *********   ".date('l jS \of F Y h:i:s A')."   ********\r\n<br>";
 
-function db_super_connect()
-{
-   static $link;
-   $link = mysqli_init();
-
-	$user="notebro_super";
-	$pass="nBdBnologin&4";
-	$database="";
-	$host="172.31.13.210";
-	$port="3306";
-			 
-    $con = mysqli_real_connect($link, $host, $user, $pass, $database);
-
-    // If connection was not successful, handle the error
-    if($con === false)
-	{
-       // Handle error - notify administrator, log to a file, show an error screen, etc.
-       return mysqli_connect_error();
-    }
-    return $link;
-}
-
-echo "Doing the ratings!<br>";
+echo "<br>Doing the ratings!<br>";
 $ch = curl_init('http://86.123.134.36/notebro/admin/tasks/rating.php');
 curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
 curl_setopt($ch, CURLOPT_HTTPHEADER, array("X-HTTP-Method-Override: GET"));
@@ -40,30 +16,34 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_TIMEOUT, 120);
 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT ,60);
 $result = curl_exec($ch);
-if($result === false){
-echo curl_error($ch);
-}
+if($result === false)
+{ echo "\r\n<br><b>ERROR WHILE DOING THE RATINGS:</b><br>\r\n<pre>"; echo curl_error($ch);  echo "</pre>\r\n<br><br>\r\n"; }
 else
-{ var_dump($result);}
+{ echo "\r\n<br><b>REPLY FROM RATINGS SCRIPT:</b><br>\r\n<pre>"; var_dump($result); echo "</pre>\r\n<br><br>\r\n"; }
 curl_close($ch);
 echo "<br>";
 
 //require_once("/var/www/vault/tasks/rating.php");
 usleep(30000);
 
+//DONE DOING THE RATINGS
+
+//STOPING REPLICATION
+require_once("/var/www/vault/genconf/prod_lib/db_super_connect.php"); 
 $con_super=db_super_connect();
 mysqli_query($con_super,"STOP SLAVE IO_THREAD");
 
+//GETTING SERVER LIST
 $file_address="/var/www/noteb/etc/sservers";
 $servers=file($file_address, FILE_SKIP_EMPTY_LINES);
-$set=3; //this needs to come from a get
+$set=3;
 if(isset($_GET["set"])){ $set=intval($_GET["set"]); }
 
 $loop=1;
-if($set==3)
-{ $loop=2; $set=0; }
+if($set==3){ $loop=2; $set=0; }
 $do_nomen=TRUE;
 
+//RUNNING THE CONF GENERATION SCRIPT FOR EVERY SDB SERVER
 while($loop)
 {
 	if($set==0 || $set==1)
@@ -71,7 +51,7 @@ while($loop)
 		$servers=file($file_address, FILE_SKIP_EMPTY_LINES);
 		$i=0;
 		foreach($servers as $line)
-		{ $servers[$i]=explode(" ",trim(preg_replace('/\s+/', ' ', $line))); $i++; }
+		{ $servers[$i]=explode(" ",trim(preg_replace('/\s+/',' ',$line))); $i++; }
 
 		$nr_actvsrv=(count($servers[1])-1);
 		$nr_actvsrvm=round($nr_actvsrv/2,0);
@@ -85,7 +65,8 @@ while($loop)
 		}
 
 		if($set==1)
-		{	$nr_actvsrvm++;
+		{	
+			$nr_actvsrvm++;
 			for($i=$nr_actvsrvm;$i<=$nr_actvsrv;$i++)
 			{ $movetoinactive[$i]=$servers[1][$i]; $nr_mservers++; }
 		}		
@@ -101,7 +82,7 @@ while($loop)
 		$myfile = fopen($file_address, "wb") or die("Unable to open file!"); fwrite ($myfile,$string); fclose($myfile);
 
 		// RUN THE CODE FOR THESE SERVERS //
-		echo "It is working!";
+		echo "\r\n<br><b>Price generation started for servers: </b>".implode(" ",$movetoinactive)."<br>\r\n";
 		
 		set_time_limit($nr_mservers*$max_gen_time);
 		$ch=array();
@@ -110,41 +91,42 @@ while($loop)
 		foreach($movetoinactive as $value)
 		{
 			$skey=array_search($value,$servers[0]);
-			
-			$ch[$i] = curl_init('http://172.31.0.196/vault/genconf/gen_search.php?s='.$skey);
+			echo "\r\n<br><b>Starting price generation for server:</b> ".$skey."<br>\r\n";
+			$ch[$i] = curl_init('http://172.31.0.196/vault/genconf/gen_search.php?s='.$skey.'&prod=1');
 			curl_setopt($ch[$i], CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch[$i], CURLOPT_TIMEOUT, $max_gen_time);
 			curl_setopt($ch[$i], CURLOPT_CONNECTTIMEOUT ,60);
-			// build the multi-curl handle, adding both $ch
 			curl_multi_add_handle($mh, $ch[$i]);
 			$i++;
 		}
 		//curl_setopt($mh, CURLOPT_TIMEOUT, $nr_mservers*$max_gen_time);
 		
-		// execute all queries simultaneously, and continue when all are complete
+		// This CODE IS DESGINED TO execute all queries simultaneously, and continue when all are complete.
+		// HOWEVER, WE SEND ONLY ONE QUERY AT A TIME.
 		$running = null; $mrc=null;
-		do {
+		do
+		{
 			$mrc = curl_multi_exec($mh, $running);
 		} 	while ($running && $mrc == CURLM_CALL_MULTI_PERFORM);
 	  
-		while ($running && $mrc == CURLM_OK) {
-			if (curl_multi_select($mh) == -1) {
-				usleep(100);
-			}
-		do {
-			$mrc = curl_multi_exec($mh, $running);
-		} while ($mrc == CURLM_CALL_MULTI_PERFORM);
-		}
-	  
-	  
-		// all of our requests are done, we can now access the results
-		$response_1 = curl_multi_getcontent($ch[0]);
-		echo "$response_1"; 
-
-		for($i=0;$i<$nr_mservers;$i++)
+		while ($running && $mrc == CURLM_OK)
 		{
-			curl_multi_remove_handle($mh, $ch[$i]);
+			if (curl_multi_select($mh) == -1) { usleep(100); }
+			do 
+			{
+				$mrc = curl_multi_exec($mh, $running);
+			}	while ($mrc == CURLM_CALL_MULTI_PERFORM);
 		}
+	  
+		// All of our requests are done, we can now access the results
+		echo "\r\n<br><b>REPLY FROM THE PRICE GENERATION SCRIPTS IS BUFFERED AND DISPLAYED ONLY WHEN DONE</b><br>\r\n";
+		echo "\r\n<br><b>RUNNING PRICE GENERATION</b><br>\r\n";
+		$response_1 = curl_multi_getcontent($ch[0]);
+		echo "\r\n<br><b>PRICE GENERATION IS OVER FOR THIS SERVER, HERE IS THE OUTPUT</b><br>\r\n";
+		echo $response_1; 
+		
+		for($i=0;$i<$nr_mservers;$i++)
+		{ curl_multi_remove_handle($mh, $ch[$i]); }
 		curl_multi_close($mh);
 
 		// Reactivate servers 
@@ -156,13 +138,14 @@ while($loop)
 		ksort($servers[2]); ksort($servers[1]);
 		$string=""; foreach($servers as $line) { $string.=implode(" ",$line);  $string.="\r\n"; }
 		$myfile = fopen($file_address, "wb") or die("Unable to open file!"); fwrite ($myfile,$string); fclose($myfile);
-	
-	if($do_nomen)
-	{ require_once("/var/www/vault/tasks/nom_gen.php"); $do_nomen=FALSE; }
-	
+		
+		//AFTER THE FIRST SERVER IS DONE, THE NOMEN TABLE IS REGENERATED
+		if($do_nomen)
+		{ require_once("/var/www/vault/tasks/nom_gen.php"); $do_nomen=FALSE; }
 	}
 	$set=1;
 	$loop--;
 }
+//RESTARTING REPLICATION
 mysqli_query($con_super,"START SLAVE IO_THREAD"); mysqli_close($con_super);
 ?>

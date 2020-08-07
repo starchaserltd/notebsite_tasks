@@ -18,7 +18,8 @@ for($i=0;$i<$nrservers;$i++)
 
   // execute all queries simultaneously, and continue when all are complete
   $running = null;
-  do {
+  do
+  {
     curl_multi_exec($mh, $running);
   } while ($running);
   

@@ -1,5 +1,13 @@
 <?php
 
+/*	
+error_reporting(E_ALL);	
+require_once("../../etc/con_sdb.php");	
+if(!isset($server)){$server=0;}	
+$multicons=dbs_connect();	
+$con=$multicons[$server];	
+*/
+	
 if ($result = mysqli_query($cons, "SELECT DATABASE()")) {
     $row = mysqli_fetch_row($result);
     printf("Default database is %s.\n", $row[0]);

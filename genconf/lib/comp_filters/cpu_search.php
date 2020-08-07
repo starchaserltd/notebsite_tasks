@@ -301,7 +301,7 @@ function search_cpu ($prod, $model, $ldmin, $ldmax, $status, $socket, $techmin, 
 	
 // DO THE SEARCH
 	
-	//echo $sel_cpu;
+	#echo $sel_cpu;
 	
 	$result = mysqli_query($GLOBALS['con'], "$sel_cpu");
 	$cpu_return = array();

@@ -17,7 +17,7 @@ if(have_results($result))
 {
 	while($model=mysqli_fetch_assoc($result))
 	{			
-		$sql="SELECT max(`price`) as `max_price`,min(`price`) as `min_price`,max(`batlife`) as `max_batlife`,min(`batlife`) as `min_batlife`,max(`capacity`) as `max_cap`,min(`capacity`) as `min_cap` FROM `notebro_temp`.`all_conf_".$model['model_id']."` WHERE `price`!=0 LIMIT 1";
+		$sql="SELECT max(`price`) AS `max_price`,min(`price`) AS `min_price`,max(`batlife`) AS `max_batlife`,min(`batlife`) AS `min_batlife`,max(`capacity`) AS `max_cap`,min(`capacity`) AS `min_cap` FROM `notebro_temp`.`all_conf_".$model['model_id']."` WHERE `price`!=0 LIMIT 1";
 		$result_price=mysqli_query($cons,$sql);
 		if(have_results($result_price))
 		{ 

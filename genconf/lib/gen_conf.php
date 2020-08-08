@@ -59,7 +59,7 @@ mysqli_query($con,"CALL ABCORDER();");
 
 //GET MODELS FOR PROCESSING
 $model_ids = array();
-$model_select_cond="AND id=3401";
+$model_select_cond="AND id=532";
 $model_select_cond="";
 $query_model = "SELECT DISTINCT `id` FROM `notebro_db`.`MODEL` WHERE 1=1 ".$model_select_cond." ORDER BY `id` ASC";
 $result = mysqli_query($con,$query_model);
@@ -486,8 +486,8 @@ function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$m
 		
 		if($GLOBALS["prod_server"]==1)
 		{
-			//$computed_chunk=old_calc_configurator($chunk_array,$model_id);
-			//$chunk_array=get_prices_from_ml($chunk_array,$computed_chunk);
+			$computed_chunk=old_calc_configurator($chunk_array,$model_id);
+			$chunk_array=get_prices_from_ml($chunk_array,$computed_chunk);
 		}
 		$query = $INSERT_QUERY . implode(", ", array_map("values_to_str", $chunk_array));
 		$cons=$multicons[$server];

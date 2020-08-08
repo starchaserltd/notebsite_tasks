@@ -10,7 +10,7 @@ $con=$multicons[$server];
 	
 if ($result = mysqli_query($cons, "SELECT DATABASE()")) {
     $row = mysqli_fetch_row($result);
-    printf("Default database is %s.\n", $row[0]);
+    printf("<br>Default database is %s.\n", $row[0]);
     mysqli_free_result($result);
 }
 mysqli_select_db($cons,"notebro_temp");

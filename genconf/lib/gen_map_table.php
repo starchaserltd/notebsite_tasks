@@ -14,7 +14,7 @@ $con=mysqli_connect($host, $user, $pass, $database);
 */
 if ($result = mysqli_query($con, "SELECT DATABASE()")) {
     $row = mysqli_fetch_row($result);
-    printf("Default database is %s.\n", $row[0]);
+    printf("<br>Default database is %s.\n", $row[0]);
     mysqli_free_result($result);
 }
 echo "<br>Generating map table configurations"; $succes=0;

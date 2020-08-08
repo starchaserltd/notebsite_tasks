@@ -33,17 +33,14 @@ if (isset($_SESSION['temp_configs']))
 }	
 
 //SETTING WEBSITE IN PRICE GENERATION MODE, CREATING TEMPORARY TABLES
-
 $sel2='UPDATE notebro_site.vars SET value=1 WHERE name="genconfig"';
 mysqli_query($con,$sel2);
 
+
 // CREATING TEMPORARY TABLES
-
-
 $sel2 = 'USE notebro_temp; CALL delete_tbls(); CALL allconf_tbl(); SELECT @tablename; ';
 //mysqli_multi_query($cons, $sel2) or die (mysqli_error ($cons) . " The query was:" . $sel2);
 $temp_table=local_multiquery($cons,$sel2,0);
-
 mysqli_query($con,"USE notebro_db;");
 
 $nr_configs=1;
@@ -62,7 +59,7 @@ mysqli_query($con,"CALL ABCORDER();");
 
 //GET MODELS FOR PROCESSING
 $model_ids = array();
-$model_select_cond="AND id=4621";
+$model_select_cond="AND id=3401";
 $model_select_cond="";
 $query_model = "SELECT DISTINCT `id` FROM `notebro_db`.`MODEL` WHERE 1=1 ".$model_select_cond." ORDER BY `id` ASC";
 $result = mysqli_query($con,$query_model);
@@ -87,7 +84,7 @@ foreach($model_ids as $model_id)
 	if(!isset($mdb_selected_data)){ $mdb_selected_data=array();} if(!isset($mem_selected_data)){ $mem_selected_data=array();} if(!isset($shdd_selected_data)){ $shdd_selected_data=array();}
 	if(!isset($wnet_selected_data)){ $wnet_selected_data=array();} if(!isset($odd_selected_data)){ $odd_selected_data=array();} if(!isset($chassis_selected_data)){ $chassis_selected_data=array();}
 
-	$configs=generate_configs($con,$multicons,$model_id,$comp_list);
+	$configs=generate_configs($con,$rcon,$multicons,$model_id,$comp_list);
 
 	$create_table = "USE `notebro_temp`; SET @p0='all_conf_".$model_id."'; CALL allconf_tbl2(@p0); DROP TABLE IF EXISTS 'all_conf_".$model_id."'; CALL allconf_tbl2(@p0); ";
 	$cons=$multicons[$server];
@@ -104,12 +101,15 @@ foreach($model_ids as $model_id)
 			show_running_output("<b>TRIED TO INSERT DATA FOR MODEL ID: ".$model_id." !</b><br>");
 		}
 		else
-		{ echo show_running_output("<b>MAXIMUM NUMBER OF CONFIGS REACHED: ".$max_configs_limit." !</b> Aborting insertation for model id: ".$model_id."<br>"); }
+		{
+			show_running_output("<b>MAXIMUM NUMBER OF CONFIGS REACHED: ".$max_configs_limit." !</b> Aborting insertation for model id: ".$model_id."<br>"); 
+			show_running_output("<b>ABORTING CONF GENERATION!</b><br>"); break;
+		}
 	}
 	//$time_end = microtime(true); $execution_time = ($time_end - $time_start); printf("<br><b>Time elapsed:</b> %.6f s\n<br><br>", $execution_time); exit();
 }
 
-if($prod_server==1){ get_prices_from_all_conf(); }
+if($prod_server==1){ get_prices_from_all_conf(100); }
 
 //SETTING GENERATION VARIABLE TO ZERO
 mysqli_query($con,'UPDATE notebro_site.vars SET value=0 WHERE name="genconfig"');
@@ -143,7 +143,7 @@ mysqli_close($con);
 #FUNCTIONS
 
 //// MAIN FUNCTION TO BUILD TEMPORARY CONFIGURATIONS TABLE /////	
-function generate_configs($con,$multicons,$model_id,$comp_list)
+function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 {
     $final_configurations=array();
 	if(!isset($GLOBALS["prod_server"])){ show_running_output("<br><b>THIS FILE IS NOT RUN PROPERLY!</b><br>"); exit(); }
@@ -243,7 +243,7 @@ function generate_configs($con,$multicons,$model_id,$comp_list)
 				
 				#GETTING DISABLED CONFs FROM notebro_prices.disabled_configs
 				$SELECT_DISABLED_DATA="SELECT * FROM `notebro_prices`.`disabled_configs` WHERE `model`=".$model_id."";
-				$test_disb_result=mysqli_query($con,$SELECT_DISABLED_DATA);
+				$test_disb_result=mysqli_query($rcon,$SELECT_DISABLED_DATA);
 				$disabled_data=array(); $nr_valid_disabled=array();
 				if(have_results($test_disb_result))
 				{
@@ -486,8 +486,8 @@ function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$m
 		
 		if($GLOBALS["prod_server"]==1)
 		{
-			$computed_chunk=old_calc_configurator($chunk_array,$model_id);
-			$chunk_array=get_prices_from_ml($chunk_array,$computed_chunk);
+			//$computed_chunk=old_calc_configurator($chunk_array,$model_id);
+			//$chunk_array=get_prices_from_ml($chunk_array,$computed_chunk);
 		}
 		$query = $INSERT_QUERY . implode(", ", array_map("values_to_str", $chunk_array));
 		$cons=$multicons[$server];

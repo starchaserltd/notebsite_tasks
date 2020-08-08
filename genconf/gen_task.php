@@ -34,6 +34,7 @@ $con_super=db_super_connect();
 mysqli_query($con_super,"STOP SLAVE IO_THREAD");
 
 //GETTING SERVER LIST
+ini_set('track_errors', 1); //asadsa
 $file_address="/var/www/noteb/etc/sservers";
 $servers=file($file_address, FILE_SKIP_EMPTY_LINES);
 $set=3;
@@ -79,7 +80,7 @@ while($loop)
 		}
 		ksort($servers[2]); ksort($servers[1]);
 		$string=""; foreach($servers as $line) { $string.=implode(" ",$line);  $string.="\r\n"; }
-		$myfile = fopen($file_address, "wb") or die("Unable to open file!"); fwrite ($myfile,$string); fclose($myfile);
+		$myfile = fopen($file_address, "wb") or die ("Error opening file: ".error_get_last()["message"]); fwrite ($myfile,$string); fclose($myfile);
 
 		// RUN THE CODE FOR THESE SERVERS //
 		echo "\r\n<br><b>Price generation started for servers: </b>".implode(" ",$movetoinactive)."<br>\r\n";
@@ -96,6 +97,7 @@ while($loop)
 			curl_setopt($ch[$i], CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch[$i], CURLOPT_TIMEOUT, $max_gen_time);
 			curl_setopt($ch[$i], CURLOPT_CONNECTTIMEOUT ,60);
+			curl_setopt($ch[$i], CURLOPT_WRITEFUNCTION, function($curl,$data){ echo $data; ob_flush(); flush(); return strlen($data); });
 			curl_multi_add_handle($mh, $ch[$i]);
 			$i++;
 		}
@@ -119,10 +121,10 @@ while($loop)
 		}
 	  
 		// All of our requests are done, we can now access the results
-		echo "\r\n<br><b>REPLY FROM THE PRICE GENERATION SCRIPTS IS BUFFERED AND DISPLAYED ONLY WHEN DONE</b><br>\r\n";
-		echo "\r\n<br><b>RUNNING PRICE GENERATION</b><br>\r\n";
+		echo "\r\n<br><b>REPLY FROM THE PRICE GENERATION SCRIPTS IS BUFFERED AND DISPLAYED ONLY WHEN DONE.</b><br>\r\n";
+		echo "<b>RUNNING PRICE GENERATION.</b><br>\r\n";
 		$response_1 = curl_multi_getcontent($ch[0]);
-		echo "\r\n<br><b>PRICE GENERATION IS OVER FOR THIS SERVER, HERE IS THE OUTPUT</b><br>\r\n";
+		echo "\r\n<br><b>PRICE GENERATION IS OVER FOR THIS SERVER, HERE IS THE OUTPUT:</b><br>\r\n";
 		echo $response_1; 
 		
 		for($i=0;$i<$nr_mservers;$i++)
@@ -137,11 +139,11 @@ while($loop)
 		}
 		ksort($servers[2]); ksort($servers[1]);
 		$string=""; foreach($servers as $line) { $string.=implode(" ",$line);  $string.="\r\n"; }
-		$myfile = fopen($file_address, "wb") or die("Unable to open file!"); fwrite ($myfile,$string); fclose($myfile);
+		$myfile = fopen($file_address, "wb") or die ("Error opening file: ".error_get_last()["message"]); fwrite ($myfile,$string); fclose($myfile);
 		
 		//AFTER THE FIRST SERVER IS DONE, THE NOMEN TABLE IS REGENERATED
 		if($do_nomen)
-		{ require_once("/var/www/vault/tasks/nom_gen.php"); $do_nomen=FALSE; }
+		{ echo "\r\n<br><b>NOW GENERATING THE NOMEN TABLE.</b><br><br>\r\n"; require_once("/var/www/vault/tasks/nom_gen.php"); $do_nomen=FALSE; }
 	}
 	$set=1;
 	$loop--;

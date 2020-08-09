@@ -97,7 +97,7 @@ while($loop)
 			curl_setopt($ch[$i], CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch[$i], CURLOPT_TIMEOUT, $max_gen_time);
 			curl_setopt($ch[$i], CURLOPT_CONNECTTIMEOUT ,60);
-			curl_setopt($ch[$i], CURLOPT_WRITEFUNCTION, function($curl,$data){ echo $data; ob_flush(); flush(); return strlen($data); });
+			curl_setopt($ch[$i], CURLOPT_WRITEFUNCTION, function($curl,$data){ echo $data; if(ob_get_level()>0){ ob_flush(); } flush(); return strlen($data); });
 			curl_multi_add_handle($mh, $ch[$i]);
 			$i++;
 		}

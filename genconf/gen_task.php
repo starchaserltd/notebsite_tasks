@@ -124,7 +124,7 @@ while($loop)
 		echo "\r\n<br><b>REPLY FROM THE PRICE GENERATION SCRIPTS IS BUFFERED AND DISPLAYED ONLY WHEN DONE.</b><br>\r\n";
 		echo "<b>RUNNING PRICE GENERATION.</b><br>\r\n";
 		$response_1 = curl_multi_getcontent($ch[0]);
-		echo "\r\n<br><b>PRICE GENERATION IS OVER FOR THIS SERVER, HERE IS THE OUTPUT:</b><br>\r\n";
+		echo "\r\n<br><b>PRICE GENERATION IS OVER FOR THIS SERVER, HERE IS THE OUTPUT (IF THERE IS ANY LEFT):</b><br>\r\n";
 		echo $response_1; 
 		
 		for($i=0;$i<$nr_mservers;$i++)

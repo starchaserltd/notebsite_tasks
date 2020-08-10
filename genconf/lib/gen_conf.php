@@ -309,7 +309,6 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 								
 								if(!$incompatible)
 								{
-									$gen_configurations[]=$result_val;
 									if($iteration==$nr_iterations)
 									{
 										//Looks like this is the last iteration, time to calculate configuration stuff
@@ -331,6 +330,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 										$GLOBALS["nr_configs"]++;
 										yield $final_configuration;
 									}
+									$gen_configurations[]=$result_val;
 								}
 								else
 								{ }

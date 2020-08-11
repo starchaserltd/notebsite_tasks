@@ -16,7 +16,7 @@ switch($comp)
 	}
 	case "hdd":
 	{
-		if(isset($result_val["hdd"])&&isset($shdd_id)&&isset($result_val["mdb"]))
+		if(isset($result_val["hdd"])&&isset($result_val["shdd"])&&isset($result_val["mdb"]))
 		{
 			$mdb_2sata=0; if(stripos($mdb_selected_data[$result_val["mdb"]]["hdd"],"2 x SATA")!==FALSE){ $mdb_2sata=1; }
 			if((!$mdb_2sata && stripos($hdd_selected_data[$result_val["hdd"]]["model"],"M.2")===FALSE && stripos($hdd_selected_data[$result_val["hdd"]]["model"],"EMMC")===FALSE && (stripos($shdd_selected_data[$result_val["shdd"]]["model"],"N/A")===FALSE))||( $mdb_2sata && (stripos($hdd_selected_data[$result_val["hdd"]]["type"],"SSD")===FALSE) && stripos($shdd_selected_data[$result_val["shdd"]]["model"],"N/A")===FALSE ) )
@@ -26,7 +26,7 @@ switch($comp)
 	}
 	case "shdd":
 	{
-		if(isset($result_val["hdd"])&&isset($shdd_id)&&isset($result_val["mdb"]))
+		if(isset($result_val["hdd"])&&isset($result_val["shdd"])&&isset($result_val["mdb"]))
 		{
 			$mdb_2sata=0; if(stripos($mdb_selected_data[$result_val["mdb"]]["hdd"],"2 x SATA")!==FALSE){ $mdb_2sata=1; }
 			if((!$mdb_2sata && stripos($hdd_selected_data[$result_val["hdd"]]["model"],"M.2")===FALSE && stripos($hdd_selected_data[$result_val["hdd"]]["model"],"EMMC")===FALSE && (stripos($shdd_selected_data[$result_val["shdd"]]["model"],"N/A")===FALSE))||( $mdb_2sata && (stripos($hdd_selected_data[$result_val["hdd"]]["type"],"SSD")===FALSE) && stripos($shdd_selected_data[$result_val["shdd"]]["model"],"N/A")===FALSE ) )
@@ -48,7 +48,7 @@ switch($comp)
 	}
 	case "mdb":
 	{
-		if(isset($result_val["hdd"])&&isset($shdd_id)&&isset($result_val["mdb"]))
+		if(isset($result_val["hdd"])&&isset($result_val["shdd"])&&isset($result_val["mdb"]))
 		{
 			$mdb_2sata=0; if(stripos($mdb_selected_data[$result_val["mdb"]]["hdd"],"2 x SATA")!==FALSE){ $mdb_2sata=1; }
 			if((!$mdb_2sata && stripos($hdd_selected_data[$result_val["hdd"]]["model"],"M.2")===FALSE && stripos($hdd_selected_data[$result_val["hdd"]]["model"],"EMMC")===FALSE && (stripos($shdd_selected_data[$result_val["shdd"]]["model"],"N/A")===FALSE))||( $mdb_2sata && (stripos($hdd_selected_data[$result_val["hdd"]]["type"],"SSD")===FALSE) && stripos($shdd_selected_data[$result_val["shdd"]]["model"],"N/A")===FALSE ) )

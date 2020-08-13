@@ -477,12 +477,15 @@ function chunk(\Iterator $iterable, $size): \Iterator
     }
 }
 
+function iterable_to_traversable(iterable $it): Traversable { yield from $it; }
+
 function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id)
 {
 	$reinsert=0;
+	if($configs instanceof \Traversable){ $configs_array=iterator_to_array($configs); }else{$configs_array=$configs;} $configs=iterable_to_traversable($configs_array);
 	foreach(chunk($configs, $BATCH_SIZE) as $i=>$chunk)
 	{
-		$chunk_array = iterator_to_array($chunk);
+		$chunk_array=iterator_to_array($chunk);
 		
 		if($GLOBALS["prod_server"]==1)
 		{
@@ -503,7 +506,7 @@ function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$m
 	{
 		$newid=gmp_add($reinsert,"1");
 		$i=0; $new_configs=array();
-		foreach($configs as $value_i)
+		foreach($configs_array as $value_i)
 		{
 			if($reinsert==$value_i[0])
 			{$i=1; $value_i[0]=$newid;}
@@ -511,7 +514,7 @@ function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$m
 			if($i)
 			{ $new_configs[]=$value_i;}
 		}
-		insert_function($new_configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server);
+		insert_function($new_configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id);
 	}
 }
 

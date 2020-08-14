@@ -122,7 +122,7 @@ while($loop)
 	  
 		// All of our requests are done, we can now access the results
 		echo "\r\n<br><b>REPLY FROM THE PRICE GENERATION SCRIPTS IS BUFFERED AND DISPLAYED ONLY WHEN DONE.</b><br>\r\n";
-		echo "<b>RUNNING PRICE GENERATION.</b><br>\r\n";
+		echo "<b>PRICE GENERATION IS DONE FOR SERVER ".$skey.".</b><br>\r\n";
 		$response_1 = curl_multi_getcontent($ch[0]);
 		echo "\r\n<br><b>PRICE GENERATION IS OVER FOR THIS SERVER, HERE IS THE OUTPUT (IF THERE IS ANY LEFT):</b><br>\r\n";
 		echo $response_1; 
@@ -149,5 +149,5 @@ while($loop)
 	$loop--;
 }
 //RESTARTING REPLICATION
-mysqli_query($con_super,"START SLAVE IO_THREAD"); mysqli_close($con_super);
+mysqli_query($con_super,"START SLAVE"); mysqli_close($con_super);
 ?>

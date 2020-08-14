@@ -6,7 +6,10 @@ function get_prices_from_all_conf($batch_size=50)
 	show_running_output("<br><b>NOT SELECTING PRICES FROM ALL_CONF AND PLACING THEM IN GENERATED DATA</b><br>");
 	$cons=$GLOBALS["multicons"][$GLOBALS["server"]];
 	$rcon=$GLOBALS["rcon"];
-	$get_model_query="SELECT DISTINCT `model` FROM `notebro_temp`.`all_conf`";
+	$cond="";
+	if(isset($GLOBALS["no_all_conf_models"][0]))
+	{ $cond=" WHERE `model` NOT IN (".implode(",",$GLOBALS["no_all_conf_models"]).")"; }
+	$get_model_query="SELECT DISTINCT `model` FROM `notebro_temp`.`all_conf`".$cond."";
 	$model_result=mysqli_query($cons,$get_model_query);
 	$model_list=array();
 	if(have_results($model_result))
@@ -50,7 +53,7 @@ function get_prices_from_all_conf($batch_size=50)
 
 function old_calc_configurator($chunk_array,$model_id)
 {
-	$price_list=get_price_list($model_id);
+	$price_list=get_old_price_list($model_id);
 	$precomputed_prices = array_map(function ($c) use ($price_list){ return calc_price(array_change_key_case(config_list_to_dict($c)), $price_list); }, $chunk_array);
 	return $precomputed_prices;
 }
@@ -84,7 +87,7 @@ function get_prices_from_ml($org_chunk_array,$computed_chunk)
 	return $org_chunk_array;
 }
 
-function get_price_list($model)
+function get_old_price_list($model)
 {
 	$con=$GLOBALS["rcon"];
 	$price_list=NULL;

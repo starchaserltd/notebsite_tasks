@@ -40,6 +40,7 @@ if(isset($allowdirect) && $allowdirect>0)
 		
 		//PRODUCTION SERVER SPECIFIC FUNCTIONS
 		$prod_server=0;	if(isset($_GET["prod"])){ $prod_server=intval($_GET["prod"]); }
+		$new_prices=0;	if(isset($_GET["new_prices"])){ $new_prices=intval($_GET["new_prices"]); }
 		if($prod_server)
 		{
 			//GETTING SERVICE LIST

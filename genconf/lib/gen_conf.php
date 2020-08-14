@@ -24,6 +24,9 @@ require("lib/var_conf.php");
 
 //GETTING LEGACY PRICE FUNCTIONS
 require_once("legacy_price_calc.php");
+//GETTING NEW PRICE FUNCTIONS
+$no_all_conf_models=array();
+if($new_prices){ require_once("lib/calc_price.php"); require_once("get_price_func.php"); }
 
 //FIRST DELETING ANY TEMPORARY TABLES
 if (isset($_SESSION['temp_configs']))
@@ -57,16 +60,33 @@ $time_start = microtime(true);
 //SET ABC ORDER OF MODELS
 mysqli_query($con,"CALL ABCORDER();");
 
+//GET NEW PRICE SSTEM
+$new_price_conf=array();
+if($new_prices)
+{
+	$SELECT_NEW_PRICE="SELECT * FROM `notebro_buy`.`CONFIG` WHERE `type`='new_price_gen'";
+	$new_price_q=mysqli_query($con,$SELECT_NEW_PRICE);
+	if(have_results($new_price_q))
+	{
+		while($row=mysqli_fetch_assoc($new_price_q))
+		{
+			$new_price_conf[]=["prod"=>strval($row["data_1"]),"regions"=>explode(",",$row["data_2"])];
+		}
+		unset($row);
+		mysqli_free_result($new_price_q);
+	}
+}
+
 //GET MODELS FOR PROCESSING
 $model_ids = array();
-$model_select_cond="AND id=532";
+$model_select_cond="AND id=3226";
 $model_select_cond="";
 $query_model = "SELECT DISTINCT `id` FROM `notebro_db`.`MODEL` WHERE 1=1 ".$model_select_cond." ORDER BY `id` ASC";
 $result = mysqli_query($con,$query_model);
 if(have_results($result))
 {
 	while($row = mysqli_fetch_row($result)) { array_push($model_ids, $row[0]); }
-	mysqli_free_result($result);
+	mysqli_free_result($result); unset($row);
 }
 
 if(count($model_ids)>0)
@@ -146,6 +166,8 @@ mysqli_close($con);
 function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 {
     $final_configurations=array();
+	global $current_model_prod, $current_model_regions;
+	$current_model_prod=""; $current_model_regions="";
 	if(!isset($GLOBALS["prod_server"])){ show_running_output("<br><b>THIS FILE IS NOT RUN PROPERLY!</b><br>"); exit(); }
 	$sel3="SELECT * FROM `notebro_db`.`MODEL` WHERE `id`='".$model_id."' LIMIT 1";
 	show_running_output("<br><b>SELECTING DATA</b>: ".$sel3."<br>");
@@ -154,7 +176,15 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 	{
 		while($row=mysqli_fetch_array($result)) 
 		{
-			$row["id"]=intval($row["id"]);
+			$row["id"]=intval($row["id"]); $new_price_calc=False;
+			//GETTING PRICE DATA FOR FURTHER CALCULATION
+			if($GLOBALS["new_prices"])
+			{
+				get_price_data($model_id,$comp_list,$con);	
+				$new_price_calc=is_new_price_conf(strval($row["prod"]),strval($row["regions"]),$GLOBALS["new_price_conf"]);
+				if($new_price_calc){ $GLOBALS["no_all_conf_models"][]=$model_id; }
+			}
+
 			//if($row["id"]==1156) { var_dump($raw); }
 			$have_error=False;
 			//GETTING COMPONENT IDS FOR PRICE CONF GENERATION
@@ -242,7 +272,9 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 				unset($test_row_2); unset($test_row);
 				
 				#GETTING DISABLED CONFs FROM notebro_prices.disabled_configs
-				$SELECT_DISABLED_DATA="SELECT * FROM `notebro_prices`.`disabled_configs` WHERE `model`=".$model_id."";
+				if($new_price_calc){$temp_cond=" AND ( `retailer` IS NOT NULL AND `retailer`<>'')";}else{$temp_cond="";}
+				$SELECT_DISABLED_DATA="SELECT * FROM `notebro_prices`.`disabled_configs` WHERE `model`=".$model_id."".$temp_cond."";
+				unset($temp_cond);
 				$test_disb_result=mysqli_query($rcon,$SELECT_DISABLED_DATA);
 				$disabled_data=array(); $nr_valid_disabled=array();
 				if(have_results($test_disb_result))
@@ -317,18 +349,26 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 										//if($haha){ var_dump($result_val); $some_i++; var_dump($some_i); echo "<br>"; }
 										unset($result_val["to_delete"]);
 										$newid=hexdec(hash('fnv1a64',(implode(",",array_merge($result_val)))));
-										$conf_data=calculate_conf_data($result_val,$comp_list);
-										$result_val["rating"]=$conf_data["rating"];
-										$result_val["price"]=$conf_data["price"];
-										if($result_val["price"]>0){ $result_val["value"]=$result_val["rating"]/$result_val["price"]; }
-										else { $result_val["value"]=0; }
-										$result_val["err"]=$conf_data["price_error"];
-										$result_val["batlife"]=$conf_data["bat_life"];
-										$result_val["capacity"]=$conf_data["storage_cap"];
-										//$final_configurations[$newid]=$result_val;
-										$final_configuration=array_merge([$newid], $result_val);
-										$GLOBALS["nr_configs"]++;
-										yield $final_configuration;
+										$conf_data=array();	$conf_data=calculate_conf_data($result_val,$comp_list,$new_price_calc);
+										$yield_data=True;
+										
+										if(($GLOBALS["new_prices"]) && $new_price_calc && intval($conf_data["price"])<5)
+										{ $yield_data=False; }
+									
+										if($yield_data)
+										{
+											$result_val["rating"]=$conf_data["rating"];
+											$result_val["price"]=$conf_data["price"];
+											if($result_val["price"]>0){ $result_val["value"]=$result_val["rating"]/$result_val["price"]; }
+											else { $result_val["value"]=0; }
+											$result_val["err"]=$conf_data["price_error"];
+											$result_val["batlife"]=$conf_data["bat_life"];
+											$result_val["capacity"]=$conf_data["storage_cap"];
+											//$final_configurations[$newid]=$result_val;
+											$final_configuration=array_merge([$newid], $result_val);
+											$GLOBALS["nr_configs"]++;
+											yield $final_configuration;
+										}
 									}
 									$gen_configurations[]=$result_val;
 								}
@@ -380,7 +420,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 
 //THE FUNCTION THAT CALCULATES RATING,PRICE,ETC FOR EVERY GENERATED CONFIGURATION
 
-function calculate_conf_data($conf,$comp_list)
+function calculate_conf_data($conf,$comp_list,$new_price_calc=NULL)
 {
 	$to_return=array();
 	//SELECTING COMPONENT DATA
@@ -450,12 +490,33 @@ function calculate_conf_data($conf,$comp_list)
 				{ $comp_data[$comp]["price"]=$comp_data[$comp]["price"]*0.8; }
 				$to_return["price"]+=$comp_data[$comp]["price"];
 			}
+			//PRICE ERROR RANGE
+			$to_return["price_error"]=0;
+			foreach($comp_list as $comp)
+			{ $to_return["price_error"]=$to_return["price_error"]+($comp_data[$comp]["price"]*($comp_data[$comp]["err"]/100)); }
 		}
 		
-		//PRICE ERROR RANGE
-		$to_return["price_error"]=0;
-		foreach($comp_list as $comp)
-		{ $to_return["price_error"]=$to_return["price_error"]+($comp_data[$comp]["price"]*($comp_data[$comp]["err"]/100)); }
+		if($GLOBALS["new_prices"])
+		{
+			if($new_price_calc)
+			{
+				$real_price_data=set_price_market_price($conf,$comp_list);
+				$to_return["price"]=$real_price_data["price"];
+				$to_return["price_error"]=$real_price_data["price_error"];
+			}
+		}
+	}
+	return $to_return;
+}
+
+function ok_to_replace_existing_price($base_fix_price_key,$data)
+{
+	$to_return=True;
+	$no_replce_existing_price=["acum"];
+	foreach($no_replce_existing_price as $comp)
+	{
+		if($GLOBALS["fixed_conf_prices"][$base_fix_price_key][$comp]!=$data[$comp])
+		{ $to_return=False; break; }
 	}
 	return $to_return;
 }

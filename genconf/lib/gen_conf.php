@@ -79,7 +79,7 @@ if($new_prices)
 
 //GET MODELS FOR PROCESSING
 $model_ids = array();
-$model_select_cond="AND id=3226";
+$model_select_cond="AND id=4564";
 $model_select_cond="";
 $query_model = "SELECT DISTINCT `id` FROM `notebro_db`.`MODEL` WHERE 1=1 ".$model_select_cond." ORDER BY `id` ASC";
 $result = mysqli_query($con,$query_model);
@@ -350,8 +350,8 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 										unset($result_val["to_delete"]);
 										$newid=hexdec(hash('fnv1a64',(implode(",",array_merge($result_val)))));
 										$conf_data=array();	$conf_data=calculate_conf_data($result_val,$comp_list,$new_price_calc);
-										$yield_data=True;
 										
+										$yield_data=True;
 										if(($GLOBALS["new_prices"]) && $new_price_calc && intval($conf_data["price"])<5)
 										{ $yield_data=False; }
 									
@@ -481,7 +481,7 @@ function calculate_conf_data($conf,$comp_list,$new_price_calc=NULL)
 		$to_return["bat_life"]=floatval($comp_data["acum"]["cap"])/($bat_com+1);
 
 		//CALCULATE PRICE
-		$to_return["price"]=0;
+		$to_return["price"]=0; $to_return["price_error"]=0;
 		if($GLOBALS["prod_server"]==0)
 		{
 			foreach($comp_list as $comp)
@@ -491,7 +491,7 @@ function calculate_conf_data($conf,$comp_list,$new_price_calc=NULL)
 				$to_return["price"]+=$comp_data[$comp]["price"];
 			}
 			//PRICE ERROR RANGE
-			$to_return["price_error"]=0;
+
 			foreach($comp_list as $comp)
 			{ $to_return["price_error"]=$to_return["price_error"]+($comp_data[$comp]["price"]*($comp_data[$comp]["err"]/100)); }
 		}
@@ -550,8 +550,14 @@ function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$m
 		
 		if($GLOBALS["prod_server"]==1)
 		{
-			$computed_chunk=old_calc_configurator($chunk_array,$model_id);
-			$chunk_array=get_prices_from_ml($chunk_array,$computed_chunk);
+			if($GLOBALS["new_prices"]==1)
+			{
+				if(!(in_array($model_id,$GLOBALS["no_all_conf_models"])))
+				{
+					$computed_chunk=old_calc_configurator($chunk_array,$model_id); //Prices from legacy configurators
+					$chunk_array=get_prices_from_ml($chunk_array,$computed_chunk); //Prices from machine learning
+				}
+			}
 		}
 		$query = $INSERT_QUERY . implode(", ", array_map("values_to_str", $chunk_array));
 		$cons=$multicons[$server];

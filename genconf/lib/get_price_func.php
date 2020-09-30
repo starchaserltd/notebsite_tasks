@@ -145,8 +145,8 @@ function set_price_market_price($conf,$comp_list,$region=2)
 			$calc_price_array=calc_conf_price($conf,NULL,NULL,NULL,$set_price_list=$var_conf_data["price_data"],$GLOBALS["con"]);
 			if($calc_price_array && isset($calc_price_array[0])){ $calc_price=$calc_price_array[0][0]; }
 			else {$calc_price=0; }
-			//echo "<br>"; var_dump($conf); var_dump($calc_price); echo "</br>";
-			if($calc_price && $to_return["price"]==0 || intval($calc_price)<$to_return["price"])
+			#echo "<br>"; var_dump($conf); var_dump($calc_price); echo "</br>";
+			if((intval($calc_price)>0) && ($calc_price && $to_return["price"]==0 || intval($calc_price)<$to_return["price"]))
 			{ $to_return["price"]=$calc_price; }
 			unset($calc_price_array);
 		}
@@ -246,7 +246,7 @@ function set_price_market_price($conf,$comp_list,$region=2)
 		}
 	}
 
-	//var_dump($to_return["price"]); echo "<br>";
+	#var_dump($to_return["price"]); echo "<br>";
 	if($to_return["price"]>0){ $to_return["price_error"]=intval($to_return["price"]*0.02); }
 	
 	return $to_return;

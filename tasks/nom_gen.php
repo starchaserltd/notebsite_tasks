@@ -303,6 +303,20 @@ $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_msc'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
+$sel="SELECT * FROM `notebro_site`.`nomen_modifiers` WHERE `type`='cpu_msc_ignore'";
+$temp_result=mysqli_query($con,$sel);
+$cpu_msc_ignore=array();
+if(have_results($temp_result))
+{
+	$temp_row=NULL;
+	while($temp_row=mysqli_fetch_assoc($temp_result))
+	{
+		$cpu_msc_ignore[]=$temp_row["value_to_replace"];
+	}
+	unset($temp_row);
+	mysqli_free_result($temp_result);
+}
+
 $sel="SELECT DISTINCT msc FROM notebro_db.CPU WHERE valid=1";
 $result = mysqli_query($con, $sel);
 $object=(array) [];
@@ -315,42 +329,52 @@ while($rand = mysqli_fetch_array($result))
 		for($i=0; $i<count($elements); $i++)
 		{
 			$k=true;
-				switch($elements[$i])
-				{
-					case "VT-x":
-					$elements[$i]="VT-x/AMD-V";
-					break;
-					case "VT-x2":
-					$elements[$i]="VT-x/AMD-V";
-					break;
-					case "AMD-V":
-					$elements[$i]="VT-x/AMD-V";
-					break;
-					case "VT-d":
-					$elements[$i]="VT-d/AMD-Vi";
-					break;
-					case "AMD-Vi":
-					$elements[$i]="VT-d/AMD-Vi";
-					break;
-					case "IOMMU":
-					$elements[$i]="VT-d/AMD-Vi";
-					break;					
-					case "AVX":
-					$elements[$i]="AVX1.0";
-					break;					
-					case "HT":
-					$elements[$i]="Multithreading";
-					break;
-					case (stripos($elements[$i],"precision boost")!==FALSE):
-					$k=false;
-					break;
-					case (strpos($elements[$i],"SMT")!==FALSE):
-					$k=false;
-					break;
-					case (stripos($elements[$i],"learning boost")!==FALSE):
-					$k=false;
+			switch($elements[$i])
+			{
+				case "VT-x":
+				$elements[$i]="VT-x/AMD-V";
+				break;
+				case "VT-x2":
+				$elements[$i]="VT-x/AMD-V";
+				break;
+				case "AMD-V":
+				$elements[$i]="VT-x/AMD-V";
+				break;
+				case "AMD PRO":
+				$elements[$i]="Business features";
+				break;
+				case "vPro":
+				$elements[$i]="Business features";
+				break;
+				case "VT-d":
+				$elements[$i]="VT-d/AMD-Vi";
+				break;
+				case "AMD-Vi":
+				$elements[$i]="VT-d/AMD-Vi";
+				break;
+				case "IOMMU":
+				$elements[$i]="VT-d/AMD-Vi";
+				break;					
+				case "AVX":
+				$elements[$i]="AVX1.0";
+				break;					
+				case "HT":
+				$elements[$i]="Multithreading";
+				break;
+				default:
+				{	
+					$temp_key=NULL; $temp_val=NULL;
+					foreach($cpu_msc_ignore as $temp_key=>$temp_val)
+					{
+						if(stripos($elements[$i],$temp_val)!==FALSE)
+						{
+							$k=false;
+							break;
+						}
+					}
 					break;
 				}
+			}
 			
 			if($k)				
 			{
@@ -360,7 +384,7 @@ while($rand = mysqli_fetch_array($result))
 		}
 	}
 }
-
+unset($cpu_msc_ignore);
 mysqli_free_result($result);
 
 $insert="";

@@ -79,7 +79,7 @@ if($new_prices)
 
 //GET MODELS FOR PROCESSING
 $model_ids = array();
-$model_select_cond="AND id=4564";
+#$model_select_cond="AND id=4892";
 $model_select_cond="";
 $query_model = "SELECT DISTINCT `id` FROM `notebro_db`.`MODEL` WHERE 1=1 ".$model_select_cond." ORDER BY `id` ASC";
 $result = mysqli_query($con,$query_model);
@@ -117,7 +117,7 @@ foreach($model_ids as $model_id)
 		{
 			$INSERT_QUERY = "INSERT INTO `notebro_temp`.`".$temp_table."_".$model_id."` (`id`,`model`,`".implode("`,`",$comp_list)."`,`rating`,`price`,`value`,`err`,`batlife`,`capacity`) VALUES ";
 			$INSERT_ID_MODEL = "INSERT INTO `notebro_temp`.`".$temp_table."` (`id`, `model`) VALUES ";
-			insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id);
+			insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id,$comp_list);
 			show_running_output("<b>TRIED TO INSERT DATA FOR MODEL ID: ".$model_id." !</b><br>");
 		}
 		else
@@ -180,6 +180,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 			//GETTING PRICE DATA FOR FURTHER CALCULATION
 			if($GLOBALS["new_prices"])
 			{
+				$GLOBALS["questionable_confs"]=array(); //This variable is used for extrapolating price for wrong warranties
 				get_price_data($model_id,$comp_list,$con);	
 				$new_price_calc=is_new_price_conf(strval($row["prod"]),strval($row["regions"]),$GLOBALS["new_price_conf"]);
 				if($new_price_calc){ $GLOBALS["no_all_conf_models"][]=$model_id; }
@@ -350,7 +351,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 										unset($result_val["to_delete"]);
 										$newid=hexdec(hash('fnv1a64',(implode(",",array_merge($result_val)))));
 										$conf_data=array();	$conf_data=calculate_conf_data($result_val,$comp_list,$new_price_calc);
-										
+										#var_dump($result_val); echo "<br>"; var_dump($conf_data); echo "<br>";
 										$yield_data=True;
 										if(($GLOBALS["new_prices"]) && $new_price_calc && intval($conf_data["price"])<5)
 										{ $yield_data=False; }
@@ -540,7 +541,7 @@ function chunk(\Iterator $iterable, $size): \Iterator
 
 function iterable_to_traversable(iterable $it): Traversable { yield from $it; }
 
-function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id)
+function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id,$comp_list)
 {
 	$reinsert=0;
 	if($configs instanceof \Traversable){ $configs_array=iterator_to_array($configs); }else{$configs_array=$configs;} $configs=iterable_to_traversable($configs_array);
@@ -565,6 +566,34 @@ function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$m
 		$query_id_model = $INSERT_ID_MODEL . implode(", ", array_map("values_to_str", array_map(function ($xs) { return array_slice($xs, 0, 2); }, $chunk_array)));
 		mysqli_query($cons, $query_id_model); //Duplicate entry '15375138152867000320' for key 'PRIMARY' mysqli_query($sel_db,'what!') or some_func(mysqli_error($sel_db));
 		set_time_limit(1000);
+		//DELETE BAD CONF
+		if(count($GLOBALS["questionable_confs"])>0)
+		{
+			echo "<br>GOT QUESTIONABLE CONFIGURATIONS FOR THIS MODEL! DOING WHAT NEEDS TO BE DONE!<br>";
+			foreach($GLOBALS["questionable_confs"] as $q_conf)
+			{
+				if(isset($q_conf["delete"]) && $q_conf["delete"]==1)
+				{
+					$SQL_SEL="SELECT `id` FROM `all_conf_".$q_conf["model"]."` WHERE 1=1 ";
+					foreach($comp_list as $comp)
+					{ $SQL_SEL=$SQL_SEL." AND `".$comp."`='".$q_conf[$comp]."'"; }
+					$SQL_SEL=$SQL_SEL." LIMIT 1";
+					$temp_result=mysqli_query($cons,$SQL_SEL);
+					if(have_results($temp_result))
+					{
+						$temp_row=mysqli_fetch_assoc($temp_result);
+						$id_to_delete=$temp_row["id"];
+						$SQL_DELETE="DELETE FROM `all_conf` WHERE `id`='".$id_to_delete."' LIMIT 1";
+						mysqli_query($cons,$SQL_DELETE);
+						$SQL_DELETE="DELETE FROM `all_conf_".$model_id."` WHERE `id`='".$id_to_delete."' LIMIT 1";
+						mysqli_query($cons,$SQL_DELETE);
+						unset($temp_row);
+						mysqli_free_result($temp_result);
+					}
+				}
+			}
+			$GLOBALS["questionable_confs"]=array();
+		}
 		//break 2;
 	}
 	
@@ -581,7 +610,7 @@ function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$m
 			if($i)
 			{ $new_configs[]=$value_i;}
 		}
-		insert_function($new_configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id);
+		insert_function($new_configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id,$comp_list);
 	}
 }
 

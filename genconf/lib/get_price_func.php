@@ -156,94 +156,131 @@ function set_price_market_price($conf,$comp_list,$region=2)
 		}
 	}
 	
-	//DOING FIXED CONF
-	foreach($GLOBALS["fixed_conf_prices"] as $fixed_conf_data)
+	//DOING 2 TRIES: 1 FOR EXACT CONF MATCH, SECOND FOR CONF MATCH WITHOUT WARRANTY
+	$tries=2;
+	while($tries>0)
 	{
-		$do_the_calculation=True;
-		if(intval($fixed_conf_data["region"])!=$region) {$do_the_calculation=False;}
-		if($do_the_calculation)
+		//DOING FIXED CONF
+		foreach($GLOBALS["fixed_conf_prices"] as $fixed_conf_data)
 		{
-			foreach($comp_list as $comp)
+			$do_the_calculation=True;
+			if(intval($fixed_conf_data["region"])!=$region) {$do_the_calculation=False;}
+			if($do_the_calculation)
 			{
-				if($conf[$comp]!=$fixed_conf_data[$comp])
-				{ $do_the_calculation=False; break; }
-			}
-		}
-		
-		if($do_the_calculation && intval($fixed_conf_data["region"])==$region)
-		{
-			$calc_price=floatval($fixed_conf_data["price"]);
-			//echo "<br>"; var_dump($calc_price); echo "<br>";
-			if($to_return["price"]==0 || intval($calc_price)<$to_return["price"])
-			{ $to_return["price"]=$calc_price; }
-			unset($calc_price);
-		}
-	}
-	unset($fixed_conf_data);
-		
-	//DOING EQUIVALENT FIXED CONF
-	foreach($GLOBALS["fixed_conf_prices_eq"] as $base_conf_key=>$eq_conf_data_array)
-	{
-		$disabled_to_test=array(); $do_the_calculation=True;
-		if(intval($GLOBALS["fixed_conf_prices"][$base_conf_key]["region"])!=$region) {$do_the_calculation=False;}
-		
-		if($do_the_calculation)
-		{
-			foreach($disabled_confs as $disabled_conf_key=>$disabled_conf)
-			{
-				if($GLOBALS["fixed_conf_prices"][$base_conf_key]["retailer"]==$disabled_conf["retailer"])
-				{
-					if($disabled_conf["retailer_pid"]==NULL || empty($disabled_conf["retailer_pid"]) || $disabled_conf["retailer_pid"]="")
-					{ $disabled_to_test[$disabled_conf_key]=0; }
-					elseif($GLOBALS["fixed_conf_prices"][$base_conf_key]["retailer"]==$disabled_conf["retailer_pid"])
-					{ $disabled_to_test[$disabled_conf_key]=0; }
-					else
-					{}
-				}
-			}
-		}
-		
-		if($do_the_calculation)
-		{
-			foreach($eq_conf_data_array as $fixed_conf_data)
-			{
-				$do_the_calculation=True;		
 				foreach($comp_list as $comp)
 				{
+					if($tries==1 && $comp=="war"){ continue; }
 					if($conf[$comp]!=$fixed_conf_data[$comp])
 					{ $do_the_calculation=False; break; }
-					else
+				}
+			}
+			
+			if($do_the_calculation && intval($fixed_conf_data["region"])==$region)
+			{
+				$calc_price=floatval($fixed_conf_data["price"]);
+				//echo "<br>"; var_dump($calc_price); echo "<br>";
+				if($to_return["price"]==0 || intval($calc_price)<$to_return["price"])
+				{
+					if($tries==1)
 					{
-						//TESTNG IF CONFIGURATION IS DISABLED
-						if(count($disabled_to_test)>0)
+						$q_ok_to_go=True;
+						foreach($GLOBALS["questionable_confs"] as $q_conf_key=>$q_conf)
 						{
-							foreach($disabled_to_test as $disabled_key=>$disabled_data)
+							$do_q_test=True;
+							foreach($comp_list as $comp)
 							{
-								if($GLOBALS["var_conf_disabled"][$disabled_key][$comp]!=NULL)
-								{
-									if(in_array(strval($conf[$comp]),$GLOBALS["var_conf_disabled"][$disabled_key][$comp]))
-									{ $disabled_to_test[$disabled_key]++; }
-									else
-									{ $disabled_to_test[$disabled_key]=-99999; break; }
-								}
-								if($disabled_to_test[$disabled_key]>=$GLOBALS["var_conf_disabled"][$disabled_key]["nr_valid"])
-								{ $do_the_calculation=False; break; }
+								if($conf[$comp]!=$q_conf[$comp] && $comp!="war")
+								{ $do_q_test=False; break; }
+							}
+							if($do_q_test)
+							{
+								if(intval($conf["war"])<intval($q_conf["war"]))
+								{ $to_return["price"]=$calc_price; $GLOBALS["questionable_confs"][$q_conf_key]["delete"]=1; }
+								else
+								{ $q_ok_to_go=False; }
 							}
 						}
+						if($q_ok_to_go)
+						{ $to_return["price"]=$calc_price; }
 					}
-					if(!$do_the_calculation){ break; }
+					else
+					{
+						$to_return["price"]=$calc_price;
+					}
 				}
-				
-				if($do_the_calculation)
+				unset($calc_price);
+			}
+		}
+		unset($fixed_conf_data);
+			
+		//DOING EQUIVALENT FIXED CONF
+		foreach($GLOBALS["fixed_conf_prices_eq"] as $base_conf_key=>$eq_conf_data_array)
+		{
+			$disabled_to_test=array(); $do_the_calculation=True;
+			if(intval($GLOBALS["fixed_conf_prices"][$base_conf_key]["region"])!=$region) {$do_the_calculation=False;}
+			
+			if($do_the_calculation)
+			{
+				foreach($disabled_confs as $disabled_conf_key=>$disabled_conf)
 				{
-					#echo "<br><br>"; var_dump($base_conf_key); var_dump($fixed_conf_data["price"]); var_dump($conf);
-					$calc_price=floatval($fixed_conf_data["price"]);
-					if($to_return["price"]==0 || ($calc_price<$to_return["price"] && ok_to_replace_existing_price($base_conf_key,$fixed_conf_data)))
-					{ $to_return["price"]=$calc_price; }
-					unset($calc_price);
+					if($GLOBALS["fixed_conf_prices"][$base_conf_key]["retailer"]==$disabled_conf["retailer"])
+					{
+						if($disabled_conf["retailer_pid"]==NULL || empty($disabled_conf["retailer_pid"]) || $disabled_conf["retailer_pid"]="")
+						{ $disabled_to_test[$disabled_conf_key]=0; }
+						elseif($GLOBALS["fixed_conf_prices"][$base_conf_key]["retailer"]==$disabled_conf["retailer_pid"])
+						{ $disabled_to_test[$disabled_conf_key]=0; }
+						else
+						{}
+					}
+				}
+			}
+			
+			if($do_the_calculation)
+			{
+				foreach($eq_conf_data_array as $fixed_conf_data)
+				{
+					$do_the_calculation=True;		
+					foreach($comp_list as $comp)
+					{
+						if($conf[$comp]!=$fixed_conf_data[$comp])
+						{ $do_the_calculation=False; break; }
+						else
+						{
+							//TESTNG IF CONFIGURATION IS DISABLED
+							if(count($disabled_to_test)>0)
+							{
+								foreach($disabled_to_test as $disabled_key=>$disabled_data)
+								{
+									if($GLOBALS["var_conf_disabled"][$disabled_key][$comp]!=NULL)
+									{
+										if(in_array(strval($conf[$comp]),$GLOBALS["var_conf_disabled"][$disabled_key][$comp]))
+										{ $disabled_to_test[$disabled_key]++; }
+										else
+										{ $disabled_to_test[$disabled_key]=-99999; break; }
+									}
+									if($disabled_to_test[$disabled_key]>=$GLOBALS["var_conf_disabled"][$disabled_key]["nr_valid"])
+									{ $do_the_calculation=False; break; }
+								}
+							}
+						}
+						if(!$do_the_calculation){ break; }
+					}
+					
+					if($do_the_calculation)
+					{
+						#echo "<br><br>"; var_dump($base_conf_key); var_dump($fixed_conf_data["price"]); var_dump($conf);
+						$calc_price=floatval($fixed_conf_data["price"]);
+						if($to_return["price"]==0 || ($calc_price<$to_return["price"] && ok_to_replace_existing_price($base_conf_key,$fixed_conf_data)))
+						{ $to_return["price"]=$calc_price; }
+						unset($calc_price);
+					}
 				}
 			}
 		}
+		if($to_return["price"]==0)
+		{ $tries--; }
+		else
+		{ if($tries==1){ $GLOBALS["questionable_confs"][]=$conf; } $tries=-1; }
 	}
 
 	#var_dump($to_return["price"]); echo "<br>";

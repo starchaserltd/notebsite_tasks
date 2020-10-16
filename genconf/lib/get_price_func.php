@@ -195,7 +195,7 @@ function set_price_market_price($conf,$comp_list,$region=2)
 							if($do_q_test)
 							{
 								if(intval($conf["war"])<intval($q_conf["war"]))
-								{ $to_return["price"]=$calc_price; $GLOBALS["questionable_confs"][$q_conf_key]["delete"]=1; }
+								{ $to_return["price"]=$calc_price; }
 								else
 								{ $q_ok_to_go=False; }
 							}

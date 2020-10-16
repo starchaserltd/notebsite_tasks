@@ -569,27 +569,34 @@ function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$m
 		//DELETE BAD CONF
 		if(count($GLOBALS["questionable_confs"])>0)
 		{
-			echo "<br>GOT QUESTIONABLE CONFIGURATIONS FOR THIS MODEL! DOING WHAT NEEDS TO BE DONE!<br>";
+			echo "<br>GOT QUESTIONABLE CONFIGURATIONS FOR THIS MODEL! TRYING TO DELETE EXTRA GENERATED CONFIGURATIONS.<br>";
 			foreach($GLOBALS["questionable_confs"] as $q_conf)
 			{
-				if(isset($q_conf["delete"]) && $q_conf["delete"]==1)
+				$COM_SQL_SEL="";
+				foreach($comp_list as $comp)
+				{ if($comp!="war") { $COM_SQL_SEL=$COM_SQL_SEL." AND `".$comp."`='".$q_conf[$comp]."'"; } }
+				
+				$SQL_SEL_1="SELECT `id` FROM `all_conf_".$q_conf["model"]."` WHERE 1=1 ".$COM_SQL_SEL." AND `war`<".$q_conf["war"]." LIMIT 1";
+				$temp_result=mysqli_query($cons,$SQL_SEL_1);
+				if(have_results($temp_result))
 				{
-					$SQL_SEL="SELECT `id` FROM `all_conf_".$q_conf["model"]."` WHERE 1=1 ";
-					foreach($comp_list as $comp)
-					{ $SQL_SEL=$SQL_SEL." AND `".$comp."`='".$q_conf[$comp]."'"; }
-					$SQL_SEL=$SQL_SEL." LIMIT 1";
-					$temp_result=mysqli_query($cons,$SQL_SEL);
-					if(have_results($temp_result))
+					#TIME DO DELETE
+					$SQL_SEL_2="SELECT `id` FROM `all_conf_".$q_conf["model"]."` WHERE 1=1 ".$COM_SQL_SEL." AND `war`=".$q_conf["war"]." LIMIT 50";
+					$temp_result_2=mysqli_query($cons,$SQL_SEL_2);
+					if(have_results($temp_result_2))
 					{
-						$temp_row=mysqli_fetch_assoc($temp_result);
-						$id_to_delete=$temp_row["id"];
-						$SQL_DELETE="DELETE FROM `all_conf` WHERE `id`='".$id_to_delete."' LIMIT 1";
-						mysqli_query($cons,$SQL_DELETE);
-						$SQL_DELETE="DELETE FROM `all_conf_".$model_id."` WHERE `id`='".$id_to_delete."' LIMIT 1";
-						mysqli_query($cons,$SQL_DELETE);
+						while($temp_row=mysqli_fetch_assoc($temp_result_2))
+						{
+							$id_to_delete=$temp_row["id"];
+							$SQL_DELETE="DELETE FROM `all_conf` WHERE `id`='".$temp_row["id"]."' LIMIT 1";
+							mysqli_query($cons,$SQL_DELETE);
+							$SQL_DELETE="DELETE FROM `all_conf_".$model_id."` WHERE `id`='".$temp_row["id"]."' LIMIT 1";
+							mysqli_query($cons,$SQL_DELETE);
+						}
 						unset($temp_row);
-						mysqli_free_result($temp_result);
+						mysqli_free_result($temp_result_2);
 					}
+					mysqli_free_result($temp_result);
 				}
 			}
 			$GLOBALS["questionable_confs"]=array();

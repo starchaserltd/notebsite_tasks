@@ -274,7 +274,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 				
 				#GETTING DISABLED CONFs FROM notebro_prices.disabled_configs
 				if($new_price_calc){$temp_cond=" AND ( `retailer` IS NOT NULL AND `retailer`<>'')";}else{$temp_cond="";}
-				$SELECT_DISABLED_DATA="SELECT * FROM `notebro_prices`.`disabled_configs` WHERE `model`=".$model_id."".$temp_cond."";
+				$SELECT_DISABLED_DATA="SELECT * FROM `notebro_prices`.`disabled_configs` WHERE `comp`=0 AND `model`=".$model_id."".$temp_cond."";
 				unset($temp_cond);
 				$test_disb_result=mysqli_query($rcon,$SELECT_DISABLED_DATA);
 				$disabled_data=array(); $nr_valid_disabled=array();

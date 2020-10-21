@@ -166,7 +166,7 @@ mysqli_close($con);
 function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 {
     $final_configurations=array();
-	global $current_model_prod, $current_model_regions;
+	global $current_model_prod, $current_model_regions; $GLOBALS["questionable_confs"]=array();
 	$current_model_prod=""; $current_model_regions="";
 	if(!isset($GLOBALS["prod_server"])){ show_running_output("<br><b>THIS FILE IS NOT RUN PROPERLY!</b><br>"); exit(); }
 	$sel3="SELECT * FROM `notebro_db`.`MODEL` WHERE `id`='".$model_id."' LIMIT 1";
@@ -177,6 +177,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 		while($row=mysqli_fetch_array($result)) 
 		{
 			$row["id"]=intval($row["id"]); $new_price_calc=False;
+			$GLOBALS["questionable_confs"]=array();
 			//GETTING PRICE DATA FOR FURTHER CALCULATION
 			if($GLOBALS["new_prices"])
 			{

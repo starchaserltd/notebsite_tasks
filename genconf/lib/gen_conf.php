@@ -297,7 +297,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 				if($new_price_calc){$temp_cond=" AND ( `retailer` IS NULL OR `retailer`='' OR `retailer`='1' ) AND ( `retailer_pid` IS NULL OR `retailer_pid`='' OR `retailer_pid`='1' )";}else{$temp_cond="";}
 				$SELECT_ENABLED_DATA="SELECT * FROM `notebro_prices`.`disabled_configs` WHERE `comp`=1 AND `model`=".$model_id."".$temp_cond."";
 				unset($temp_cond);
-				$test_enb_result=mysqli_query($con,$SELECT_ENABLED_DATA);
+				$test_enb_result=mysqli_query($rcon,$SELECT_ENABLED_DATA);
 				#echo $SELECT_ENABLED_DATA;
 				$enabled_data=array(); $total_enabled=0; $enabled_test_result=0;
 				if(have_results($test_enb_result))

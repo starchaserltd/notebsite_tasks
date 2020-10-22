@@ -79,7 +79,9 @@ if($new_prices)
 
 //GET MODELS FOR PROCESSING
 $model_ids = array();
-#$model_select_cond="AND id=4892";
+#$model_select_cond="AND id=4515";
+#$model_select_cond="AND id=4080";
+#$new_price_conf[]=["prod"=>"Dell","regions"=>[2]];
 $model_select_cond="";
 $query_model = "SELECT DISTINCT `id` FROM `notebro_db`.`MODEL` WHERE 1=1 ".$model_select_cond." ORDER BY `id` ASC";
 $result = mysqli_query($con,$query_model);
@@ -181,7 +183,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 			//GETTING PRICE DATA FOR FURTHER CALCULATION
 			if($GLOBALS["new_prices"])
 			{
-				$GLOBALS["questionable_confs"]=array(); //This variable is used for extrapolating price for wrong warranties
+				//This variable is used for extrapolating price for wrong warranties
 				get_price_data($model_id,$comp_list,$con);	
 				$new_price_calc=is_new_price_conf(strval($row["prod"]),strval($row["regions"]),$GLOBALS["new_price_conf"]);
 				if($new_price_calc){ $GLOBALS["no_all_conf_models"][]=$model_id; }
@@ -274,7 +276,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 				unset($test_row_2); unset($test_row);
 				
 				#GETTING DISABLED CONFs FROM notebro_prices.disabled_configs
-				if($new_price_calc){$temp_cond=" AND ( `retailer` IS NOT NULL AND `retailer`<>'')";}else{$temp_cond="";}
+				if($new_price_calc){$temp_cond=" AND ( `retailer` IS NULL OR `retailer`='' OR `retailer`='1' ) AND ( `retailer_pid` IS NULL OR `retailer_pid`='' OR `retailer_pid`='1' )";}else{$temp_cond="";}
 				$SELECT_DISABLED_DATA="SELECT * FROM `notebro_prices`.`disabled_configs` WHERE `comp`=0 AND `model`=".$model_id."".$temp_cond."";
 				unset($temp_cond);
 				$test_disb_result=mysqli_query($rcon,$SELECT_DISABLED_DATA);
@@ -290,7 +292,68 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 					mysqli_free_result($test_disb_result);
 					unset($test_row);
 				}
-
+				
+				#GETTING ENABLED CONFs FROM notebro_prices.disabled_configs
+				if($new_price_calc){$temp_cond=" AND ( `retailer` IS NULL OR `retailer`='' OR `retailer`='1' ) AND ( `retailer_pid` IS NULL OR `retailer_pid`='' OR `retailer_pid`='1' )";}else{$temp_cond="";}
+				$SELECT_ENABLED_DATA="SELECT * FROM `notebro_prices`.`disabled_configs` WHERE `comp`=1 AND `model`=".$model_id."".$temp_cond."";
+				unset($temp_cond);
+				$test_enb_result=mysqli_query($con,$SELECT_ENABLED_DATA);
+				#echo $SELECT_ENABLED_DATA;
+				$enabled_data=array(); $total_enabled=0; $enabled_test_result=0;
+				if(have_results($test_enb_result))
+				{
+					while($test_row=mysqli_fetch_assoc($test_enb_result))
+					{
+						$comp=0; if(isset($test_row["comp"])){$comp=intval($test_row["comp"]);}
+						if($comp && isset($test_row["comp_order"]))
+						{
+							$enabled_data[$test_row["id"]]=array();
+							$enabled_data[$test_row["id"]]["part_1"]=array();
+							$enabled_data[$test_row["id"]]["part_2"]=array();
+							$enabled_data[$test_row["id"]]["all_part"]=array();
+						
+							$comp_order_row=explode(",",$test_row["comp_order"]);
+							$i=1;
+							foreach($comp_order_row as $key=>$val)
+							{
+								$enabled_data[$test_row["id"]]["all_part"][]=$val;
+								if($i==1)
+								{ $enabled_data[$test_row["id"]]["part_1"][]=$val; }
+								else
+								{ $enabled_data[$test_row["id"]]["part_2"][]=$val; }
+								$i++; 
+							}
+							$enabled_data[$test_row["id"]]["all_part"]["nr"]=count($enabled_data[$test_row["id"]]["all_part"]);
+							$enabled_data[$test_row["id"]]["part_1"]["nr"]=count($enabled_data[$test_row["id"]]["part_1"]);
+							$enabled_data[$test_row["id"]]["part_2"]["nr"]=count($enabled_data[$test_row["id"]]["part_2"]);
+						}
+						if($comp && isset($enabled_data[$test_row["id"]]["part_1"]["nr"]) && $enabled_data[$test_row["id"]]["part_1"]["nr"]>0)
+						{
+							foreach($comp_list as $comp_name)
+							{
+								$enabled_data[$test_row["id"]][$comp_name]=array();
+								if($test_row[$comp_name]!==NULL)
+								{
+									if(in_array($comp_name,$enabled_data[$test_row["id"]]["all_part"]))
+									{ $enabled_data[$test_row["id"]][$comp_name]=explode(",",$test_row[$comp_name]); }
+									else
+									{ if(isset($enabled_data[$test_row["id"]])){ unset($enabled_data[$test_row["id"]]); } break; }
+								}
+								else
+								{
+									if(!in_array($comp_name,$enabled_data[$test_row["id"]]["all_part"]))
+									{ $enabled_data[$test_row["id"]][$comp_name]=NULL; }
+									else
+									{ if(isset($enabled_data[$test_row["id"]])){ unset($enabled_data[$test_row["id"]]); } break; }
+								}
+							}
+						}
+					}
+					$total_enabled=count($enabled_data);
+					unset($test_row);		
+					mysqli_free_result($test_enb_result);
+				}
+				
 				//DOING THE CONFIGURATION GENERATION
 				$gen_configurations[]["model"]=$model_id;
 				$init_data=array("rating"=>0,"bat_com"=>array(),"bat_cap"=>0,"dummy_price"=>0,"price_error"=>0,"storage_cap"=>0);
@@ -340,6 +403,67 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 										if($nr_valid_disabled[$some_row]<=$result_val["to_delete"][$some_row]) { $result_val["to_delete"][$some_row]=99999; $incompatible=True; break; }
 									}
 								}
+
+								//CHECKING ENABLED CONF
+								if(!$incompatible)
+								{
+									foreach($enabled_data as $some_row=>$e_data)
+									{
+										if(!isset($result_val["to_enable"][$some_row])){ $result_val["to_enable"][$some_row]=array(); $result_val["to_enable"][$some_row]["part_1"]=0; $result_val["to_enable"][$some_row]["part_2"]=0;  $result_val["to_enable"][$some_row]["all_part"]=0; $result_val["to_enable"][$some_row]["incomp"]=0; $result_val["to_enable"][$some_row]["resolved"]=0; }
+										
+										if(($result_val["to_enable"][$some_row]["all_part"]>-1 && $result_val["to_enable"][$some_row]["all_part"]<1000) && $result_val["to_enable"][$some_row]["resolved"]==0)
+										{
+											if(isset($e_data["all_part"]["nr"]) && $e_data["all_part"]["nr"]>0)
+											{
+												if(in_array($comp,$e_data["part_1"]))
+												{
+													if(in_array($result_val[$comp],$e_data[$comp]))
+													{ 
+														$result_val["to_enable"][$some_row]["part_1"]++;
+														$result_val["to_enable"][$some_row]["all_part"]++;
+														if ($result_val["to_enable"][$some_row]["part_1"]==$e_data["part_1"]["nr"])
+														{
+															if($result_val["to_enable"][$some_row]["incomp"]>0)
+															{ $result_val["to_enable"][$some_row]["resolved"]=-1; }
+														}
+													}
+												}
+												elseif(in_array($comp,$e_data["part_2"]))
+												{
+													if(in_array($result_val[$comp],$e_data[$comp]))
+													{
+														$result_val["to_enable"][$some_row]["part_2"]++;
+														$result_val["to_enable"][$some_row]["all_part"]++;
+													}
+													else
+													{
+														if ($result_val["to_enable"][$some_row]["part_1"]==$e_data["part_1"]["nr"])
+														{ $result_val["to_enable"][$some_row]["resolved"]=-1; }
+														else
+														{ $result_val["to_enable"][$some_row]["incomp"]++; }
+													}
+												}
+											}
+											
+											if ($result_val["to_enable"][$some_row]["all_part"]==$e_data["all_part"]["nr"])
+											{ $result_val["to_enable"][$some_row]["resolved"]=1; }
+										}
+									}
+									
+									if(isset($result_val["to_enable"]) &&  $enabled_test_result<1)
+									{
+										$enabled_tested=0; $enabled_test_result=0;
+										foreach($result_val["to_enable"] as $r_data)
+										{
+											if($r_data["resolved"]==-1)
+											{ $enabled_tested++; $enabled_test_result=-1; }
+											elseif($r_data["resolved"]==1)
+											{ $enabled_tested++; $enabled_test_result=1; break; }
+										}
+										if($enabled_test_result<0 && $total_enabled==$enabled_tested)
+										{ $incompatible=True; }
+									}
+								}
 								
 								if(!$incompatible)
 								{
@@ -350,6 +474,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 										//foreach($result_val["to_delete"] as $dis_val) { if($dis_val>1000){ $haha=False; break; echo "I: "; var_dump($result_val); echo "<br><br>";  } }
 										//if($haha){ var_dump($result_val); $some_i++; var_dump($some_i); echo "<br>"; }
 										unset($result_val["to_delete"]);
+										unset($result_val["to_enable"]);
 										$newid=hexdec(hash('fnv1a64',(implode(",",array_merge($result_val)))));
 										$conf_data=array();	$conf_data=calculate_conf_data($result_val,$comp_list,$new_price_calc);
 										#var_dump($result_val); echo "<br>"; var_dump($conf_data); echo "<br>";
@@ -369,6 +494,8 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 											//$final_configurations[$newid]=$result_val;
 											$final_configuration=array_merge([$newid], $result_val);
 											$GLOBALS["nr_configs"]++;
+											#var_dump($final_configuration);
+											echo "<br><br>";
 											yield $final_configuration;
 										}
 									}
@@ -386,6 +513,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 							{
 								$result_val=array();
 								$result_val[$comp]=$val;
+								//INIT DISABLED CONF
 								$result_val["to_delete"]=array();
 								foreach($disabled_data as $some_row=>$d_data)
 								{
@@ -401,6 +529,51 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 									if($nr_valid_disabled[$some_row]<=$result_val["to_delete"][$some_row]) { $result_val["to_delete"][$some_row]=99999; $incompatible=True; break; }
 								}
 								$gen_configurations[]=$result_val;
+								
+								//INIT ENABLED CONF
+								$result_val["to_enable"]=array();
+								foreach($enabled_data as $some_row=>$e_data)
+								{
+									if(!isset($result_val["to_enable"][$some_row])){ $result_val["to_enable"][$some_row]=array(); $result_val["to_enable"][$some_row]["part_1"]=0; $result_val["to_enable"][$some_row]["part_2"]=0;  $result_val["to_enable"][$some_row]["all_part"]=0; $result_val["to_enable"][$some_row]["incomp"]=0; $result_val["to_enable"][$some_row]["resolved"]=0; }
+									
+									if(($result_val["to_enable"][$some_row]["all_part"]>-1 && $result_val["to_enable"][$some_row]["all_part"]<1000) && $result_val["to_enable"][$some_row]["resolved"]==0)
+									{
+										if(isset($e_data["all_part"]["nr"]) && $e_data["all_part"]["nr"]>0)
+										{
+											if(in_array($comp,$e_data["part_1"]))
+											{
+												if(in_array($result_val[$comp],$e_data[$comp]))
+												{ 
+													$result_val["to_enable"][$some_row]["part_1"]++;
+													$result_val["to_enable"][$some_row]["all_part"]++;
+													if ($result_val["to_enable"][$some_row]["part_1"]==$e_data["part_1"]["nr"])
+													{
+														if($result_val["to_enable"][$some_row]["incomp"]>0)
+														{ $result_val["to_enable"][$some_row]["resolved"]=-1; }
+													}
+												}
+											}
+											elseif(in_array($comp,$e_data["cond"]["part_2"]))
+											{
+												if(in_array($result_val[$comp],$e_data[$comp]))
+												{
+													$result_val["to_enable"][$some_row]["part_2"]++;
+													$result_val["to_enable"][$some_row]["all_part"]++;
+												}
+												else
+												{
+													if ($result_val["to_enable"][$some_row]["part_1"]==$e_data["part_1"]["nr"])
+													{ $result_val["to_enable"][$some_row]["resolved"]=-1; }
+													else
+													{ $result_val["to_enable"][$some_row]["incomp"]++; }
+												}
+											}
+										}
+										
+										if ($result_val["to_enable"][$some_row]["all_part"]==$e_data["all_part"]["nr"])
+										{ $result_val["to_enable"][$some_row]["resolved"]=1; }
+									}
+								}
 							}
 						}
 					}

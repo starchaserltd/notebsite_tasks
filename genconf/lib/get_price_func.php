@@ -2,7 +2,7 @@
 
 function get_price_data($model_id,$comp_list,$con)
 {
-	global $var_conf_price, $fixed_conf_prices, $var_conf_disabled, $fixed_conf_prices_eq;
+	global $var_conf_price, $fixed_conf_prices, $var_conf_disabled, $fixed_conf_prices_eq, $var_conf_enabled;
 	//GETTING VAR_CONF_PRICES
 	$SELECT_PRICE_DATA="SELECT `VAR_CONF_PRICES`.`retailer`,`VAR_CONF_PRICES`.`retailer_pid`,`VAR_CONF_PRICES`.`price_data`,`SELLER_DATA`.`region` FROM `notebro_buy`.`VAR_CONF_PRICES` AS `VAR_CONF_PRICES` JOIN `notebro_buy`.`SELLERS` AS `SELLER_DATA` ON `SELLER_DATA`.`name`=`VAR_CONF_PRICES`.`retailer` WHERE `VAR_CONF_PRICES`.`model`='".$model_id."'";
 	$select_q_r=mysqli_query($con,$SELECT_PRICE_DATA); $var_conf_price=array();
@@ -14,21 +14,77 @@ function get_price_data($model_id,$comp_list,$con)
 		}
 		unset($temp_row); mysqli_free_result($select_q_r);
 	}
-	//GETTING DISABLED_CONF FOR RETAILER
-	$SELECT_PRICE_DATA="SELECT * FROM `notebro_buy`.`DISABLED_CONF` WHERE `model`='".$model_id."' AND `retailer` IS NOT NULL AND `retailer_pid` IS NOT NULL";
-	$select_q_r=mysqli_query($con,$SELECT_PRICE_DATA); $var_conf_disabled=array();
+	//GETTING DISABLED_CONF AND ENABLED_CONF FOR RETAILER
+	$SELECT_PRICE_DATA="SELECT * FROM `notebro_buy`.`DISABLED_CONF` WHERE  ( `comp`=0 OR `comp`=1 )  AND `model`='".$model_id."' AND (`retailer` IS NOT NULL AND `retailer`!='' AND `retailer`!='1')";
+	$select_q_r=mysqli_query($con,$SELECT_PRICE_DATA); $var_conf_disabled=array(); $var_conf_enabled=array(); $total_enabled=0;
 	if(have_results($select_q_r))
 	{
 		while($temp_row=mysqli_fetch_assoc($select_q_r))
 		{
-			$var_conf_disabled[$temp_row["id"]]=array();
-			if(!isset($var_conf_disabled[$temp_row["id"]]["nr_valid"]))
-			{ $var_conf_disabled[$temp_row["id"]]["nr_valid"]=0; $var_conf_disabled[$temp_row["id"]]["retailer"]=$temp_row["retailer"]; $var_conf_disabled[$temp_row["id"]]["retailer_pid"]=$temp_row["retailer_pid"]; }
-			foreach($comp_list as $comp_name)
-			{ $var_conf_disabled[$temp_row["id"]][$comp_name]=array(); if($temp_row[$comp_name]!==NULL){ $var_conf_disabled[$temp_row["id"]][$comp_name]=explode(",",$temp_row[$comp_name]); $var_conf_disabled[$temp_row["id"]]["nr_valid"]++; }else{ $var_conf_disabled[$temp_row["id"]][$comp_name]=NULL; } }
+			$comp=-1; if(isset($temp_row["comp"])){$comp=intval($temp_row["comp"]);}
+			#GETTING DISABLED_CONF FOR RETAILER
+			if($comp==0)
+			{
+				$var_conf_disabled[$temp_row["id"]]=array();
+				if(!isset($var_conf_disabled[$temp_row["id"]]["nr_valid"]))
+				{ $var_conf_disabled[$temp_row["id"]]["nr_valid"]=0; $var_conf_disabled[$temp_row["id"]]["retailer"]=$temp_row["retailer"]; $var_conf_disabled[$temp_row["id"]]["retailer_pid"]=$temp_row["retailer_pid"]; }
+				foreach($comp_list as $comp_name)
+				{ $var_conf_disabled[$temp_row["id"]][$comp_name]=array(); if($temp_row[$comp_name]!==NULL){ $var_conf_disabled[$temp_row["id"]][$comp_name]=explode(",",$temp_row[$comp_name]); $var_conf_disabled[$temp_row["id"]]["nr_valid"]++; }else{ $var_conf_disabled[$temp_row["id"]][$comp_name]=NULL; } }
+			}
+			elseif($comp==1)
+			{
+				#GETTING ENABLED_CONF FOR RETAILER
+				if($comp && isset($temp_row["comp_order"]))
+				{
+					$var_conf_enabled[$temp_row["id"]]=array();
+					$var_conf_enabled[$temp_row["id"]]["part_1"]=array();
+					$var_conf_enabled[$temp_row["id"]]["part_2"]=array();
+					$var_conf_enabled[$temp_row["id"]]["all_part"]=array();
+					$var_conf_enabled[$temp_row["id"]]["retailer"]=$temp_row["retailer"]; $var_conf_enabled[$temp_row["id"]]["retailer_pid"]=$temp_row["retailer_pid"]; 
+					
+					$comp_order_row=explode(",",$temp_row["comp_order"]);
+					$i=1;
+					foreach($comp_order_row as $key=>$val)
+					{
+						$var_conf_enabled[$temp_row["id"]]["all_part"][]=$val;
+						if($i==1)
+						{ $var_conf_enabled[$temp_row["id"]]["part_1"][]=$val; }
+						else
+						{ $var_conf_enabled[$temp_row["id"]]["part_2"][]=$val; }
+						$i++; 
+					}
+					$var_conf_enabled[$temp_row["id"]]["all_part"]["nr"]=count($var_conf_enabled[$temp_row["id"]]["all_part"]);
+					$var_conf_enabled[$temp_row["id"]]["part_1"]["nr"]=count($var_conf_enabled[$temp_row["id"]]["part_1"]);
+					$var_conf_enabled[$temp_row["id"]]["part_2"]["nr"]=count($var_conf_enabled[$temp_row["id"]]["part_2"]);
+				}
+				if($comp && isset($var_conf_enabled[$temp_row["id"]]["part_1"]["nr"]) && $var_conf_enabled[$temp_row["id"]]["part_1"]["nr"]>0)
+				{
+					foreach($comp_list as $comp_name)
+					{
+						$var_conf_enabled[$temp_row["id"]][$comp_name]=array();
+						if($temp_row[$comp_name]!==NULL)
+						{
+							if(in_array($comp_name,$var_conf_enabled[$temp_row["id"]]["all_part"]))
+							{ $var_conf_enabled[$temp_row["id"]][$comp_name]=explode(",",$temp_row[$comp_name]); }
+							else
+							{ if(isset($var_conf_enabled[$temp_row["id"]])){ unset($var_conf_enabled[$temp_row["id"]]); } break; }
+						}
+						else
+						{
+							if(!in_array($comp_name,$var_conf_enabled[$temp_row["id"]]["all_part"]))
+							{ $var_conf_enabled[$temp_row["id"]][$comp_name]=NULL; }
+							else
+							{ if(isset($var_conf_enabled[$temp_row["id"]])){ unset($var_conf_enabled[$temp_row["id"]]); } break; }
+						}
+					}
+				}
+			}
 		}
+		$total_enabled=count($var_conf_enabled);
 		unset($temp_row); mysqli_free_result($select_q_r);
 	}
+
+
 	//GETTING FIXED CONF			
 	$SELECT_PRICE_DATA="SELECT `FIXED_CONF_PRICES`.*,`SELLER_DATA`.`region` FROM `notebro_buy`.`FIXED_CONF_PRICES` AS `FIXED_CONF_PRICES` JOIN `notebro_buy`.`SELLERS` AS `SELLER_DATA` ON `SELLER_DATA`.`name`=`FIXED_CONF_PRICES`.`retailer` WHERE `FIXED_CONF_PRICES`.`model`='".$model_id."'";
 	$select_q_r=mysqli_query($con,$SELECT_PRICE_DATA); $fixed_conf_prices=array(); $fixed_conf_prices_eq=array(); 
@@ -119,6 +175,50 @@ function set_price_market_price($conf,$comp_list,$region=2)
 			{ $disabled_confs[$disabled_key]=["retailer"=>$disabled_data["retailer"],"retailer_pid"=>$disabled_data["retailer_pid"]]; break; }
 		}
 	}
+	
+	//CHECK ENABLED CONF
+	$d_enabled_confs=array();
+	foreach($GLOBALS["var_conf_enabled"] as $enabled_key=>$enabled_data)
+	{
+		$enab_vote_1=0; $pos_disable=0;
+		foreach($enabled_data["part_1"] as $some_key=>$comp)
+		{	
+			if($some_key!=="nr")
+			{
+				if(in_array(strval($conf[$comp]),$enabled_data[$comp]))
+				{ $enab_vote_1++; }
+			}
+		}
+		$enab_vote_2=0;
+		if($enab_vote_1>0 && $enab_vote_1==$enabled_data["part_1"]["nr"])
+		{
+			foreach($enabled_data["part_2"] as $some_key=>$comp)
+			{
+				if($some_key!=="nr")
+				{
+					if(!in_array(strval($conf[$comp]),$enabled_data[$comp]))
+					{ $pos_disable=1; break; }
+					else
+					{ $enab_vote_2++; }
+				}
+			}
+		}
+		if($enab_vote_2>0 && $enab_vote_1>0 && $enab_vote_2==$enabled_data["part_2"]["nr"] && $enab_vote_1==$enabled_data["part_1"]["nr"])
+		{ $pos_disable=-1; $d_enabled_confs=array();  break; }
+		elseif($enab_vote_2>0 && $enab_vote_1>0 && $enab_vote_2!=$enabled_data["part_2"]["nr"] && $enab_vote_1==$enabled_data["part_1"]["nr"])
+		{ $pos_disable=1; }
+		
+		if($pos_disable==1)
+		{ $d_enabled_confs[$enabled_key]=["retailer"=>$enabled_data["retailer"],"retailer_pid"=>$enabled_data["retailer_pid"]]; }
+	}
+
+	if(count($d_enabled_confs)>0)
+	{
+		foreach($d_enabled_confs as $enabled_key=>$some_data)
+		{ $disabled_confs[$enabled_key."_en"]=$some_data; }
+		unset($d_enabled_confs);
+		unset($some_data);
+	}
 		
 	//DOING VAR CONF
 	foreach($GLOBALS["var_conf_price"] as $var_conf_data)
@@ -131,7 +231,7 @@ function set_price_market_price($conf,$comp_list,$region=2)
 			{
 				if($var_conf_data["retailer"]==$disabled_conf["retailer"])
 				{
-					if($disabled_conf["retailer_pid"]==NULL || empty($disabled_conf["retailer_pid"]) || $disabled_conf["retailer_pid"]="")
+					if($disabled_conf["retailer_pid"]==NULL || empty($disabled_conf["retailer_pid"]) || $disabled_conf["retailer_pid"]="" || $disabled_conf["retailer_pid"]="1")
 					{ $do_the_calculation=False; break; }
 					elseif($var_conf_data["retailer_pid"]==$disabled_conf["retailer_pid"])
 					{ $do_the_calculation=False; break; }

@@ -304,8 +304,8 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 				{
 					while($test_row=mysqli_fetch_assoc($test_enb_result))
 					{
-						$comp=0; if(isset($test_row["comp"])){$comp=intval($test_row["comp"]);}
-						if($comp && isset($test_row["comp_order"]))
+						$set_comp=0; if(isset($test_row["comp"])){$set_comp=intval($test_row["comp"]);}
+						if($set_comp && isset($test_row["comp_order"]))
 						{
 							$enabled_data[$test_row["id"]]=array();
 							$enabled_data[$test_row["id"]]["part_1"]=array();
@@ -327,7 +327,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 							$enabled_data[$test_row["id"]]["part_1"]["nr"]=count($enabled_data[$test_row["id"]]["part_1"]);
 							$enabled_data[$test_row["id"]]["part_2"]["nr"]=count($enabled_data[$test_row["id"]]["part_2"]);
 						}
-						if($comp && isset($enabled_data[$test_row["id"]]["part_1"]["nr"]) && $enabled_data[$test_row["id"]]["part_1"]["nr"]>0)
+						if($set_comp && isset($enabled_data[$test_row["id"]]["part_1"]["nr"]) && $enabled_data[$test_row["id"]]["part_1"]["nr"]>0)
 						{
 							foreach($comp_list as $comp_name)
 							{

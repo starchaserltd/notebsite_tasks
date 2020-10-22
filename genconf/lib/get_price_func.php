@@ -21,9 +21,9 @@ function get_price_data($model_id,$comp_list,$con)
 	{
 		while($temp_row=mysqli_fetch_assoc($select_q_r))
 		{
-			$comp=-1; if(isset($temp_row["comp"])){$comp=intval($temp_row["comp"]);}
+			$set_comp=-1; if(isset($temp_row["comp"])){$set_comp=intval($temp_row["comp"]);}
 			#GETTING DISABLED_CONF FOR RETAILER
-			if($comp==0)
+			if($set_comp==0)
 			{
 				$var_conf_disabled[$temp_row["id"]]=array();
 				if(!isset($var_conf_disabled[$temp_row["id"]]["nr_valid"]))
@@ -31,10 +31,10 @@ function get_price_data($model_id,$comp_list,$con)
 				foreach($comp_list as $comp_name)
 				{ $var_conf_disabled[$temp_row["id"]][$comp_name]=array(); if($temp_row[$comp_name]!==NULL){ $var_conf_disabled[$temp_row["id"]][$comp_name]=explode(",",$temp_row[$comp_name]); $var_conf_disabled[$temp_row["id"]]["nr_valid"]++; }else{ $var_conf_disabled[$temp_row["id"]][$comp_name]=NULL; } }
 			}
-			elseif($comp==1)
+			elseif($set_comp==1)
 			{
 				#GETTING ENABLED_CONF FOR RETAILER
-				if($comp && isset($temp_row["comp_order"]))
+				if($set_comp && isset($temp_row["comp_order"]))
 				{
 					$var_conf_enabled[$temp_row["id"]]=array();
 					$var_conf_enabled[$temp_row["id"]]["part_1"]=array();
@@ -57,7 +57,7 @@ function get_price_data($model_id,$comp_list,$con)
 					$var_conf_enabled[$temp_row["id"]]["part_1"]["nr"]=count($var_conf_enabled[$temp_row["id"]]["part_1"]);
 					$var_conf_enabled[$temp_row["id"]]["part_2"]["nr"]=count($var_conf_enabled[$temp_row["id"]]["part_2"]);
 				}
-				if($comp && isset($var_conf_enabled[$temp_row["id"]]["part_1"]["nr"]) && $var_conf_enabled[$temp_row["id"]]["part_1"]["nr"]>0)
+				if($set_comp && isset($var_conf_enabled[$temp_row["id"]]["part_1"]["nr"]) && $var_conf_enabled[$temp_row["id"]]["part_1"]["nr"]>0)
 				{
 					foreach($comp_list as $comp_name)
 					{

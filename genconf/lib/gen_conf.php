@@ -494,8 +494,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 											//$final_configurations[$newid]=$result_val;
 											$final_configuration=array_merge([$newid], $result_val);
 											$GLOBALS["nr_configs"]++;
-											#var_dump($final_configuration);
-											echo "<br><br>";
+											#var_dump($final_configuration); echo "<br><br>";
 											yield $final_configuration;
 										}
 									}

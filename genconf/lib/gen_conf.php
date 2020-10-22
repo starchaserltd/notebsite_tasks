@@ -496,6 +496,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 											$GLOBALS["nr_configs"]++;
 											#var_dump($final_configuration); echo "<br><br>";
 											yield $final_configuration;
+											unset($final_configuration);
 										}
 									}
 									$gen_configurations[]=$result_val;

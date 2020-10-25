@@ -304,7 +304,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 				{
 					while($test_row=mysqli_fetch_assoc($test_enb_result))
 					{
-						$set_comp=0; if(isset($test_row["comp"])){$set_comp=intval($test_row["comp"]);}
+						$set_comp=0; if(isset($test_row["comp"])){$set_comp=intval($test_row["comp"]);} $add_to_comp_test=False;
 						if($set_comp && isset($test_row["comp_order"]))
 						{
 							$enabled_data[$test_row["id"]]=array();
@@ -320,7 +320,19 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 								if($i==1)
 								{
 									$enabled_data[$test_row["id"]]["part_1"][]=$val;
-									if(!isset($comp_c_test[$val])){$comp_c_test[$val]=array(); }
+									if(isset($test_row[$val]))
+									{
+										if(!isset($comp_c_test[$val]))
+										{ $comp_c_test[$val]=array(); }
+									
+										$ids_to_add=explode(",",$test_row[$val]); 
+										foreach($ids_to_add as $some_id)
+										{
+											if(isset($comp_c_test[$val][$some_id])) { $comp_c_test[$val][$some_id]++; }
+											else { $comp_c_test[$val][$some_id]=1; }
+										}
+										unset($ids_to_add); unset($some_id);
+									}
 								}
 								else
 								{ $enabled_data[$test_row["id"]]["part_2"][]=$val; }
@@ -341,16 +353,6 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 									{ $enabled_data[$test_row["id"]][$comp_name]=explode(",",$test_row[$comp_name]); }
 									else
 									{ if(isset($enabled_data[$test_row["id"]])){ unset($enabled_data[$test_row["id"]]); } break; }
-									if(isset($comp_c_test[$comp_name]))
-									{
-										foreach($enabled_data[$test_row["id"]][$comp_name] as $ids)
-										{
-											if(isset($comp_c_test[$comp_name][$ids]))
-											{ $comp_c_test[$comp_name][$ids]++; }
-											else
-											{ $comp_c_test[$comp_name][$ids]=1; }
-										}
-									}
 								}
 								else
 								{
@@ -370,7 +372,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 				//DOING THE CONFIGURATION GENERATION
 				$gen_configurations[]["model"]=$model_id;
 				$init_data=array("rating"=>0,"bat_com"=>array(),"bat_cap"=>0,"dummy_price"=>0,"price_error"=>0,"storage_cap"=>0);
-				$nr_iterations=count($comp_list); $iteration=0; $resolved_to_test=False;
+				$nr_iterations=count($comp_list); $iteration=0;
 				foreach($comp_list as $comp)
 				{
 					$iteration++;
@@ -380,12 +382,12 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 
 					foreach(${$comp."_ids"} as $key=>$val)
 					{
-
+						$ok_to_delete_enabled_data=False;  $c_keys_to_delete=array();
 						if(isset($old_gen_configurations[0]))
 						{
 							foreach($old_gen_configurations as $result_key=>$result_val)
 							{
-								$incompatible=False;
+								$incompatible=False; $resolved_to_test=False;
 								$result_val[$comp]=$val;
 
 								//COMPONENT SPECIFIC STUFF
@@ -495,28 +497,30 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 											
 												if(count($comp_to_test_now)>0)
 												{
-													$enabled_test_result=0; 
+													//IN THIS LOOP WE CAN DETERMINED E_KEYS THAT WE CAN LATER ELIMINATE IF WE WANT TO (NOT IMPLEMENTED)
+													$enabled_test_result=0;
 													foreach($comp_to_test_now as $temp_comp_key=>$temp_comp)
 													{
 														foreach($temp_comp as $temp_ids)
 														{
 															foreach($r_key_to_test_now[$temp_comp_key][$temp_ids] as $e_key)
 															{
-																if($result_val["to_enable"][$e_key]["resolved"]==-1)
+																if($result_val["to_enable"][$e_key]["resolved"]==-1 && $enabled_test_result<1)
 																{ $enabled_test_result=-1; }
 																elseif($result_val["to_enable"][$e_key]["resolved"]==1)
-																{ $enabled_test_result=1; break; }
+																{ $enabled_test_result=1; }
+																$c_keys_to_delete[]=$e_key;
 															}
 														}
 													}
 													unset($temp_comp); unset($temp_ids);
 												
 													if($enabled_test_result<0)
-													{ $incompatible=True; }
+													{ $incompatible=True; $ok_to_delete_enabled_data=True; }
 													else
 													{
 														if($enabled_test_result>0)
-														{ break; }
+														{ break; $ok_to_delete_enabled_data=True; }
 													}
 												}
 											}
@@ -638,6 +642,15 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 								}
 							}
 						}
+					}
+					//HERE WE CAN ELIMINATE ENABLED DATA THAT HAS BEEN RESOLVED IF WE WANT TO (NOT IMPLEMENTED)
+					if($ok_to_delete_enabled_data && isset($c_keys_to_delete))
+					{
+						$c_keys_to_delete=array_unique($c_keys_to_delete);
+						echo "<br>RESOLVED COMPATIBILITY RULES AND DELETING NOW: ".implode(",",$c_keys_to_delete)."<br>";
+						foreach($c_keys_to_delete as $some_key)
+						{ unset($enabled_data[$some_key]); $total_enabled--; }
+						unset($some_key);
 					}
 				}
 			

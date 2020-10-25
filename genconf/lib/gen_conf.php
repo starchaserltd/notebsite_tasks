@@ -79,7 +79,7 @@ if($new_prices)
 
 //GET MODELS FOR PROCESSING
 $model_ids = array();
-#$model_select_cond="AND id=4515";
+#$model_select_cond="AND id=5095";
 #$model_select_cond="AND id=4080";
 #$new_price_conf[]=["prod"=>"Dell","regions"=>[2]];
 $model_select_cond="";
@@ -299,7 +299,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 				unset($temp_cond);
 				$test_enb_result=mysqli_query($rcon,$SELECT_ENABLED_DATA);
 				#echo $SELECT_ENABLED_DATA;
-				$enabled_data=array(); $total_enabled=0; $enabled_test_result=0;
+				$enabled_data=array(); $comp_c_test=array(); $total_enabled=0;
 				if(have_results($test_enb_result))
 				{
 					while($test_row=mysqli_fetch_assoc($test_enb_result))
@@ -318,7 +318,10 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 							{
 								$enabled_data[$test_row["id"]]["all_part"][]=$val;
 								if($i==1)
-								{ $enabled_data[$test_row["id"]]["part_1"][]=$val; }
+								{
+									$enabled_data[$test_row["id"]]["part_1"][]=$val;
+									if(!isset($comp_c_test[$val])){$comp_c_test[$val]=array(); }
+								}
 								else
 								{ $enabled_data[$test_row["id"]]["part_2"][]=$val; }
 								$i++; 
@@ -338,6 +341,16 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 									{ $enabled_data[$test_row["id"]][$comp_name]=explode(",",$test_row[$comp_name]); }
 									else
 									{ if(isset($enabled_data[$test_row["id"]])){ unset($enabled_data[$test_row["id"]]); } break; }
+									if(isset($comp_c_test[$comp_name]))
+									{
+										foreach($enabled_data[$test_row["id"]][$comp_name] as $ids)
+										{
+											if(isset($comp_c_test[$comp_name][$ids]))
+											{ $comp_c_test[$comp_name][$ids]++; }
+											else
+											{ $comp_c_test[$comp_name][$ids]=1; }
+										}
+									}
 								}
 								else
 								{
@@ -357,7 +370,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 				//DOING THE CONFIGURATION GENERATION
 				$gen_configurations[]["model"]=$model_id;
 				$init_data=array("rating"=>0,"bat_com"=>array(),"bat_cap"=>0,"dummy_price"=>0,"price_error"=>0,"storage_cap"=>0);
-				$nr_iterations=count($comp_list); $iteration=0;
+				$nr_iterations=count($comp_list); $iteration=0; $resolved_to_test=False;
 				foreach($comp_list as $comp)
 				{
 					$iteration++;
@@ -405,7 +418,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 								}
 
 								//CHECKING ENABLED CONF
-								if(!$incompatible)
+								if(!$incompatible && $total_enabled>0)
 								{
 									foreach($enabled_data as $some_row=>$e_data)
 									{
@@ -424,7 +437,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 														if ($result_val["to_enable"][$some_row]["part_1"]==$e_data["part_1"]["nr"])
 														{
 															if($result_val["to_enable"][$some_row]["incomp"]>0)
-															{ $result_val["to_enable"][$some_row]["resolved"]=-1; }
+															{ $result_val["to_enable"][$some_row]["resolved"]=-1; $resolved_to_test=True; }
 														}
 													}
 												}
@@ -438,7 +451,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 													else
 													{
 														if ($result_val["to_enable"][$some_row]["part_1"]==$e_data["part_1"]["nr"])
-														{ $result_val["to_enable"][$some_row]["resolved"]=-1; }
+														{ $result_val["to_enable"][$some_row]["resolved"]=-1; $resolved_to_test=True; }
 														else
 														{ $result_val["to_enable"][$some_row]["incomp"]++; }
 													}
@@ -446,23 +459,70 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 											}
 											
 											if ($result_val["to_enable"][$some_row]["all_part"]==$e_data["all_part"]["nr"])
-											{ $result_val["to_enable"][$some_row]["resolved"]=1; }
+											{ $result_val["to_enable"][$some_row]["resolved"]=1; $resolved_to_test=True; }
 										}
 									}
 									
-									if(isset($result_val["to_enable"]) &&  $enabled_test_result<1)
+									#THIS HERE IS THE COMPATIBILITY TEST
+									if(isset($result_val["to_enable"]) && $resolved_to_test && $total_enabled>0)
 									{
-										$enabled_tested=0; $enabled_test_result=0;
-										foreach($result_val["to_enable"] as $r_data)
+										$temp_comp_c_test=$comp_c_test; $r_key_to_test_now=array(); $comp_to_test_now=array();
+										foreach($result_val["to_enable"] as $r_key=>$r_data)
 										{
-											if($r_data["resolved"]==-1)
-											{ $enabled_tested++; $enabled_test_result=-1; }
-											elseif($r_data["resolved"]==1)
-											{ $enabled_tested++; $enabled_test_result=1; break; }
+											if($r_data["resolved"]>0)
+											{
+												break;
+											}
+											else
+											{
+												if($r_data["resolved"]!=0)
+												{
+													foreach($enabled_data[$r_key]["part_1"] as $temp_key=>$temp_comp)
+													{
+														if($temp_key!=="nr")
+														{
+															foreach($enabled_data[$r_key][$temp_comp] as $temp_ids)
+															{
+																$temp_comp_c_test[$temp_comp][$temp_ids]--;
+																$r_key_to_test_now[$temp_comp][$temp_ids][]=$r_key;
+																if($temp_comp_c_test[$temp_comp][$temp_ids]==0)
+																{ $comp_to_test_now[$temp_comp][]=$temp_ids; }
+															}
+														}
+													}
+													unset($temp_comp); unset($temp_ids);
+												}
+											
+												if(count($comp_to_test_now)>0)
+												{
+													$enabled_test_result=0; 
+													foreach($comp_to_test_now as $temp_comp_key=>$temp_comp)
+													{
+														foreach($temp_comp as $temp_ids)
+														{
+															foreach($r_key_to_test_now[$temp_comp_key][$temp_ids] as $e_key)
+															{
+																if($result_val["to_enable"][$e_key]["resolved"]==-1)
+																{ $enabled_test_result=-1; }
+																elseif($result_val["to_enable"][$e_key]["resolved"]==1)
+																{ $enabled_test_result=1; break; }
+															}
+														}
+													}
+													unset($temp_comp); unset($temp_ids);
+												
+													if($enabled_test_result<0)
+													{ $incompatible=True; }
+													else
+													{
+														if($enabled_test_result>0)
+														{ break; }
+													}
+												}
+											}
 										}
-										if($enabled_test_result<0 && $total_enabled==$enabled_tested)
-										{ $incompatible=True; }
-									}
+										unset($temp_comp_c_test);
+									}	
 								}
 								
 								if(!$incompatible)
@@ -495,7 +555,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 											$final_configuration=array_merge([$newid], $result_val);
 											$GLOBALS["nr_configs"]++;
 											#var_dump($final_configuration); echo "<br><br>";
-											yield $final_configuration;
+											yield $final_configuration;;
 										}
 									}
 									$gen_configurations[]=$result_val;
@@ -531,46 +591,49 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 								
 								//INIT ENABLED CONF
 								$result_val["to_enable"]=array();
-								foreach($enabled_data as $some_row=>$e_data)
+								if($total_enabled>0)
 								{
-									if(!isset($result_val["to_enable"][$some_row])){ $result_val["to_enable"][$some_row]=array(); $result_val["to_enable"][$some_row]["part_1"]=0; $result_val["to_enable"][$some_row]["part_2"]=0;  $result_val["to_enable"][$some_row]["all_part"]=0; $result_val["to_enable"][$some_row]["incomp"]=0; $result_val["to_enable"][$some_row]["resolved"]=0; }
-									
-									if(($result_val["to_enable"][$some_row]["all_part"]>-1 && $result_val["to_enable"][$some_row]["all_part"]<1000) && $result_val["to_enable"][$some_row]["resolved"]==0)
+									foreach($enabled_data as $some_row=>$e_data)
 									{
-										if(isset($e_data["all_part"]["nr"]) && $e_data["all_part"]["nr"]>0)
+										if(!isset($result_val["to_enable"][$some_row])){ $result_val["to_enable"][$some_row]=array(); $result_val["to_enable"][$some_row]["part_1"]=0; $result_val["to_enable"][$some_row]["part_2"]=0;  $result_val["to_enable"][$some_row]["all_part"]=0; $result_val["to_enable"][$some_row]["incomp"]=0; $result_val["to_enable"][$some_row]["resolved"]=0; }
+										
+										if(($result_val["to_enable"][$some_row]["all_part"]>-1 && $result_val["to_enable"][$some_row]["all_part"]<1000) && $result_val["to_enable"][$some_row]["resolved"]==0)
 										{
-											if(in_array($comp,$e_data["part_1"]))
+											if(isset($e_data["all_part"]["nr"]) && $e_data["all_part"]["nr"]>0)
 											{
-												if(in_array($result_val[$comp],$e_data[$comp]))
-												{ 
-													$result_val["to_enable"][$some_row]["part_1"]++;
-													$result_val["to_enable"][$some_row]["all_part"]++;
-													if ($result_val["to_enable"][$some_row]["part_1"]==$e_data["part_1"]["nr"])
+												if(in_array($comp,$e_data["part_1"]))
+												{
+													if(in_array($result_val[$comp],$e_data[$comp]))
+													{ 
+														$result_val["to_enable"][$some_row]["part_1"]++;
+														$result_val["to_enable"][$some_row]["all_part"]++;
+														if ($result_val["to_enable"][$some_row]["part_1"]==$e_data["part_1"]["nr"])
+														{
+															if($result_val["to_enable"][$some_row]["incomp"]>0)
+															{ $result_val["to_enable"][$some_row]["resolved"]=-1; $resolved_to_test=True; }
+														}
+													}
+												}
+												elseif(in_array($comp,$e_data["cond"]["part_2"]))
+												{
+													if(in_array($result_val[$comp],$e_data[$comp]))
 													{
-														if($result_val["to_enable"][$some_row]["incomp"]>0)
-														{ $result_val["to_enable"][$some_row]["resolved"]=-1; }
+														$result_val["to_enable"][$some_row]["part_2"]++;
+														$result_val["to_enable"][$some_row]["all_part"]++;
+													}
+													else
+													{
+														if ($result_val["to_enable"][$some_row]["part_1"]==$e_data["part_1"]["nr"])
+														{ $result_val["to_enable"][$some_row]["resolved"]=-1; $resolved_to_test=True; }
+														else
+														{ $result_val["to_enable"][$some_row]["incomp"]++; }
 													}
 												}
 											}
-											elseif(in_array($comp,$e_data["cond"]["part_2"]))
-											{
-												if(in_array($result_val[$comp],$e_data[$comp]))
-												{
-													$result_val["to_enable"][$some_row]["part_2"]++;
-													$result_val["to_enable"][$some_row]["all_part"]++;
-												}
-												else
-												{
-													if ($result_val["to_enable"][$some_row]["part_1"]==$e_data["part_1"]["nr"])
-													{ $result_val["to_enable"][$some_row]["resolved"]=-1; }
-													else
-													{ $result_val["to_enable"][$some_row]["incomp"]++; }
-												}
-											}
+											
+											if ($result_val["to_enable"][$some_row]["all_part"]==$e_data["all_part"]["nr"])
+											{ $result_val["to_enable"][$some_row]["resolved"]=1; $resolved_to_test=True; }
 										}
-										
-										if ($result_val["to_enable"][$some_row]["all_part"]==$e_data["all_part"]["nr"])
-										{ $result_val["to_enable"][$some_row]["resolved"]=1; }
 									}
 								}
 							}

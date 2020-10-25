@@ -84,7 +84,6 @@ function get_price_data($model_id,$comp_list,$con)
 		unset($temp_row); mysqli_free_result($select_q_r);
 	}
 
-
 	//GETTING FIXED CONF			
 	$SELECT_PRICE_DATA="SELECT `FIXED_CONF_PRICES`.*,`SELLER_DATA`.`region` FROM `notebro_buy`.`FIXED_CONF_PRICES` AS `FIXED_CONF_PRICES` JOIN `notebro_buy`.`SELLERS` AS `SELLER_DATA` ON `SELLER_DATA`.`name`=`FIXED_CONF_PRICES`.`retailer` WHERE `FIXED_CONF_PRICES`.`model`='".$model_id."'";
 	$select_q_r=mysqli_query($con,$SELECT_PRICE_DATA); $fixed_conf_prices=array(); $fixed_conf_prices_eq=array(); 
@@ -180,7 +179,7 @@ function set_price_market_price($conf,$comp_list,$region=2)
 	$d_enabled_confs=array();
 	foreach($GLOBALS["var_conf_enabled"] as $enabled_key=>$enabled_data)
 	{
-		$enab_vote_1=0; $pos_disable=0;
+		$enab_vote_1=0; $enab_vote_2=0; $pos_disable=0;
 		foreach($enabled_data["part_1"] as $some_key=>$comp)
 		{	
 			if($some_key!=="nr")
@@ -189,7 +188,7 @@ function set_price_market_price($conf,$comp_list,$region=2)
 				{ $enab_vote_1++; }
 			}
 		}
-		$enab_vote_2=0;
+
 		if($enab_vote_1>0 && $enab_vote_1==$enabled_data["part_1"]["nr"])
 		{
 			foreach($enabled_data["part_2"] as $some_key=>$comp)

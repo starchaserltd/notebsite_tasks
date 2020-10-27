@@ -167,7 +167,7 @@ mysqli_close($con);
 //// MAIN FUNCTION TO BUILD TEMPORARY CONFIGURATIONS TABLE /////	
 function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 {
-    $final_configurations=array();
+    $final_configurations=array(); $raw_iterations=0;
 	global $current_model_prod, $current_model_regions; $GLOBALS["questionable_confs"]=array();
 	$current_model_prod=""; $current_model_regions="";
 	if(!isset($GLOBALS["prod_server"])){ show_running_output("<br><b>THIS FILE IS NOT RUN PROPERLY!</b><br>"); exit(); }
@@ -497,7 +497,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 											
 												if(count($comp_to_test_now)>0)
 												{
-													//IN THIS LOOP WE CAN DETERMINED E_KEYS THAT WE CAN LATER ELIMINATE IF WE WANT TO (NOT IMPLEMENTED)
+													//IN THIS LOOP WE CAN DETERMINED E_KEYS THAT WE CAN LATER ELIMINATE IF WE WANT TO
 													$enabled_test_result=0;
 													foreach($comp_to_test_now as $temp_comp_key=>$temp_comp)
 													{
@@ -566,6 +566,8 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 								}
 								else
 								{ }
+								$raw_iterations++;
+								if($raw_iterations%10000==0){ show_running_output("Raw iterations done for this model: ".$raw_iterations."<br>"); }
 							}
 						}
 						else
@@ -643,7 +645,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 							}
 						}
 					}
-					//HERE WE CAN ELIMINATE ENABLED DATA THAT HAS BEEN RESOLVED IF WE WANT TO (NOT IMPLEMENTED)
+					//HERE WE CAN ELIMINATE ENABLED DATA THAT HAS BEEN RESOLVED IF WE WANT TO
 					if($ok_to_delete_enabled_data && isset($c_keys_to_delete))
 					{
 						$c_keys_to_delete=array_unique($c_keys_to_delete);

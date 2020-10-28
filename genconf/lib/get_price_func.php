@@ -43,15 +43,19 @@ function get_price_data($model_id,$comp_list,$con)
 					$var_conf_enabled[$temp_row["id"]]["retailer"]=$temp_row["retailer"]; $var_conf_enabled[$temp_row["id"]]["retailer_pid"]=$temp_row["retailer_pid"]; 
 					
 					$comp_order_row=explode(",",$temp_row["comp_order"]);
-					$i=1;
+					$start_count=false;
 					foreach($comp_order_row as $key=>$val)
 					{
-						$var_conf_enabled[$temp_row["id"]]["all_part"][]=$val;
-						if($i==1)
-						{ $var_conf_enabled[$temp_row["id"]]["part_1"][]=$val; }
-						else
-						{ $var_conf_enabled[$temp_row["id"]]["part_2"][]=$val; }
-						$i++; 
+						if(strlen($val)>1)
+						{
+							if(strtoupper($val)=="ENABLEDBY"){ $start_count=true; continue; }					
+							$var_conf_enabled[$temp_row["id"]]["all_part"][]=$val;
+							if(!$start_count)
+							{ $var_conf_enabled[$temp_row["id"]]["part_1"][]=$val; }
+							else
+							{ $var_conf_enabled[$temp_row["id"]]["part_2"][]=$val; }
+
+						}						
 					}
 					$var_conf_enabled[$temp_row["id"]]["all_part"]["nr"]=count($var_conf_enabled[$temp_row["id"]]["all_part"]);
 					$var_conf_enabled[$temp_row["id"]]["part_1"]["nr"]=count($var_conf_enabled[$temp_row["id"]]["part_1"]);

@@ -313,30 +313,34 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 							$enabled_data[$test_row["id"]]["all_part"]=array();
 						
 							$comp_order_row=explode(",",$test_row["comp_order"]);
-							$i=1;
+							$start_count=false;
 							foreach($comp_order_row as $key=>$val)
 							{
-								$enabled_data[$test_row["id"]]["all_part"][]=$val;
-								if($i==1)
+								if(strlen($val)>1)
 								{
-									$enabled_data[$test_row["id"]]["part_1"][]=$val;
-									if(isset($test_row[$val]))
-									{
-										if(!isset($comp_c_test[$val]))
-										{ $comp_c_test[$val]=array(); }
+									if(strtoupper($val)=="ENABLEDBY"){ $start_count=true; continue; }
 									
-										$ids_to_add=explode(",",$test_row[$val]); 
-										foreach($ids_to_add as $some_id)
+									$enabled_data[$test_row["id"]]["all_part"][]=$val;
+									if(!$start_count)
+									{
+										$enabled_data[$test_row["id"]]["part_1"][]=$val;
+										if(isset($test_row[$val]))
 										{
-											if(isset($comp_c_test[$val][$some_id])) { $comp_c_test[$val][$some_id]++; }
-											else { $comp_c_test[$val][$some_id]=1; }
+											if(!isset($comp_c_test[$val]))
+											{ $comp_c_test[$val]=array(); }
+										
+											$ids_to_add=explode(",",$test_row[$val]); 
+											foreach($ids_to_add as $some_id)
+											{
+												if(isset($comp_c_test[$val][$some_id])) { $comp_c_test[$val][$some_id]++; }
+												else { $comp_c_test[$val][$some_id]=1; }
+											}
+											unset($ids_to_add); unset($some_id);
 										}
-										unset($ids_to_add); unset($some_id);
 									}
+									else
+									{ $enabled_data[$test_row["id"]]["part_2"][]=$val; }
 								}
-								else
-								{ $enabled_data[$test_row["id"]]["part_2"][]=$val; }
-								$i++; 
 							}
 							$enabled_data[$test_row["id"]]["all_part"]["nr"]=count($enabled_data[$test_row["id"]]["all_part"]);
 							$enabled_data[$test_row["id"]]["part_1"]["nr"]=count($enabled_data[$test_row["id"]]["part_1"]);
@@ -368,7 +372,7 @@ function generate_configs($con,$rcon,$multicons,$model_id,$comp_list)
 					unset($test_row);		
 					mysqli_free_result($test_enb_result);
 				}
-				
+
 				//DOING THE CONFIGURATION GENERATION
 				$gen_configurations[]["model"]=$model_id;
 				$init_data=array("rating"=>0,"bat_com"=>array(),"bat_cap"=>0,"dummy_price"=>0,"price_error"=>0,"storage_cap"=>0);

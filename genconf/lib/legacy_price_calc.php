@@ -114,13 +114,14 @@ function get_old_price_list($model)
 			{ 
 				if($prod!="Dell" && !$nodiscount ){ $baseprice=$price_list["webprice"]; $discount=$price_list["baseprice"]/$price_list["webprice"]; } else { $baseprice=$price_list["baseprice"]; $discount=1;} 
 				$price_list["prod"]=$prod; $price_list["discount"]=$discount; $price_list["baseprice"]=$baseprice;
+				mysqli_free_result($temp_result);
 				return($price_list);
 			}
 			else 
-			{ return NULL; }
+			{ mysqli_free_result($temp_result); return NULL; }
 		}
 		else 
-		{ return NULL; }
+		{ mysqli_free_result($temp_result); return NULL; }
 		mysqli_free_result($temp_result);
 	}
 	else

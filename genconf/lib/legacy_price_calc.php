@@ -92,32 +92,39 @@ function get_old_price_list($model)
 	$con=$GLOBALS["rcon"];
 	$price_list=NULL;
 	$sql="SELECT `other` FROM `notebro_prices`.`comp_match` WHERE `model`='".$model."' ORDER BY `lastcheck` DESC LIMIT 1";
-	$price_list=json_decode(mysqli_fetch_assoc(mysqli_query($con,$sql))["other"],true);
-	
-	if(isset($price_list["nodiscount"]) && $price_list["nodiscount"]!==NULL && $price_list["nodiscount"]!="")
-	{ $nodiscount=$price_list["nodiscount"]; }
-	else
-	{ $nodiscount=0; }
-
-	if(isset($price_list["prod"]) && $price_list["prod"]!==NULL && $price_list["prod"]!="")
-	{ $prod=$price_list["prod"]; }
-	else
-	{ $sql="SELECT `prod` FROM `notebro_db`.`MODEL` WHERE `id`='".$model."'"; $prod=mysqli_fetch_assoc(mysqli_query($con,$sql))["prod"]; if(!(isset($prod) && $prod)) { $prod=""; } }
-
-	$gotodan=0;
-	if(isset($price_list["webprice"]) && $price_list["webprice"]!==NULL && $price_list["webprice"]!="")
+	$temp_result=mysqli_query($con,$sql);
+	if(have_results($temp_result))
 	{
-		if(isset($price_list["baseprice"]) && $price_list["baseprice"]!==NULL && $price_list["baseprice"]!="")
-		{ 
-			if($prod!="Dell" && !$nodiscount ){ $baseprice=$price_list["webprice"]; $discount=$price_list["baseprice"]/$price_list["webprice"]; } else { $baseprice=$price_list["baseprice"]; $discount=1;} 
-			$price_list["prod"]=$prod; $price_list["discount"]=$discount; $price_list["baseprice"]=$baseprice;
-			return($price_list);
+		$price_list=json_decode(mysqli_fetch_assoc($temp_result)["other"],true);
+	
+		if(isset($price_list["nodiscount"]) && $price_list["nodiscount"]!==NULL && $price_list["nodiscount"]!="")
+		{ $nodiscount=$price_list["nodiscount"]; }
+		else
+		{ $nodiscount=0; }
+
+		if(isset($price_list["prod"]) && $price_list["prod"]!==NULL && $price_list["prod"]!="")
+		{ $prod=$price_list["prod"]; }
+		else
+		{ $sql="SELECT `prod` FROM `notebro_db`.`MODEL` WHERE `id`='".$model."'"; $prod=mysqli_fetch_assoc(mysqli_query($con,$sql))["prod"]; if(!(isset($prod) && $prod)) { $prod=""; } }
+
+		$gotodan=0;
+		if(isset($price_list["webprice"]) && $price_list["webprice"]!==NULL && $price_list["webprice"]!="")
+		{
+			if(isset($price_list["baseprice"]) && $price_list["baseprice"]!==NULL && $price_list["baseprice"]!="")
+			{ 
+				if($prod!="Dell" && !$nodiscount ){ $baseprice=$price_list["webprice"]; $discount=$price_list["baseprice"]/$price_list["webprice"]; } else { $baseprice=$price_list["baseprice"]; $discount=1;} 
+				$price_list["prod"]=$prod; $price_list["discount"]=$discount; $price_list["baseprice"]=$baseprice;
+				return($price_list);
+			}
+			else 
+			{ return NULL; }
 		}
 		else 
 		{ return NULL; }
+		mysqli_free_result($temp_result);
 	}
-	else 
-	{ return NULL; }
+	else
+	{ return NULL; }	
 }
 
 function calc_price($tocalc,$price_list)

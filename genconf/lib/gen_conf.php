@@ -120,7 +120,7 @@ foreach($model_ids as $model_id)
 			$INSERT_QUERY = "INSERT INTO `notebro_temp`.`".$temp_table."_".$model_id."` (`id`,`model`,`".implode("`,`",$comp_list)."`,`rating`,`price`,`value`,`err`,`batlife`,`capacity`) VALUES ";
 			$INSERT_ID_MODEL = "INSERT INTO `notebro_temp`.`".$temp_table."` (`id`, `model`) VALUES ";
 			insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$multicons,$server,$model_id,$comp_list);
-			show_running_output("<b>TRIED TO INSERT DATA FOR MODEL ID: ".$model_id." !</b><br>");
+			show_running_output("<br><b>TRIED TO INSERT DATA FOR MODEL ID: ".$model_id." !</b><br>");
 		}
 		else
 		{

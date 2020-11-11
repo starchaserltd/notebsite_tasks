@@ -15,8 +15,9 @@ echo "<br><b>End debug inf</b><br><br>";
 
 //PARAMETERS
 $max_configs_limit=22550000;
-set_time_limit(7200);
-ini_set('memory_limit', '6144M');
+$max_model_time_limit=10000;
+set_time_limit(9000);
+ini_set('memory_limit', '7168');
 
 $BATCH_SIZE = 15000;
 

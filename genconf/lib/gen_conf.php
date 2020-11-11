@@ -820,7 +820,7 @@ function insert_function ($configs,$BATCH_SIZE,$INSERT_QUERY,$INSERT_ID_MODEL,$m
 		{ mysqli_query($cons, $query) or $reinsert=ver_duplicate(mysqli_error($cons)); }
 		$query_id_model = $INSERT_ID_MODEL . implode(", ", array_map("values_to_str", array_map(function ($xs) { return array_slice($xs, 0, 2); }, $chunk_array)));
 		mysqli_query($cons, $query_id_model); //Duplicate entry '15375138152867000320' for key 'PRIMARY' mysqli_query($sel_db,'what!') or some_func(mysqli_error($sel_db));
-		set_time_limit(3000);
+		set_time_limit($GLOBALS["max_model_time_limit"]);
 		//DELETE BAD CONF
 		if(count($GLOBALS["questionable_confs"])>0)
 		{

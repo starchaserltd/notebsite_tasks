@@ -29,7 +29,7 @@ $no_all_conf_models=array();
 if($new_prices){ require_once("lib/calc_price.php"); require_once("get_price_func.php"); }
 
 //FIRST DELETING ANY TEMPORARY TABLES
-if (isset($_SESSION['temp_configs']))
+if (isset($_SESSION['temp_configs'])&&$recover_fom_id<2)
 {
     $sel2="DROP TABLE IF EXISTS notebro_temp.".$_SESSION['temp_configs'].";";
 	mysqli_query($multicons[$server],$sel2) or die(mysqli_error());
@@ -41,10 +41,15 @@ mysqli_query($con,$sel2);
 
 
 // CREATING TEMPORARY TABLES
-$sel2 = 'USE notebro_temp; CALL delete_tbls(); CALL allconf_tbl(); SELECT @tablename; ';
-//mysqli_multi_query($cons, $sel2) or die (mysqli_error ($cons) . " The query was:" . $sel2);
-$temp_table=local_multiquery($cons,$sel2,0);
-mysqli_query($con,"USE notebro_db;");
+if($recover_fom_id<2)
+{
+	$sel2 = 'USE notebro_temp; CALL delete_tbls(); CALL allconf_tbl(); SELECT @tablename; ';
+	//mysqli_multi_query($cons, $sel2) or die (mysqli_error ($cons) . " The query was:" . $sel2);
+	$temp_table=local_multiquery($cons,$sel2,0);
+	mysqli_query($con,"USE notebro_db;");
+}
+else
+{ $temp_table="all_conf"; }
 
 $nr_configs=1;
 
@@ -82,7 +87,8 @@ $model_ids = array();
 #$model_select_cond="AND id=5095";
 #$model_select_cond="AND id=4080";
 #$new_price_conf[]=["prod"=>"Dell","regions"=>[2]];
-$model_select_cond="";
+if($recover_fom_id<2){ $model_select_cond=""; }else{$model_select_cond=" AND `id`>=".$recover_fom_id; }
+
 $query_model = "SELECT DISTINCT `id` FROM `notebro_db`.`MODEL` WHERE 1=1 ".$model_select_cond." ORDER BY `id` ASC";
 $result = mysqli_query($con,$query_model);
 if(have_results($result))

@@ -32,7 +32,7 @@ usleep(30000);
 require_once("/var/www/vault/genconf/prod_lib/db_super_connect.php"); 
 $con_super=db_super_connect();
 mysqli_query($con_super,"STOP SLAVE IO_THREAD");
-require_once("../etc/con_sdb.php");
+require_once("/var/www/vault/etc/con_sdb.php");
 
 //GETTING SERVER LIST
 ini_set('track_errors', 1); //asadsa

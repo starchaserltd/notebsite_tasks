@@ -83,7 +83,7 @@ while($loop)
 		}
 		ksort($servers[2]); ksort($servers[1]);
 		$string=""; foreach($servers as $line) { $string.=implode(" ",$line);  $string.="\r\n"; }
-		//$myfile = fopen($file_address, "wb") or die ("Error opening file: ".error_get_last()["message"]); fwrite ($myfile,$string); fclose($myfile);
+		$myfile = fopen($file_address, "wb") or die ("Error opening file: ".error_get_last()["message"]); fwrite ($myfile,$string); fclose($myfile);
 		
 		// RUN THE CODE FOR THESE SERVERS //
 		echo "\r\n<br><b>Price generation started for servers: </b>".implode(" ",$movetoinactive)."<br>\r\n";

@@ -97,7 +97,7 @@ while($loop)
 			$skey=array_search($value,$servers[0]);
 			echo "\r\n<br><b>Starting price generation for server:</b> ".$skey."<br>\r\n";
 			
-			$ch[$i] = curl_init('http://172.31.0.196/vault/genconf/gen_search.php?s='.$skey.'&prod=1');
+			$ch[$i] = curl_init('http://172.31.0.196/vault/genconf/gen_search.php?s='.$skey.'&prod=1&new_prices=1');
 			curl_setopt($ch[$i], CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch[$i], CURLOPT_TIMEOUT, $max_gen_time);
 			curl_setopt($ch[$i], CURLOPT_CONNECTTIMEOUT ,60);

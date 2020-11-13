@@ -32,7 +32,7 @@ if(file_exists("/var/www/vault/genconf")) { chdir("/var/www/vault/genconf"); }
 require_once("../etc/con_db.php");
 require_once("../etc/con_sdb.php");
 require_once("../etc/con_rdb.php");
-$multicons=dbs_connect();
+$server=1; $multicons=dbs_connect();
 $cons=$multicons[0];
 
 //VALIDATE first
@@ -1006,7 +1006,7 @@ $models = mysqli_fetch_all(mysqli_query($con, $sel));
 $min=99999999; $max=0;
 foreach($models as $model)
 {
-$sel="SELECT MIN(batlife), MAX(batlife) FROM notebro_temp.all_conf_".$model[0];
+	$sel="SELECT MIN(batlife), MAX(batlife) FROM notebro_temp.all_conf_".$model[0];
 	$minmaxbat=mysqli_query($cons, $sel);
 	if(isset($minmaxbat) && $minmaxbat!=FALSE)
 	{

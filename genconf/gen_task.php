@@ -5,7 +5,7 @@
 //active 172.31.2.33 172.31.4.253
 //inactive 172.31.1.219
 
-$max_gen_time=14400; //seconds
+$max_gen_time=19800; //seconds
 echo "\r\n"; echo "<br>DATE: *********   ".date('l jS \of F Y h:i:s A')."   ********\r\n<br>";
 
 echo "<br>Doing the ratings!<br>";
@@ -32,6 +32,7 @@ usleep(30000);
 require_once("/var/www/vault/genconf/prod_lib/db_super_connect.php"); 
 $con_super=db_super_connect();
 mysqli_query($con_super,"STOP SLAVE IO_THREAD");
+require_once("../etc/con_sdb.php");
 
 //GETTING SERVER LIST
 ini_set('track_errors', 1); //asadsa
@@ -55,6 +56,8 @@ while($loop)
 		{ $servers[$i]=explode(" ",trim(preg_replace('/\s+/',' ',$line))); $i++; }
 
 		$nr_actvsrv=(count($servers[1])-1);
+		if($nr_actvsrv<2)
+		{ generation_failed_manage("Number of servers to generate is less than 2. Aborting generation!"); }
 		$nr_actvsrvm=round($nr_actvsrv/2,0);
 		$movetoinactive=array();
 		$nr_mservers=0;
@@ -80,8 +83,8 @@ while($loop)
 		}
 		ksort($servers[2]); ksort($servers[1]);
 		$string=""; foreach($servers as $line) { $string.=implode(" ",$line);  $string.="\r\n"; }
-		$myfile = fopen($file_address, "wb") or die ("Error opening file: ".error_get_last()["message"]); fwrite ($myfile,$string); fclose($myfile);
-
+		//$myfile = fopen($file_address, "wb") or die ("Error opening file: ".error_get_last()["message"]); fwrite ($myfile,$string); fclose($myfile);
+		
 		// RUN THE CODE FOR THESE SERVERS //
 		echo "\r\n<br><b>Price generation started for servers: </b>".implode(" ",$movetoinactive)."<br>\r\n";
 		
@@ -93,13 +96,42 @@ while($loop)
 		{
 			$skey=array_search($value,$servers[0]);
 			echo "\r\n<br><b>Starting price generation for server:</b> ".$skey."<br>\r\n";
-			$ch[$i] = curl_init('http://172.31.0.196/vault/genconf/gen_search.php?s='.$skey.'&prod=1&new_prices=1');
+			
+			$ch[$i] = curl_init('http://172.31.0.196/vault/genconf/gen_search.php?s='.$skey.'&prod=1');
 			curl_setopt($ch[$i], CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch[$i], CURLOPT_TIMEOUT, $max_gen_time);
 			curl_setopt($ch[$i], CURLOPT_CONNECTTIMEOUT ,60);
 			curl_setopt($ch[$i], CURLOPT_WRITEFUNCTION, function($curl,$data){ echo $data; if(ob_get_level()>0){ ob_flush(); } flush(); return strlen($data); });
 			curl_multi_add_handle($mh, $ch[$i]);
 			$i++;
+			
+			#TESTING GENERATION
+			$gen_success_tests=0;
+			$cons=dbs_connect($value);
+			$TEST_SQL="SELECT * FROM `notebro_temp`.`best_low_opt` LIMIT 1";
+			$test_result=mysqli_query($cons[0],$TEST_SQL);
+			if(have_results($test_result))
+			{
+				$test_row=mysqli_fetch_row($test_result);
+				if(isset($test_row[0]) && strlen(strval($test_row[0]))>0)
+				{ $gen_success_tests++; }
+				unset($test_row);
+				mysqli_free_result($test_result);
+			}
+			$TEST_SQL="SELECT * FROM `notebro_temp`.`m_map_table` LIMIT 1";
+			$test_result=mysqli_query($cons[0],$TEST_SQL);
+			if(have_results($test_result))
+			{
+				$test_row=mysqli_fetch_row($test_result);
+				if(isset($test_row[0]) && strlen(strval($test_row[0]))>0)
+				{ $gen_success_tests++; }
+				unset($test_row);
+				mysqli_free_result($test_result);
+			}
+			if($gen_success_tests<2)
+			{ generation_failed_manage("Generation failed on server ".$value." . Last temporary tables failed to generate!"); }
+			#TEST COMPLETED
+			
 		}
 		//curl_setopt($mh, CURLOPT_TIMEOUT, $nr_mservers*$max_gen_time);
 		
@@ -150,4 +182,10 @@ while($loop)
 }
 //RESTARTING REPLICATION
 mysqli_query($con_super,"START SLAVE"); mysqli_close($con_super);
+
+function generation_failed_manage($error)
+{
+	echo "\r\n<br><b>".$error."</b><br>";
+	exit(0);
+}
 ?>

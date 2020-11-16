@@ -125,8 +125,9 @@ while($loop)
 				$mrc = curl_multi_exec($mh, $running);
 			}	while ($mrc == CURLM_CALL_MULTI_PERFORM);
 		}
-	  
+		
 		#TESTING GENERATION
+
 		foreach($server_ips_to_test as $value)
 		{
 			$gen_success_tests=0;

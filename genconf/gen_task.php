@@ -57,7 +57,7 @@ while($loop)
 
 		$nr_actvsrv=(count($servers[1])-1);
 		if($nr_actvsrv<2)
-		{ generation_failed_manage("Number of servers to generate is less than 2. Aborting generation!"); }
+		{ generation_failed_manage("Number of servers to generate is less than 2. Aborting generation!"); exit(); }
 		$nr_actvsrvm=round($nr_actvsrv/2,0);
 		$movetoinactive=array();
 		$nr_mservers=0;
@@ -129,7 +129,7 @@ while($loop)
 				mysqli_free_result($test_result);
 			}
 			if($gen_success_tests<2)
-			{ generation_failed_manage("Generation failed on server ".$value." . Last temporary tables failed to generate!"); }
+			{ generation_failed_manage("Generation failed on server ".$value." . Last temporary tables failed to generate!"); exit(); }
 			#TEST COMPLETED
 			
 		}
@@ -186,6 +186,6 @@ mysqli_query($con_super,"START SLAVE"); mysqli_close($con_super);
 function generation_failed_manage($error)
 {
 	echo "\r\n<br><b>".$error."</b><br>";
-	exit(0);
+	die("Generation failed");
 }
 ?>

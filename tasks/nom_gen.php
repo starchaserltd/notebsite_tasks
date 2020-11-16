@@ -332,13 +332,16 @@ while($rand = mysqli_fetch_array($result))
 			switch($elements[$i])
 			{
 				case "VT-x":
-				$elements[$i]="VT-x/AMD-V";
+				$elements[$i]="Virtualization";
 				break;
 				case "VT-x2":
-				$elements[$i]="VT-x/AMD-V";
+				$elements[$i]="Virtualization";
+				break;
+				case "ARM-V":
+				$elements[$i]="Virtualization";
 				break;
 				case "AMD-V":
-				$elements[$i]="VT-x/AMD-V";
+				$elements[$i]="Virtualization";
 				break;
 				case "AMD PRO":
 				$elements[$i]="Business features";

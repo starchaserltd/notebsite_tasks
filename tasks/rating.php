@@ -446,7 +446,7 @@ for($i=0;$i<$rownr;$i++)
 
 $id=intval($stuff[$i][0]);
 
-if((stripos($stuff[$i][7],"LGA")!==FALSE) || (stripos($stuff[$i][7],"PGA")!==FALSE))
+if((stripos($stuff[$i][7],"LGA")!==FALSE) || (stripos($stuff[$i][7],"AM4")!==FALSE) || (stripos($stuff[$i][7],"AM5")!==FALSE) || (stripos($stuff[$i][7],"PGA")!==FALSE))
 { $socket[$id]=1; } else { $socket[$id]=0; }
 
 		switch ($stuff[$i][5])

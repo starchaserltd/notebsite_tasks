@@ -270,6 +270,8 @@ $insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$
 $max=$rand[1];
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
 
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ( (SELECT `id` FROM `notebro_site`.`nomen_key` WHERE `name` LIKE 'cpu_tdps' LIMIT 1), (SELECT GROUP_CONCAT(DISTINCT `tdp` ORDER BY `CPU`.`tdp` ASC) FROM `notebro_db`.`CPU` WHERE `tdp`>1 AND `valid`=1 ) );";
+
 if (mysqli_multi_query($con, $insert)) { echo "New cpu tdp created successfully<br>"; while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} } 
 else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
 
@@ -497,6 +499,8 @@ $insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type1', '$
 	
 $max=$rand[1];
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('$type2', '$max');";
+
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ( (SELECT `id` FROM `notebro_site`.`nomen_key` WHERE `name` LIKE 'gpu_tdps' LIMIT 1), (SELECT GROUP_CONCAT(DISTINCT `power` ORDER BY `GPU`.`power` ASC) FROM `notebro_db`.`GPU` WHERE `typegpu`>0 AND `power`>1 AND `valid`=1 ) );";
 
 if (mysqli_multi_query($con, $insert)) { 
     echo "New gpu_power created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) ) {;} 

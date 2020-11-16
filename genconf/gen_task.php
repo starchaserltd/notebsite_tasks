@@ -92,9 +92,11 @@ while($loop)
 		$ch=array();
 		$mh = curl_multi_init();
 		$i=0;
+		$server_ips_to_test=array();
 		foreach($movetoinactive as $value)
 		{
 			$skey=array_search($value,$servers[0]);
+			if(isset($skey) && $skey && $skey>0) { $server_ips_to_test[]=$value; }
 			echo "\r\n<br><b>Starting price generation for server:</b> ".$skey."<br>\r\n";
 			
 			$ch[$i] = curl_init('http://172.31.0.196/vault/genconf/gen_search.php?s='.$skey.'&prod=1&new_prices=1');
@@ -104,8 +106,29 @@ while($loop)
 			curl_setopt($ch[$i], CURLOPT_WRITEFUNCTION, function($curl,$data){ echo $data; if(ob_get_level()>0){ ob_flush(); } flush(); return strlen($data); });
 			curl_multi_add_handle($mh, $ch[$i]);
 			$i++;
-			
-			#TESTING GENERATION
+		}
+		//curl_setopt($mh, CURLOPT_TIMEOUT, $nr_mservers*$max_gen_time);
+		
+		// This CODE IS DESGINED TO execute all queries simultaneously, and continue when all are complete.
+		// HOWEVER, WE SEND ONLY ONE QUERY AT A TIME.
+		$running = null; $mrc=null;
+		do
+		{
+			$mrc = curl_multi_exec($mh, $running);
+		} 	while ($running && $mrc == CURLM_CALL_MULTI_PERFORM);
+	  
+		while ($running && $mrc == CURLM_OK)
+		{
+			if (curl_multi_select($mh) == -1) { usleep(100); }
+			do 
+			{
+				$mrc = curl_multi_exec($mh, $running);
+			}	while ($mrc == CURLM_CALL_MULTI_PERFORM);
+		}
+	  
+		#TESTING GENERATION
+		foreach($server_ips_to_test as $value)
+		{
 			$gen_success_tests=0;
 			$cons=dbs_connect($value);
 			$TEST_SQL="SELECT * FROM `notebro_temp`.`best_low_opt` LIMIT 1";
@@ -130,27 +153,8 @@ while($loop)
 			}
 			if($gen_success_tests<2)
 			{ generation_failed_manage("Generation failed on server ".$value." . Last temporary tables failed to generate!"); exit(); }
-			#TEST COMPLETED
-			
 		}
-		//curl_setopt($mh, CURLOPT_TIMEOUT, $nr_mservers*$max_gen_time);
-		
-		// This CODE IS DESGINED TO execute all queries simultaneously, and continue when all are complete.
-		// HOWEVER, WE SEND ONLY ONE QUERY AT A TIME.
-		$running = null; $mrc=null;
-		do
-		{
-			$mrc = curl_multi_exec($mh, $running);
-		} 	while ($running && $mrc == CURLM_CALL_MULTI_PERFORM);
-	  
-		while ($running && $mrc == CURLM_OK)
-		{
-			if (curl_multi_select($mh) == -1) { usleep(100); }
-			do 
-			{
-				$mrc = curl_multi_exec($mh, $running);
-			}	while ($mrc == CURLM_CALL_MULTI_PERFORM);
-		}
+		#TEST COMPLETED
 	  
 		// All of our requests are done, we can now access the results
 		echo "\r\n<br><b>REPLY FROM THE PRICE GENERATION SCRIPTS IS BUFFERED AND DISPLAYED ONLY WHEN DONE.</b><br>\r\n";

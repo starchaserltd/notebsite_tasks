@@ -707,6 +707,7 @@ function calculate_conf_data($conf,$comp_list,$new_price_calc=NULL)
 		//BATTERY LIFE
 		$to_return["bat_life"]=0; $bat_com=0;
 		
+		if(stripos($comp_data["cpu"]["prod"],"ARM")!==FALSE){ $comp_data["cpu"]["tdp"]=floatval($comp_data["cpu"]["tdp"])*0.5; }
 		$bat_com=$bat_com+round((0.5+floatval($comp_data["cpu"]["tdp"])/7),5);
 		
 		$display_data=$comp_data["display"];

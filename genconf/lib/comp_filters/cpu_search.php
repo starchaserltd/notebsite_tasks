@@ -3,9 +3,9 @@
 function search_cpu ($prod, $model, $ldmin, $ldmax, $status, $socket, $techmin, $techmax, $cachemin, $cachemax, $clockmin, $clockmax, $turbomin, $turbomax, $tdpmax, $tdpmin, $coremin, $coremax, $intgpu, $misc, $ratemin, $ratemax, $pricemin, $pricemax, $seltdp)
 {
 	if($seltdp>0)
-	$sel_cpu="SELECT id,price,rating,err,gpu,tdp FROM CPU WHERE ";
+	$sel_cpu="SELECT `id`,`price`,`rating`,`err`,`gpu`,`tdp`,`prod`,`ldate` FROM `notebro_db`.`CPU` WHERE ";
 	else
-	$sel_cpu="SELECT id,price,rating,err,gpu FROM CPU WHERE ";
+	$sel_cpu="SELECT `id`,`price`,`rating`,`err`,`gpu`,`prod`,`ldate` FROM `notebro_db`.`CPU` WHERE ";
 	
 // Add producers to filter
 	$b=0;
@@ -308,9 +308,9 @@ function search_cpu ($prod, $model, $ldmin, $ldmax, $status, $socket, $techmin, 
 	while($rand = mysqli_fetch_array($result)) 
 	{ 
 		if($seltdp>0)
-		$cpu_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"gpu"=>intval($rand[4]),"tdp"=>intval($rand[5]));		
+		$cpu_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"gpu"=>intval($rand[4]),"tdp"=>intval($rand[5]),"prod"=>intval($rand[6]),"date"=>intval($rand[7]));		
 		else
-		$cpu_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"gpu"=>intval($rand[4]));
+		$cpu_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"gpu"=>intval($rand[4]),"prod"=>intval($rand[5]),"date"=>intval($rand[6]));
 
 	}
 		mysqli_free_result($result);

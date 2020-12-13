@@ -303,14 +303,14 @@ function search_cpu ($prod, $model, $ldmin, $ldmax, $status, $socket, $techmin, 
 	
 	#echo $sel_cpu;
 	
-	$result = mysqli_query($GLOBALS['con'], "$sel_cpu");
+	$result = mysqli_query($GLOBALS['con'], $sel_cpu);
 	$cpu_return = array();
 	while($rand = mysqli_fetch_array($result)) 
 	{ 
 		if($seltdp>0)
-		$cpu_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"gpu"=>intval($rand[4]),"tdp"=>intval($rand[5]),"prod"=>intval($rand[6]),"date"=>intval($rand[7]));		
+		$cpu_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"gpu"=>intval($rand[4]),"tdp"=>intval($rand[5]),"prod"=>strval($rand[6]),"date"=>strval($rand[7]));		
 		else
-		$cpu_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"gpu"=>intval($rand[4]),"prod"=>intval($rand[5]),"date"=>intval($rand[6]));
+		$cpu_return[intval($rand[0])]=array("price"=>round(($rand[1]),2),"rating"=>round($rand[2],3),"err"=>intval($rand[3]),"gpu"=>intval($rand[4]),"prod"=>strval($rand[5]),"date"=>strval($rand[6]));
 
 	}
 		mysqli_free_result($result);

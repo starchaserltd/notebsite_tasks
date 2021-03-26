@@ -1891,6 +1891,8 @@ while($rand = mysqli_fetch_array($result))
 					{  $x="Metal";  }
 					elseif(stristr($x,"steel"))
 					{  $x="Metal";  }
+					elseif(stristr($x,"titanium"))
+					{  $x="Metal";  }
 					elseif(stristr($x,"aluminium"))
 					{  $x="Aluminium";  }
 					elseif(stristr($x,"magnesium"))
@@ -1916,21 +1918,18 @@ foreach ($object as $msc)
 	$prop="";
 	switch($msc)
 	{
+		case (stripos($msc,'Titanium') !== false):
+		{ $prop="metal"; break; }
 		case (stripos($msc,'Aluminium') !== false):
-		$prop="metal";
-		break;
+		{ $prop="metal"; break; }
 		case (stripos($msc,'Magnesium') !== false):
-		$prop="metal";
-		break;
+		{ $prop="metal"; break; }
 		case (stripos($msc,'Lithium') !== false):
-		$prop="metal";
-		break;
+		{ $prop="metal"; break; }
 		case (stripos($msc,'Magnalium') !== false):
-		$prop="metal";
-		break;				
+		{ $prop="metal"; break; }			
 		case (stripos($msc,'Metal') !== false):
-		$prop="metal";
-		break;
+		{ $prop="metal"; break; }
 	}
 				
 	$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', '$msc','$prop');";

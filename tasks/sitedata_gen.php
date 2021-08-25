@@ -32,7 +32,7 @@ if(isset($allowdirect) && $allowdirect>0)
 	if(file_exists("/var/www/vault/genconf")) { chdir("/var/www/vault/genconf"); }
 	require_once("../etc/con_db.php");
 	require_once("../etc/con_sdb.php");
-	$multicons=dbs_connect();
+	$server=1; $multicons=dbs_connect();
 	$cons=$multicons[0];
 
 	/////// NUMBER OF CONFIGURATIONS

@@ -2169,7 +2169,7 @@ $type=$rand["id"];
 $SEL="SELECT `type`,`vers`,`sist` FROM `notebro_db`.`SIST` WHERE `valid`=1 ORDER BY `sist` DESC";
 $result = mysqli_query($con, $SEL);
 
-$INSERT="";
+$INSERT=[];
 
 while($rand = mysqli_fetch_array($result)) 
 { 
@@ -2189,8 +2189,10 @@ while($rand = mysqli_fetch_array($result))
 	if((strcasecmp($rand["sist"],"Linux")!=0) && $rand["type"])
 	{ $sys_os=$sys_os." ".$rand["type"]; }
 	
-	$INSERT.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('".$type."', '".$sys_os."'); ";
+	$INSERT[]="INSERT INTO `notebro_site`.`nomen` (`type`,`name`) VALUES ('".$type."', '".$sys_os."'); ";
 }
+$INSERT=array_unique($INSERT);
+$INSERT=implode(" ",$INSERT);
 
 if (mysqli_multi_query($con, $INSERT))
 { echo "New operating systems created successfully<br>"; 	while ( mysqli_more_results($con) && mysqli_next_result($con) )  {;} }

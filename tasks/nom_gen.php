@@ -94,7 +94,7 @@ while($rand = mysqli_fetch_array($result))
 
 mysqli_free_result($result);
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'socket'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_socket'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -142,11 +142,11 @@ mysqli_free_result($result);
 
 /////// CPU CORES GENERATION
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_core_min' ";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_coremin' ";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_core_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_coremax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -164,11 +164,11 @@ else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
 
 /////// CPU Frequency GENERATION
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_clock_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_freqmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_clock_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_freqmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -186,11 +186,11 @@ else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
 
 /////// CPU Lunch Date GENERATION
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_ldate_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_ldatemin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_ldate_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_ldatemax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -208,11 +208,11 @@ else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
 
 /////// CPU Tech GENERATION
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_tech_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_techmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_tech_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_techmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -231,7 +231,7 @@ else { echo "Error: " . $insert. "<br>" . mysqli_error($con); }
 
 //CPU max tech values
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'list_cputech'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_techlist'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -253,11 +253,11 @@ mysqli_free_result($result);
 
 /////// CPU TDP GENERATION
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_tdp_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_tdpmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_tdp_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'cpu_tdpmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -457,11 +457,11 @@ mysqli_free_result($result);
 
 /////// GPU MEMORY Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_maxmem_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_memmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_maxmem_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_memmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -483,11 +483,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// GPU power Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_power_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_powermin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_power_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_powermax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -510,11 +510,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// GPU MEMORY Bus Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_membus_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_membusmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_membus_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_membusmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -535,7 +535,7 @@ if (mysqli_multi_query($con, $insert)) {
 
 //GPU max gpumem values
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'list_gpumem'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_memlist'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -564,7 +564,7 @@ if (mysqli_multi_query($con, $insert)) {
 
 //GPU max gpumembus values
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'list_gpumembus'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_membuslist'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -594,11 +594,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// GPU Lunch Date GENERATION
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_ldate_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_ldatemin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_ldate_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_ldatemax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -765,15 +765,15 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// Hdd capacity min max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'hdd_cap_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'hdd_capmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'hdd_cap_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'hdd_capmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'storage_sizes'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'hdd_sizes'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type3=$rand["id"];
 
@@ -860,11 +860,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// MEMORY CAP Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mem_cap_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mem_capmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mem_cap_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mem_capmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -886,11 +886,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// MEMORY freq Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mem_freq_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mem_freqmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mem_freq_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mem_freqmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -911,11 +911,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// Acum nrc Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'acum_nrc_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'acum_nrcmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'acum_nrc_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'acum_nrcmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -936,11 +936,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// Acum cap Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'acum_cap_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'acum_capmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'acum_cap_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'acum_capmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -1000,11 +1000,11 @@ if(isset($min) && isset ($max))
 
 /////// Acum batlife Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'batlife_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'acum_batlifemin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'batlife_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'acum_batlifemax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -1034,11 +1034,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// Chassis thic Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_thic_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_thicmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_thic_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_thicmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -1059,11 +1059,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// Chassis width Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_width_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_widthmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_width_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_widthmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -1084,11 +1084,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// Chassis weight Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_weight_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_weightmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_weight_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_weightmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -1109,11 +1109,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// Chassis width Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_depth_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_depthmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_depth_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_depthmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -1241,11 +1241,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// DISPLAY SIZE Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_size_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_sizemin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_size_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_sizemax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -1266,7 +1266,7 @@ if (mysqli_multi_query($con, $insert)) {
 
 
 //DISPLAY max displaysize values
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'list_displaysize'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_sizelist'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -1299,11 +1299,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// DISPLAY HRES Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_hres_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_hresmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_hres_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_hresmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -1323,11 +1323,11 @@ if (mysqli_multi_query($con, $insert)) {
 }
 /////// DISPLAY vres Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_vres_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_vresmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_vres_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_vresmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -1467,7 +1467,7 @@ mysqli_free_result($result);
 
 //MEM max memcap values
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'list_memcap'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mem_caplist'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -1498,7 +1498,7 @@ if (mysqli_multi_query($con, $insert)) {
 
 //MEM max memfreq values
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'list_memfreq'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mem_freqlist'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -1596,11 +1596,11 @@ mysqli_free_result($result);
 
 /////// WARRANTY years Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'war_years_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'war_yearsmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'war_years_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'war_yearsmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
@@ -1689,7 +1689,7 @@ mysqli_free_result($result);
 
 
 //VERTICAL RESOLUTIONS LIST
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'list_verres'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'display_vreslist'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -1707,7 +1707,7 @@ if (mysqli_multi_query($con, $insert)) {
 
 //CHASSIS max CHASSISWEB values
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'list_chassisweb'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_webcamlist'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -1739,7 +1739,7 @@ if (mysqli_multi_query($con, $insert)) {
 
 //// CHASSIS Video interfaces
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mb_vport'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mdb_vport'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -1807,7 +1807,7 @@ if (mysqli_multi_query($con, $insert)) {
 
 //// CHASSIS Input ports
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mb_port'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'mdb_port'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -1867,7 +1867,7 @@ if (mysqli_multi_query($con, $insert)) {
 
 //// CHASSIS Material
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'ch_made'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_made'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -1947,7 +1947,7 @@ if (mysqli_multi_query($con, $insert)) {
 
 //// CHASSIS MISC STUFF
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'ch_stuff'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_msc'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
@@ -2136,11 +2136,11 @@ if (mysqli_multi_query($con, $insert)) {
 
 /////// CHASSIS WEB Min Max
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_web_min'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_webmin'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type1=$rand["id"];
 
-$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_web_max'";
+$sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'chassis_webmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 

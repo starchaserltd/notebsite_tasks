@@ -322,7 +322,10 @@ if(have_results($temp_result))
 $sel="SELECT DISTINCT msc FROM notebro_db.CPU WHERE valid=1";
 $result = mysqli_query($con, $sel);
 $object=(array) [];
-
+$msc_info=array();
+$msc_info["inserted"]=array();
+$msc_info["ignored"]=array();
+$msc_info["forced_ignored"]=array();
 while($rand = mysqli_fetch_array($result)) 
 { 
 	if($rand[0]){ $elements=explode(',',$rand[0]); }
@@ -334,41 +337,63 @@ while($rand = mysqli_fetch_array($result))
 			switch($elements[$i])
 			{
 				case "VT-x":
-				$elements[$i]="Virtualization";
-				break;
+				{
+					$elements[$i]="Virtualization";
+					break;
+				}
 				case "VT-x2":
-				$elements[$i]="Virtualization";
-				break;
+				{
+					$elements[$i]="Virtualization";
+					break;
+				}
 				case "ARM-V":
-				$elements[$i]="Virtualization";
-				break;
+				{
+					$elements[$i]="Virtualization";
+					break;
+				}
 				case "AMD-V":
-				$elements[$i]="Virtualization";
-				break;
+				{
+					$elements[$i]="Virtualization";
+					break;
+				}
 				case "AMD PRO":
-				$elements[$i]="Business features";
-				break;
+				{
+					$elements[$i]="Business features";
+					break;
+				}
 				case "vPro":
-				$elements[$i]="Business features";
-				break;
+				{
+					$elements[$i]="Business features";
+					break;
+				}
 				case "VT-d":
-				$elements[$i]="VT-d/AMD-Vi";
-				break;
+				{
+					$elements[$i]="VT-d/AMD-Vi";
+					break;
+				}
 				case "AMD-Vi":
-				$elements[$i]="VT-d/AMD-Vi";
-				break;
+				{
+					$elements[$i]="VT-d/AMD-Vi";
+					break;
+				}
 				case "IOMMU":
-				$elements[$i]="VT-d/AMD-Vi";
-				break;					
-				case "AVX":
-				$elements[$i]="AVX1.0";
-				break;					
+				{
+					$elements[$i]="VT-d/AMD-Vi";
+					break;
+				}											
 				case "HT":
-				$elements[$i]="Multithreading";
-				break;
+				{
+					$elements[$i]="Multithreading";
+					break;
+				}
+				case "SMT":
+				{
+					$elements[$i]="Multithreading";
+					break;
+				}
 				default:
 				{	
-					$temp_key=NULL; $temp_val=NULL;
+					/*$temp_key=NULL; $temp_val=NULL;
 					foreach($cpu_msc_ignore as $temp_key=>$temp_val)
 					{
 						if(stripos($elements[$i],$temp_val)!==FALSE)
@@ -377,6 +402,9 @@ while($rand = mysqli_fetch_array($result))
 							break;
 						}
 					}
+					*/
+					$msc_info["ignored"][]=$elements[$i];
+					$k=0;
 					break;
 				}
 			}
@@ -389,6 +417,7 @@ while($rand = mysqli_fetch_array($result))
 		}
 	}
 }
+$msc_info["forced_ignored"]=$cpu_msc_ignore;
 unset($cpu_msc_ignore);
 mysqli_free_result($result);
 
@@ -397,15 +426,21 @@ $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$ty
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Intel Core i5','INTEL');";
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Intel Core i7/i9','INTEL');";
 $insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'Intel Xeon','INTEL');";
-$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'AMD Ryzen','AMD');";
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'AMD Ryzen 3','AMD');";
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'AMD Ryzen 5','AMD');";
+$insert.="INSERT INTO `notebro_site`.`nomen` (`type`,`name`,`prop`) VALUES ('$type', 'AMD Ryzen 7','AMD');";
 asort($object);
+$object=array_unique($object);
+$msc_info["ignored"]=array_unique($msc_info["ignored"]);
+$msc_info["forced_ignored"]=array_unique($msc_info["forced_ignored"]);
+$msc_info["inserted"]=$object;
 $i=0;
 foreach ($object as $msc)
 {
 	$propthis="";
 	if(stripos($msc,"AMD TC")!==FALSE || stripos($msc,"XFR")!==FALSE)
 	{  $propthis="AMD"; }
-	
+
 	if(stripos($msc,"BPT")!==FALSE || stripos($msc,"TBT")!==FALSE )
 	{  $propthis="INTEL"; }
 	
@@ -413,19 +448,24 @@ foreach ($object as $msc)
 }
 
 if (mysqli_multi_query($con, $insert)) {
-    echo "New cpu msc created successfully<br>";
+	echo "New cpu msc created successfully<br>";
 	while ( mysqli_more_results($con) && mysqli_next_result($con) )  {;} 
 } else {
-    echo "Error: " . $insert. "<br>" . mysqli_error($con);
+	echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
-
+echo "<br>CPU MSC INFO:<br>";
+echo "CPU MSC INSERTED:<br>"; foreach($msc_info["inserted"] as $val){echo $val." | ";} echo "<br>";
+echo "CPU MSC IGNORED:<br>"; foreach($msc_info["ignored"] as $val){echo $val." | ";}  echo "<br>";
+echo "CPU MSC FORCED IGNORED:<br>"; foreach($msc_info["forced_ignored"] as $val){echo $val." | ";}  echo "<br><br>";
+unset($msc_info); 
+	
 //// GPU Architecture
 
 $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_arch'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type=$rand["id"];
 
-$sel="SELECT DISTINCT arch FROM notebro_db.GPU WHERE valid=1";
+$sel="SELECT DISTINCT arch FROM notebro_db.GPU WHERE valid=1 and typegpu>0";
 $result = mysqli_query($con, $sel);
 
 
@@ -465,7 +505,7 @@ $sel="SELECT id FROM notebro_site.nomen_key WHERE name LIKE 'gpu_memmax'";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 $type2=$rand["id"];
 
-$sel="SELECT MIN(maxmem), MAX(maxmem) FROM notebro_db.GPU WHERE valid=1";
+$sel="SELECT MIN(maxmem), MAX(maxmem) FROM notebro_db.GPU WHERE valid=1 AND typegpu>0";
 $rand = mysqli_fetch_array(mysqli_query($con, $sel));
 
 $min=$rand[0];
@@ -626,6 +666,10 @@ $type=$rand["id"];
 $sel="SELECT DISTINCT msc FROM notebro_db.GPU WHERE valid=1";
 $result = mysqli_query($con, $sel);
 $object=(array) [];
+$msc_info=array();
+$msc_info["inserted"]=array();
+$msc_info["ignored"]=array();
+$msc_info["forced_ignored"]=array();
 $propthis=(array) [];
 $j=0;
 while($rand = mysqli_fetch_array($result)) 
@@ -638,88 +682,49 @@ while($rand = mysqli_fetch_array($result))
 			$k=1;
 			switch($elements[$i])
 			{
-				case (strpos($elements[$i],'Burst') !== false):
-				$k=0;
-				break;
 				case (strpos($elements[$i],'FreeSync') !== false):
-				$elements[$i]="G-Sync/FreeSync";
-				break;
+				{
+					$elements[$i]="G-Sync/FreeSync";
+					break;
+				}
 				case "G-Sync":
-				$elements[$i]="G-Sync/FreeSync";	
-				break;
-				case (strpos($elements[$i],'Eyefinity') !== false):
-				$propthis[$j]="AMD";
-				break;
+				{
+					$elements[$i]="G-Sync/FreeSync";	
+					break;
+				}
 				case (strpos($elements[$i],'CUDA') !== false):
-				$propthis[$j]="NVIDIA";
-				break;
-				case (strpos($elements[$i],'PhysX') !== false):
-				$propthis[$j]="NVIDIA";	
-				break;
-				case (strpos($elements[$i],'3D Vision') !== false):
-				$propthis[$j]="NVIDIA";	
-				break;
+				{
+					$propthis[$j]="NVIDIA";
+					break;
+				}
 				case (strpos($elements[$i],'Crossfire') !== false):
-				$elements[$i]="Crossfire/SLI";	
-				break;
-				case (strpos($elements[$i],'App Acceleration') !== false):
-				$propthis[$j]="AMD";	
-				break;
+				{
+					$elements[$i]="Crossfire/SLI";	
+					break;
+				}
 				case (strpos($elements[$i],'SLI') !== false):
-				$elements[$i]="Crossfire/SLI";
-				break;
+				{
+					$elements[$i]="Crossfire/SLI";
+					break;
+				}
 				case (strpos($elements[$i],'Optimus') !== false):
-				$elements[$i]="Optimus/Enduro";
-				break;
+				{
+					$elements[$i]="Optimus/Enduro";
+					break;
+				}
 				case (strpos($elements[$i],'Enduro') !== false):
-				$elements[$i]="Optimus/Enduro";
-				break;
-				case (strpos($elements[$i],'Based on') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'ZeroCore') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'Nvidia BatteryBoost') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'Nvidia MFAA') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'Nvidia VXGI') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'Nvidia DLSS') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'AMD TrueAudio') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'AMD TressFX') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'PowerPlay') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'HDMI 1.4') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'GPU Boost') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'PowerTune') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'DP (') !== false):
-				$k=0;
-				break;
-				case (strpos($elements[$i],'QuickSync') !== false):
-				$k=0; 
-				break;
-				/*case (strpos($elements[$i],'OpenGL') !== false):
-				$k=0;
-				break;*/
-
+				{
+					$elements[$i]="Optimus/Enduro";
+					break;
+					
+				}
+				case (stripos($elements[$i],'ray tracing') !== false):
+				{
+					$elements[$i]="Ray Tracing";
+					break;
+				}
+				default:
+				{ $k=0; break; }
 			}
 				
 			if(!(in_array($elements[$i],$object))&&$k)
@@ -728,13 +733,18 @@ while($rand = mysqli_fetch_array($result))
 				$object[]=$elements[$i];
 				$j++;
 			}
+			else
+			{ if(!in_array($elements[$i],$object)) { $msc_info["ignored"][]=$elements[$i]; } }
 		}
 	}
 }
 
 mysqli_free_result($result);
 
-
+asort($object);
+$object=array_unique($object);
+$msc_info["ignored"]=array_unique($msc_info["ignored"]);
+$msc_info["inserted"]=$object;
 $insert="";
 $i=0;
 foreach ($object as $msc)
@@ -762,6 +772,12 @@ if (mysqli_multi_query($con, $insert)) {
 } else {
 	echo "Error: " . $insert. "<br>" . mysqli_error($con);
 }
+
+echo "<br>GPU MSC INFO:<br>";
+echo "GPU MSC INSERTED:<br>"; foreach($msc_info["inserted"] as $val){echo $val." | ";} echo "<br>";
+echo "GPU MSC IGNORED:<br>"; foreach($msc_info["ignored"] as $val){echo $val." | ";}  echo "<br>";
+echo "GPU MSC FORCED IGNORED:<br>"; foreach($msc_info["forced_ignored"] as $val){echo $val." | ";}  echo "<br><br>";
+unset($msc_info);
 
 /////// Hdd capacity min max
 

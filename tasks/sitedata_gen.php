@@ -124,7 +124,7 @@ if(isset($allowdirect) && $allowdirect>0)
 
 	/////// CURRENT TIME
 	$insert="";
-	$insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`, `prop`, `prop1`, `prop2`) VALUES ('9999',NOW(),'gen_time',NULL,NULL);";
+	$insert="INSERT INTO `notebro_site`.`nomen` (`type`,`name`, `prop`, `prop1`, `prop2`) VALUES ('9998',NOW(),'gen_time',NULL,NULL);";
 	mysqli_query($con,$insert);
 	
 	mysqli_close($con);

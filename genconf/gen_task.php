@@ -6,7 +6,7 @@
 //inactive 172.31.1.219
 
 //$max_gen_time=19800; //seconds
-$max_gen_time=24800; //seconds
+$max_gen_time=40800; //seconds
 echo "\r\n"; echo "<br>DATE: *********   ".date('l jS \of F Y h:i:s A')."   ********\r\n<br>";
 
 echo "<br>Doing the ratings!<br>";

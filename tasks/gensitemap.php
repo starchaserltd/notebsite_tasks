@@ -8,10 +8,22 @@ $wp_imgsite="http://34.194.182.255/vault/wp/wp-content/uploads";
 $wp_imgsite2="http://notebro.intexim.ro/admin/wp/wp-content/uploads";
 $new_imgsite="http://noteb.com/uploads";
 $generated_sitemap='../wp/sitemap/sitemap.xml';
+$generated_sitemap2='/var/www/vault/wp/sitemap/sitemap.xml';
 
 $dom=new DOMDocument();
 $dom->formatOutput = true;
-$dom->load($generated_sitemap);
+
+try
+{
+	$dom->load($generated_sitemap);
+	$dom->documentElement->getElementsByTagName('url');
+}
+catch (Throwable $e)
+{
+	$generated_sitemap=$generated_sitemap2;
+	$dom->load($generated_sitemap);
+}
+
 $root=$dom->documentElement; // This can differ (I am not sure, it can be only documentElement or documentElement->firstChild or only firstChild)
 $elements=$root->getElementsByTagName('url');
 
@@ -56,7 +68,10 @@ $dom->formatOutput = true;
 $dom->load($generated_sitemap);
 $root=$dom->documentElement; 
 
-require_once("../etc/con_db.php");
+if(file_exists("../etc/con_db.php"))
+{ require_once("../etc/con_db.php"); }
+else
+{ require_once("/var/www/vault/etc/con_db.php"); }
 
 $result=mysqli_query($con, "SELECT id,model,fam,prod,img_1,img_2,img_3,img_4 FROM notebro_db.MODEL");
 while($row=mysqli_fetch_assoc($result))

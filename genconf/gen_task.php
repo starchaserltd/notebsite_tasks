@@ -49,6 +49,7 @@ $do_nomen=TRUE;
 //RUNNING THE CONF GENERATION SCRIPT FOR EVERY SDB SERVER
 while($loop)
 {
+	$con_super=db_super_connect();
 	if($set==0 || $set==1)
 	{
 		$servers=file($file_address, FILE_SKIP_EMPTY_LINES);
@@ -187,6 +188,7 @@ while($loop)
 	$loop--;
 }
 //RESTARTING REPLICATION
+$con_super=db_super_connect();
 mysqli_query($con_super,"START SLAVE"); mysqli_close($con_super);
 
 function generation_failed_manage($error,$con_super)

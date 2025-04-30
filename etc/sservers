@@ -1,0 +1,3 @@
+all <Search Server 1 IP> <Search Server 2 IP> <Search Server 3 IP>
+active <Search Server 1 IP> <Search Server 2 IP>
+inactive <Search Server 3 IP>
